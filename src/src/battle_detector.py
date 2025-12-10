@@ -1,157 +1,19 @@
-import fastf1
 import pandas as pd
-from pathlib import Path
+from datetime import datetime, UTC
+from typing import List
+import fast_f1_utils as ffu
+from models import BattleRecord
+import track_info
 
-# Get the project root directory
-PROJECT_ROOT = Path(__file__).parent.parent if '__file__' in globals() else Path.cwd()
-DEFAULT_CACHE_DIR = PROJECT_ROOT / "cache"
-
-
-def load_session(year, gp, identifier="R", cache_path=None):
-    """
-    Load F1 session data with caching enabled.
-
-    Args:
-        year: Season year
-        gp: Grand Prix name or round number
-        identifier: Session identifier (R=Race, Q=Qualifying, etc.)
-        cache_path: Path to cache directory (defaults to project/cache)
-
-    Returns:
-        Loaded FastF1 session object
-    """
-    if cache_path is None:
-        cache_path = str(DEFAULT_CACHE_DIR)
-
-    # Create cache directory if it doesn't exist
-    Path(cache_path).mkdir(parents=True, exist_ok=True)
-
-    fastf1.Cache.enable_cache(cache_path)
-    session = fastf1.get_session(year=year, gp=gp, identifier=identifier)
-    session.load()
-    return session
-
-
-def build_position_and_gap_map(session):
-    """
-    Build a nested dictionary mapping lap number to driver positions and lap times.
-
-    Args:
-        session: FastF1 session object
-
-    Returns:
-        dict: {lap_number: {driver: {'position': int, 'laptime': float}}}
-    """
-    lap_position_gap = {}
-    laps = session.laps
-
-    for _, lap in laps.iterrows():
-        lap_number = int(lap['LapNumber'])
-        driver = lap['Driver']
-        position = lap['Position']
-        laptime = lap['LapTime']
-
-        lap_position_gap.setdefault(lap_number, {})
-        lap_position_gap[lap_number][driver] = {
-            'position': position,
-            'laptime': laptime
-        }
-
-    return lap_position_gap
-
-
-def get_driver_info_at_lap(session, driver, lap_number):
-    """
-    Get driver information at a specific lap.
-
-    Args:
-        session: FastF1 session object
-        driver: Driver code
-        lap_number: Lap number
-
-    Returns:
-        Driver lap data row or None if not found
-    """
-    lap_data = session.laps[(session.laps['Driver'] == driver) &
-                            (session.laps['LapNumber'] == lap_number)]
-    return lap_data.iloc[0] if not lap_data.empty else None
-
-
-def is_on_track(driver_lap):
-    """
-    Check if a driver is on track (not in pit lane).
-
-    Args:
-        driver_lap: Single lap data row
-
-    Returns:
-        bool: True if driver is on track
-    """
-    if driver_lap is None:
-        return False
-    # Driver is on track if they have valid lap time and are not pitting
-    pit_in = pd.notna(driver_lap['PitInTime'])
-    pit_out = pd.notna(driver_lap['PitOutTime'])
-    return pd.notna(driver_lap['LapTime']) and not (pit_in or pit_out)
-
-
-def calculate_gap_between_drivers(driver_a_info, driver_b_info):
-    """
-    Calculate time gap between two drivers based on lap times.
-
-    Args:
-        driver_a_info: Dictionary with 'laptime' for first driver
-        driver_b_info: Dictionary with 'laptime' for second driver
-
-    Returns:
-        float: Time gap in seconds, or None if unavailable
-    """
-    laptime_a = driver_a_info.get('laptime')
-    laptime_b = driver_b_info.get('laptime')
-
-    # Handle None and NaT values
-    if laptime_a is None or laptime_b is None:
-        return None
-    if pd.isna(laptime_a) or pd.isna(laptime_b):
-        return None
-
-    # Convert to seconds
+def driver_code_to_number(code: str) -> int:
+    """Convert driver code to number."""
     try:
-        if hasattr(laptime_a, 'total_seconds'):
-            laptime_a_seconds = laptime_a.total_seconds()
-        else:
-            laptime_a_seconds = float(laptime_a)
-
-        if hasattr(laptime_b, 'total_seconds'):
-            laptime_b_seconds = laptime_b.total_seconds()
-        else:
-            laptime_b_seconds = float(laptime_b)
-
-        return abs(laptime_a_seconds - laptime_b_seconds)
-    except (TypeError, ValueError):
-        return None
+        return int(code.replace('0', ''))
+    except:
+        return 0
 
 
-def are_on_same_lap(session, driver_a, driver_b, lap_number):
-    """
-    Check if both drivers are on the same lap.
-
-    Args:
-        session: FastF1 session object
-        driver_a: First driver code
-        driver_b: Second driver code
-        lap_number: Lap number
-
-    Returns:
-        bool: True if both drivers completed this lap
-    """
-    lap_a = get_driver_info_at_lap(session, driver_a, lap_number)
-    lap_b = get_driver_info_at_lap(session, driver_b, lap_number)
-
-    return lap_a is not None and lap_b is not None
-
-
-def detect_battles(session, gap_threshold=1.0, start_lap=2):
+def detect_battles(session, gap_threshold=1.0, start_lap=2) -> List[BattleRecord]:
     """
     Detect all battles between pairs of drivers throughout a race.
 
@@ -167,11 +29,14 @@ def detect_battles(session, gap_threshold=1.0, start_lap=2):
         start_lap: Lap to start detection (default 2 to skip race start)
 
     Returns:
-        list: List of battle dictionaries
+        list: List of BattleRecord objects
     """
-    lap_position_gap = build_position_and_gap_map(session)
+    lap_position_gap = ffu.build_position_and_gap_map(session)
     max_lap = max(lap_position_gap.keys())
     battles = []
+
+    track = session.event['Location']
+    laps = session.laps
 
     for lap_number in range(start_lap, max_lap + 1):
         lap_data = lap_position_gap.get(lap_number, {})
@@ -195,38 +60,98 @@ def detect_battles(session, gap_threshold=1.0, start_lap=2):
                 continue
 
             # Condition 2: Gap threshold
-            gap = calculate_gap_between_drivers(defender_info, attacker_info)
+            gap = ffu.calculate_gap_between_drivers(defender_info, attacker_info)
             if gap is None or gap >= gap_threshold:
                 continue
 
             # Condition 3 & 4: Both on track and same lap
-            defender_lap = get_driver_info_at_lap(session, defender, lap_number)
-            attacker_lap = get_driver_info_at_lap(session, attacker, lap_number)
+            defender_lap = ffu.get_driver_info_at_lap(session, defender, lap_number)
+            attacker_lap = ffu.get_driver_info_at_lap(session, attacker, lap_number)
 
-            if not is_on_track(defender_lap) or not is_on_track(attacker_lap):
+            if not ffu.is_on_track(defender_lap) or not ffu.is_on_track(attacker_lap):
                 continue
 
-            if not are_on_same_lap(session, defender, attacker, lap_number):
+            if not ffu.are_on_same_lap(session, defender, attacker, lap_number):
                 continue
 
-            # Valid battle found
-            battles.append({
-                'lap': lap_number,
-                'defender': defender,
-                'attacker': attacker,
-                'defender_position': int(defender_pos),
-                'attacker_position': int(attacker_pos),
-                'gap': gap,
-                'defender_laptime': defender_lap['LapTime'].total_seconds() if pd.notna(
-                    defender_lap['LapTime']) else None,
-                'attacker_laptime': attacker_lap['LapTime'].total_seconds() if pd.notna(
-                    attacker_lap['LapTime']) else None
-            })
+            # Get additional features
+            attacker_speed = int(defender_info.get('laptime', 0))
+            defender_speed = int(attacker_info.get('laptime', 0))
+            speed_difference = abs(attacker_speed - defender_speed)
+
+            # Get tyre info
+            attacker_tyre = str(attacker_lap.get('Compound', 'UNKNOWN')) if pd.notna(
+                attacker_lap.get('Compound')) else 'UNKNOWN'
+            defender_tyre = str(defender_lap.get('Compound', 'UNKNOWN')) if pd.notna(
+                defender_lap.get('Compound')) else 'UNKNOWN'
+            attacker_tyre_age = int(attacker_lap.get('TyreLife', 0)) if pd.notna(attacker_lap.get('TyreLife', 0)) else 0
+            defender_tyre_age = int(defender_lap.get('TyreLife', 0)) if pd.notna(defender_lap.get('TyreLife', 0)) else 0
+            tyre_age_difference = abs(attacker_tyre_age - defender_tyre_age)
+
+            # Get sector and track info
+            sector = int(attacker_lap.get('Sector', 1)) if pd.notna(attacker_lap.get('Sector', 1)) else 1
+            sector_type = track_info.get_sector_type(track)
+            track_type = track_info.get_track_type(track)
+
+            # DRS zone info
+            is_in_drs_zone, drs_zone_length = track_info.get_drs_zone_info(track, sector)
+
+            # Get quali ranks
+            attacker_quali = ffu.get_driver_qualification_rank(session, attacker)
+            defender_quali = ffu.get_driver_qualification_rank(session, defender)
+
+            # Determine if overtake happened
+            overtake = False
+            next_lap_data = laps[(laps['Driver'].isin([attacker, defender])) & (laps['LapNumber'] == lap_number + 1)]
+            if len(next_lap_data) == 2:
+                attacker_next = next_lap_data[next_lap_data['Driver'] == attacker]
+                defender_next = next_lap_data[next_lap_data['Driver'] == defender]
+                if not attacker_next.empty and not defender_next.empty:
+                    try:
+                        attacker_next_pos = int(attacker_next.iloc[0]['Position'])
+                        defender_next_pos = int(defender_next.iloc[0]['Position'])
+                        overtake = attacker_next_pos < defender_next_pos
+                    except:
+                        pass
+
+            # Get safety car and flags
+            safety_car, yellow_flag = ffu.detect_safety_car_and_flags(session, lap_number)
+
+            # Create BattleRecord
+            battle = BattleRecord(
+                attacker=driver_code_to_number(attacker),
+                defender=driver_code_to_number(defender),
+                overtake=overtake,
+                time_stamp=datetime.now(UTC),
+                attcker_speed=attacker_speed,
+                defender_speed=defender_speed,
+                speed_difference=speed_difference,
+                lap_number=lap_number,
+                safety_car=safety_car,
+                yellow_flag=yellow_flag,
+                attacker_tyre_compound=attacker_tyre,
+                defender_tyre_compound=defender_tyre,
+                attacker_tyre_age=attacker_tyre_age,
+                defender_tyre_age=defender_tyre_age,
+                tyre_age_difference=tyre_age_difference,
+                track=track.upper(),
+                sector=sector,
+                sector_type=sector_type,
+                is_in_drs_zone=is_in_drs_zone,
+                drs_zone_length=drs_zone_length,
+                track_type=track_type,
+                attacker_qualification_rank=attacker_quali,
+                defender_qualification_rank=defender_quali
+            )
+
+            battles.append(battle)
 
     return battles
 
 
-def detect_races_battles(year, gp, identifier="R", cache_path=None, gap_threshold=1.0, start_lap=2):
+def detect_races_battles(year: int, gp: str, identifier: str = "R",
+                         cache_path=None, gap_threshold: float = 1.0,
+                         start_lap: int = 2) -> List[BattleRecord]:
     """
     Main function to detect all battles in a race session.
 
@@ -239,28 +164,36 @@ def detect_races_battles(year, gp, identifier="R", cache_path=None, gap_threshol
         start_lap: Lap to start detection (default 2 to skip race start)
 
     Returns:
-        pd.DataFrame: DataFrame of battles
+        list: List of BattleRecord objects
     """
     # Load session
-    session = load_session(year, gp, identifier, cache_path)
+    session = ffu.load_session(year, gp, identifier, cache_path)
 
     # Detect battles
     battles = detect_battles(session, gap_threshold, start_lap)
 
-    # Convert to DataFrame
-    df_battles = pd.DataFrame(battles)
-
-    return df_battles
+    return battles
 
 
 # Example usage
 if __name__ == "__main__":
-    df_battles = detect_races_battles(year=2024, gp="monza", identifier="R", gap_threshold=1.0)
-    print(f"\nTotal battles detected: {len(df_battles)}")
-    print(df_battles)
+    # Detect battles
+    battles = detect_races_battles(year=2024, gp="monza")
 
-    # Optional: Show summary statistics
-    if not df_battles.empty:
-        print(f"\nBattles by defender:")
-        print(df_battles['defender'].value_counts())
-        print(f"\nAverage gap in battles: {df_battles['gap'].mean():.3f}s")
+    print(f"\nTotal battles detected: {len(battles)}")
+
+    # Access individual battles
+    if battles:
+        first_battle = battles[0]
+        print(f"\nFirst battle:")
+        print(f"  Attacker #{first_battle.attacker} vs Defender #{first_battle.defender}")
+        print(f"  Lap: {first_battle.lap_number}")
+        print(f"  Gap: {first_battle.speed_difference}km/h")
+        print(f"  Overtake: {first_battle.overtake}")
+
+    # Insert to ClickHouse
+    from clickhouse_connector import ClickHouseConnector
+
+    ch = ClickHouseConnector()
+    ch.insert_battles(battles)
+    ch.close()

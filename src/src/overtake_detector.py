@@ -1,161 +1,5 @@
-import fastf1
+import fast_f1_utils as ffu
 import pandas as pd
-from pathlib import Path
-
-# Get the project root directory
-PROJECT_ROOT = Path(__file__).parent.parent if '__file__' in globals() else Path.cwd()
-DEFAULT_CACHE_DIR = PROJECT_ROOT / "cache"
-
-
-def load_session(year, gp, identifier="R", cache_path=None):
-    """
-    Load F1 session data with caching enabled.
-
-    Args:
-        year: Season year
-        gp: Grand Prix name or round number
-        identifier: Session identifier (R=Race, Q=Qualifying, etc.)
-        cache_path: Path to cache directory (defaults to project/cache)
-
-    Returns:
-        Loaded FastF1 session object
-    """
-    if cache_path is None:
-        cache_path = str(DEFAULT_CACHE_DIR)
-
-    # Create cache directory if it doesn't exist
-    Path(cache_path).mkdir(parents=True, exist_ok=True)
-
-    fastf1.Cache.enable_cache(cache_path)
-    session = fastf1.get_session(year=year, gp=gp, identifier=identifier)
-    session.load()
-    return session
-
-
-def build_position_map(laps):
-    """
-    Build a nested dictionary mapping lap number to driver positions.
-
-    Args:
-        laps: FastF1 laps dataframe
-
-    Returns:
-        dict: {lap_number: {driver: position}}
-    """
-    lap_position = {}
-
-    for _, lap in laps.iterrows():
-        lap_number = int(lap['LapNumber'])
-        driver = lap['Driver']
-        position = lap['Position']
-
-        lap_position.setdefault(lap_number, {})
-        lap_position[lap_number][driver] = position
-
-    return lap_position
-
-
-def get_lap_data(laps, driver, lap_number):
-    """
-    Get lap data for a specific driver and lap number.
-
-    Args:
-        laps: FastF1 laps dataframe
-        driver: Driver code
-        lap_number: Lap number
-
-    Returns:
-        Lap data row or None if not found
-    """
-    lap_data = laps[(laps['Driver'] == driver) & (laps['LapNumber'] == lap_number)]
-    return lap_data.iloc[0] if not lap_data.empty else None
-
-
-def is_pitstop_lap(lap_data):
-    """
-    Check if a lap involves a pitstop.
-
-    Args:
-        lap_data: Single lap data row
-
-    Returns:
-        bool: True if pitstop occurred
-    """
-    if lap_data is None:
-        return False
-    return pd.notna(lap_data['PitInTime']) or pd.notna(lap_data['PitOutTime'])
-
-
-def is_valid_lap(lap_data):
-    """
-    Check if a lap is valid (completed without issues).
-
-    Args:
-        lap_data: Single lap data row
-
-    Returns:
-        bool: True if lap is valid
-    """
-    if lap_data is None:
-        return False
-    return pd.notna(lap_data['LapTime'])
-
-
-def driver_continues_racing(laps, driver, lap_number):
-    """
-    Check if a driver continues racing after a given lap.
-
-    Args:
-        laps: FastF1 laps dataframe
-        driver: Driver code
-        lap_number: Current lap number
-
-    Returns:
-        bool: True if driver appears in next lap
-    """
-    next_lap = laps[(laps['Driver'] == driver) & (laps['LapNumber'] == lap_number + 1)]
-    return not next_lap.empty
-
-
-def is_genuine_overtake(laps, attacker, defender, lap_number):
-    """
-    Apply filters to determine if a position swap is a genuine overtake.
-
-    Args:
-        laps: FastF1 laps dataframe
-        attacker: Driver who gained position
-        defender: Driver who lost position
-        lap_number: Lap where position swap occurred
-
-    Returns:
-        tuple: (is_genuine, attacker_lap_data, defender_lap_data)
-    """
-    # Get lap data for both drivers
-    defender_lap = get_lap_data(laps, defender, lap_number)
-    attacker_lap = get_lap_data(laps, attacker, lap_number)
-
-    # Skip if we can't find the lap data
-    if defender_lap is None or attacker_lap is None:
-        return False, None, None
-
-    # Filter 1: Defender pitted on this lap
-    if is_pitstop_lap(defender_lap):
-        return False, attacker_lap, defender_lap
-
-    # Filter 2: Attacker pitted (gained position via pitstop strategy)
-    if is_pitstop_lap(attacker_lap):
-        return False, attacker_lap, defender_lap
-
-    # Filter 3: Defender DNF/retired (check if they completed the lap)
-    if not is_valid_lap(defender_lap):
-        return False, attacker_lap, defender_lap
-
-    # Filter 4: Check if defender appears in next lap (still racing)
-    if not driver_continues_racing(laps, defender, lap_number):
-        return False, attacker_lap, defender_lap
-
-    return True, attacker_lap, defender_lap
-
 
 def detect_position_swaps(lap_position, start_lap=2):
     """
@@ -216,7 +60,7 @@ def filter_genuine_overtakes(laps, position_swaps):
         attacker = swap['attacker']
         defender = swap['defender']
 
-        is_genuine, attacker_lap, defender_lap = is_genuine_overtake(
+        is_genuine, attacker_lap, defender_lap = ffu.is_genuine_overtake(
             laps, attacker, defender, lap
         )
 
@@ -249,11 +93,11 @@ def detect_overtakes(year, gp, identifier="R", cache_path=None, start_lap=2):
         pd.DataFrame: DataFrame of genuine overtakes
     """
     # Load session
-    session = load_session(year, gp, identifier, cache_path)
+    session = ffu.load_session(year, gp, identifier, cache_path)
     laps = session.laps
 
     # Build position map
-    lap_position = build_position_map(laps)
+    lap_position = ffu.build_position_map(laps)
 
     # Detect position swaps
     position_swaps = detect_position_swaps(lap_position, start_lap)
@@ -266,9 +110,3 @@ def detect_overtakes(year, gp, identifier="R", cache_path=None, start_lap=2):
 
     return df_overtakes
 
-
-# Example usage
-if __name__ == "__main__":
-    df_overtakes = detect_overtakes(year=2025, gp="monza", identifier="R")
-    print(f"\nTotal overtakes detected: {len(df_overtakes)}")
-    print(df_overtakes)
