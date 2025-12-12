@@ -7,17 +7,16 @@ class BattleRecord:
     """Typed class representing a battle record in ClickHouse."""
 
     # Driver identifiers
-    attacker: int
-    defender: int
+    attacker: str
+    defender: str
 
     # Battle outcome
     overtake: bool
-    time_stamp: datetime
 
     # Car state features
-    attacker_speed: int  # Note: keeping typo from table schema
-    defender_speed: int
-    speed_difference: int
+    attacker_speed: float  # Note: keeping typo from table schema
+    defender_speed: float
+    speed_difference: float
 
     # Race state features
     lap_number: int
@@ -49,7 +48,6 @@ class BattleRecord:
             'attacker': self.attacker,
             'defender': self.defender,
             'overtake': self.overtake,
-            'time_stamp': self.time_stamp,
             'attacker_speed': self.attacker_speed,
             'defender_speed': self.defender_speed,
             'speed_difference': self.speed_difference,
@@ -77,7 +75,6 @@ class BattleRecord:
             self.attacker,
             self.defender,
             self.overtake,
-            self.time_stamp,
             self.attacker_speed,
             self.defender_speed,
             self.speed_difference,
@@ -103,7 +100,7 @@ class BattleRecord:
     def column_names() -> list:
         """Get list of column names for ClickHouse."""
         return [
-            'attacker', 'defender', 'overtake', 'time_stamp',
+            'attacker', 'defender', 'overtake',
             'attacker_speed', 'defender_speed', 'speed_difference',
             'lap_number', 'safety_car', 'yellow_flag',
             'attacker_tyre_compound', 'defender_tyre_compound',

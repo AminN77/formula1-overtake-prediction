@@ -23,7 +23,7 @@ class ClickHouseConnector:
             username=self.username,
             password=self.password,
             database=self.database,
-            verify_certificate=False
+            verify=False
         )
 
     def insert_battles(self, battles: Union[List[BattleRecord], List[dict]]):
@@ -49,7 +49,7 @@ class ClickHouseConnector:
                     battle['defender'],
                     battle['overtake'],
                     battle['time_stamp'],
-                    battle['attcker_speed'],
+                    battle['attacker_speed'],
                     battle['defender_speed'],
                     battle['speed_difference'],
                     battle['lap_number'],

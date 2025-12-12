@@ -5,14 +5,6 @@ import fast_f1_utils as ffu
 from models import BattleRecord
 import track_info
 
-def driver_code_to_number(code: str) -> int:
-    """Convert driver code to number."""
-    try:
-        return int(code.replace('0', ''))
-    except:
-        return 0
-
-
 def detect_battles(session, gap_threshold=1.0, start_lap=2) -> List[BattleRecord]:
     """
     Detect all battles between pairs of drivers throughout a race.
@@ -75,9 +67,19 @@ def detect_battles(session, gap_threshold=1.0, start_lap=2) -> List[BattleRecord
                 continue
 
             # Get additional features
-            attacker_speed = int(defender_info.get('laptime', 0))
-            defender_speed = int(attacker_info.get('laptime', 0))
-            speed_difference = abs(attacker_speed - defender_speed)
+            def _timedelta_to_seconds(td):
+                if pd.isna(td):
+                    return 0.0
+                if isinstance(td, pd.Timedelta):
+                    return td.total_seconds()
+                return float(td)
+
+            attacker_laptime = _timedelta_to_seconds(attacker_info.get('laptime'))
+            defender_laptime = _timedelta_to_seconds(defender_info.get('laptime'))
+
+            attacker_speed = attacker_laptime
+            defender_speed = defender_laptime
+            speed_difference = attacker_laptime - defender_laptime
 
             # Get tyre info
             attacker_tyre = str(attacker_lap.get('Compound', 'UNKNOWN')) if pd.notna(
@@ -117,13 +119,13 @@ def detect_battles(session, gap_threshold=1.0, start_lap=2) -> List[BattleRecord
             # Get safety car and flags
             safety_car, yellow_flag = ffu.detect_safety_car_and_flags(session, lap_number)
 
+
             # Create BattleRecord
             battle = BattleRecord(
-                attacker=driver_code_to_number(attacker),
-                defender=driver_code_to_number(defender),
+                attacker=attacker,
+                defender=defender,
                 overtake=overtake,
-                time_stamp=datetime.now(UTC),
-                attcker_speed=attacker_speed,
+                attacker_speed=attacker_speed,
                 defender_speed=defender_speed,
                 speed_difference=speed_difference,
                 lap_number=lap_number,
@@ -151,7 +153,7 @@ def detect_battles(session, gap_threshold=1.0, start_lap=2) -> List[BattleRecord
 
 def detect_races_battles(year: int, gp: str, identifier: str = "R",
                          cache_path=None, gap_threshold: float = 1.0,
-                         start_lap: int = 2) -> List[BattleRecord]:
+                         start_lap: int = 1) -> List[BattleRecord]:
     """
     Main function to detect all battles in a race session.
 
@@ -173,27 +175,3 @@ def detect_races_battles(year: int, gp: str, identifier: str = "R",
     battles = detect_battles(session, gap_threshold, start_lap)
 
     return battles
-
-
-# Example usage
-if __name__ == "__main__":
-    # Detect battles
-    battles = detect_races_battles(year=2024, gp="monza")
-
-    print(f"\nTotal battles detected: {len(battles)}")
-
-    # Access individual battles
-    if battles:
-        first_battle = battles[0]
-        print(f"\nFirst battle:")
-        print(f"  Attacker #{first_battle.attacker} vs Defender #{first_battle.defender}")
-        print(f"  Lap: {first_battle.lap_number}")
-        print(f"  Gap: {first_battle.speed_difference}km/h")
-        print(f"  Overtake: {first_battle.overtake}")
-
-    # Insert to ClickHouse
-    from clickhouse_connector import ClickHouseConnector
-
-    ch = ClickHouseConnector()
-    ch.insert_battles(battles)
-    ch.close()

@@ -3,6 +3,9 @@ from pathlib import Path
 import pandas as pd
 from typing import Tuple
 
+from fontTools.misc.cython import returns
+
+
 def load_session(year, gp, identifier="R", cache_path=None):
     """
     Load F1 session data with caching enabled.
@@ -271,14 +274,7 @@ def is_genuine_overtake(laps, attacker, defender, lap_number):
 
 def get_driver_qualification_rank(session, driver: str) -> int:
     """Get driver's qualifying position."""
-    try:
-        quali = session.qualifying
-        driver_quali = quali[quali['Driver'] == driver]
-        if not driver_quali.empty:
-            return int(driver_quali.iloc[0]['Position'])
-    except:
-        pass
-    return 0
+    return int(session.get_driver(driver)["GridPosition"])
 
 
 def get_tyre_info(session, driver: str, lap: int) -> Tuple[str, int]:
