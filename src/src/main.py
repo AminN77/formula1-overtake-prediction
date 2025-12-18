@@ -7,7 +7,8 @@ import clickhouse_connector
 PROJECT_ROOT = Path(__file__).parent.parent if '__file__' in globals() else Path.cwd()
 DEFAULT_CACHE_DIR = PROJECT_ROOT / "cache"
 
-YEARS = range(2022, 2024)
+# YEARS = range(2022, 2024)
+YEARS = [2022]
 
 def ingest_all_sessions():
     connector = clickhouse_connector.ClickHouseConnector(
@@ -23,13 +24,18 @@ def ingest_all_sessions():
 
         for _, event in schedule.iterrows():
             event_name = event["EventName"]
+            event_format = event["EventFormat"]
+
+            if event_format not in ["conventional"]:
+                continue
 
             print(f"  🏁 {event_name}")
 
             try:
+                country = event["Country"]
                 battles = battle_detector.detect_races_battles(
                     year=year,
-                    gp=event_name,  # safer than name
+                    gp=country,  # safer than name
                     identifier="R"
                 )
 
