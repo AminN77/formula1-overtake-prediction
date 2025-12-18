@@ -7,8 +7,7 @@ import clickhouse_connector
 PROJECT_ROOT = Path(__file__).parent.parent if '__file__' in globals() else Path.cwd()
 DEFAULT_CACHE_DIR = PROJECT_ROOT / "cache"
 
-# YEARS = range(2022, 2025)
-YEARS = [2022]
+YEARS = range(2022, 2024)
 
 def ingest_all_sessions():
     connector = clickhouse_connector.ClickHouseConnector(
