@@ -2,41 +2,68 @@ from typing import Tuple
 
 # DRS zones per track (approximate lengths in meters)
 DRS_ZONES = {
-    'monza': [365, 370, 370],
-    'silverstone': [164, 335],
-    'spa': [1900, 1300],
-    'baku': [433, 419],
-    'monte carlo': [0],
-    'barcelona': [0],
-    'bahrain': [0],
+    'bahrain': [1100],
     'saudi arabia': [660],
-    'miami': [0],
-    'imola': [0],
-    'canada': [0],
-    'budapest': [0],
-    'zandvoort': [290],
+    'australia': [330],
+    'azerbaijan': [433, 419],
+    'miami': [320],
+    'monaco': [0],
+    'spain': [655],
+    'canada': [350],
+    'austria': [435, 300, 250],
+    'great britain': [164, 335],
+    'hungary': [0],
+    'belgium': [1900, 1300],
+    'netherlands': [290],
+    'italy': [365, 370, 370],        # Monza
     'singapore': [0],
-    'suzuka': [200],
+    'japan': [200],
     'qatar': [350],
-    'cota': [0],
+    'united states': [0],            # COTA
     'mexico': [0],
-    'brazil': [0],
+    'brazil': [650],
     'abu dhabi': [1053],
+    'france': [900],                 # 2022 only
+    'china': [1170],                 # Returned 2024
+    'turkey': [400],                 # 2022 replacement
+    'portugal': [460],               # 2022 only
 }
+
 
 SECTOR_TYPES = {
-    'speed': ['monza', 'spa', 'silverstone', 'baku', 'abu dhabi'],
-    'technical': ['monaco', 'singapore', 'imola'],
-    'mixed': ['budapest', 'barcelona', 'paul ricard']
+    'speed': [
+        'italy', 'belgium', 'great britain',
+        'azerbaijan', 'abu dhabi', 'austria'
+    ],
+    'technical': [
+        'monaco', 'singapore', 'hungary', 'turkey'
+    ],
+    'mixed': [
+        'bahrain', 'spain', 'france', 'japan',
+        'united states', 'brazil', 'portugal',
+        'china', 'qatar', 'australia', 'canada',
+        'netherlands', 'mexico', 'miami'
+    ]
 }
 
+
 TRACK_TYPES = {
-    'high-speed': ['monza', 'spa', 'silverstone'],
-    'medium-speed': ['budapest', 'paul ricard'],
-    'low-speed': ['monaco', 'singapore'],
-    'street': ['baku', 'miami', 'saudi arabia'],
-    'ovals': ['cota', 'mexico', 'brazil']
+    'high-speed': [
+        'italy', 'belgium', 'great britain', 'austria'
+    ],
+    'medium-speed': [
+        'spain', 'france', 'japan', 'abu dhabi',
+        'bahrain', 'portugal', 'china'
+    ],
+    'low-speed': [
+        'monaco', 'hungary', 'singapore'
+    ],
+    'street': [
+        'azerbaijan', 'miami', 'saudi arabia', 'singapore'
+    ]
 }
+
+
 
 
 def get_sector_type(track: str) -> str:
