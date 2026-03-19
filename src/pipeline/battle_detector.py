@@ -20,11 +20,12 @@ def detect_battles(session, year: int, race_name: str,
     """
     Detect battles between consecutive-position drivers within *gap_threshold*.
 
-    A battle requires:
-      1. Consecutive positions (defender P, attacker P+1)
-      2. Lap-time gap < gap_threshold
-      3. Both cars on track (no pit in/out)
-      4. Both cars on the same lap
+    v3 improvements over v2:
+      - gap_ahead uses actual inter-car gap (LapStartTime), not pace difference
+      - tyre_age_difference is signed (negative = attacker on fresher tyres)
+      - pit_stop_involved flags battles where either driver pits on current/next lap
+      - speed delta features (attacker − defender) added
+      - pace_delta separated from gap_ahead
     """
     lap_position_gap = ffu.build_position_and_gap_map(session)
     max_lap = max(lap_position_gap.keys())
@@ -48,8 +49,9 @@ def detect_battles(session, year: int, race_name: str,
             if attacker_info['position'] != defender_info['position'] + 1:
                 continue
 
-            gap = ffu.calculate_gap_between_drivers(defender_info, attacker_info)
-            if gap is None or gap >= gap_threshold:
+            # §1.1: use actual inter-car gap for battle detection
+            actual_gap = ffu.calculate_actual_gap(defender_info, attacker_info)
+            if actual_gap is None or actual_gap >= gap_threshold:
                 continue
 
             defender_lap = ffu.get_driver_info_at_lap(session, defender, lap_number)
@@ -64,6 +66,9 @@ def detect_battles(session, year: int, race_name: str,
             attacker_laptime = _timedelta_to_seconds(attacker_info.get('laptime'))
             defender_laptime = _timedelta_to_seconds(defender_info.get('laptime'))
 
+            # §2.2: pace_delta (positive = attacker faster per lap)
+            pace_delta = defender_laptime - attacker_laptime
+
             # ── positions ────────────────────────────────────────
             attacker_pos = ffu._safe_int(attacker_info.get('position'), 0)
             defender_pos = ffu._safe_int(defender_info.get('position'), 0)
@@ -72,6 +77,12 @@ def detect_battles(session, year: int, race_name: str,
             att_speeds = ffu.get_speed_trap_data(attacker_lap)
             def_speeds = ffu.get_speed_trap_data(defender_lap)
 
+            # §2.3: speed deltas (attacker − defender)
+            speed_i1_delta = att_speeds['speed_i1'] - def_speeds['speed_i1']
+            speed_i2_delta = att_speeds['speed_i2'] - def_speeds['speed_i2']
+            speed_fl_delta = att_speeds['finish_line_speed'] - def_speeds['finish_line_speed']
+            speed_st_delta = att_speeds['straight_speed'] - def_speeds['straight_speed']
+
             # ── tyres ────────────────────────────────────────────
             attacker_tyre = (str(attacker_lap.get('Compound', 'UNKNOWN'))
                              if pd.notna(attacker_lap.get('Compound')) else 'UNKNOWN')
@@ -79,6 +90,9 @@ def detect_battles(session, year: int, race_name: str,
                              if pd.notna(defender_lap.get('Compound')) else 'UNKNOWN')
             attacker_tyre_age = ffu._safe_int(attacker_lap.get('TyreLife'), 0)
             defender_tyre_age = ffu._safe_int(defender_lap.get('TyreLife'), 0)
+
+            # §1.4: signed tyre age difference (negative = attacker on fresher tyres)
+            tyre_age_diff = attacker_tyre_age - defender_tyre_age
 
             att_stint, att_fresh = ffu.get_stint_info(attacker_lap)
             def_stint, def_fresh = ffu.get_stint_info(defender_lap)
@@ -106,6 +120,14 @@ def detect_battles(session, year: int, race_name: str,
                     except (ValueError, TypeError):
                         pass
 
+            # §1.2: flag battles where either driver pits on current or next lap
+            pit_stop_involved = (
+                ffu.is_next_lap_pit(session, attacker, lap_number)
+                or ffu.is_next_lap_pit(session, defender, lap_number)
+                or ffu.is_next_lap_pit(session, attacker, lap_number + 1)
+                or ffu.is_next_lap_pit(session, defender, lap_number + 1)
+            )
+
             safety_car, yellow_flag = ffu.detect_safety_car_and_flags(session, lap_number)
 
             # ── race progress ────────────────────────────────────
@@ -124,7 +146,8 @@ def detect_battles(session, year: int, race_name: str,
                 defender_position=defender_pos,
                 attacker_lap_time=attacker_laptime,
                 defender_lap_time=defender_laptime,
-                gap_ahead=attacker_laptime - defender_laptime,
+                gap_ahead=actual_gap,
+                pace_delta=pace_delta,
                 attacker_speed_i1=att_speeds['speed_i1'],
                 defender_speed_i1=def_speeds['speed_i1'],
                 attacker_speed_i2=att_speeds['speed_i2'],
@@ -133,17 +156,22 @@ def detect_battles(session, year: int, race_name: str,
                 defender_finish_line_speed=def_speeds['finish_line_speed'],
                 attacker_straight_speed=att_speeds['straight_speed'],
                 defender_straight_speed=def_speeds['straight_speed'],
+                speed_i1_delta=speed_i1_delta,
+                speed_i2_delta=speed_i2_delta,
+                speed_fl_delta=speed_fl_delta,
+                speed_st_delta=speed_st_delta,
                 safety_car=safety_car,
                 yellow_flag=yellow_flag,
                 attacker_tyre_compound=attacker_tyre,
                 defender_tyre_compound=defender_tyre,
                 attacker_tyre_age=attacker_tyre_age,
                 defender_tyre_age=defender_tyre_age,
-                tyre_age_difference=abs(attacker_tyre_age - defender_tyre_age),
+                tyre_age_difference=tyre_age_diff,
                 attacker_stint=att_stint,
                 defender_stint=def_stint,
                 attacker_fresh_tyre=att_fresh,
                 defender_fresh_tyre=def_fresh,
+                pit_stop_involved=pit_stop_involved,
                 track=track.upper(),
                 sector=sector,
                 sector_type=track_info.get_sector_type(track),

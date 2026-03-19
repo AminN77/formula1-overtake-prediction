@@ -22,7 +22,7 @@ def get_lap_data(laps, driver: str, lap_number: int):
 
 
 def build_position_and_gap_map(session) -> dict:
-    """Build {lap_number: {driver: {'position': int, 'laptime': Timedelta}}}."""
+    """Build {lap_number: {driver: {'position', 'laptime', 'lap_start_time'}}}."""
     lap_position_gap = {}
     for _, lap in session.laps.iterrows():
         lap_number = int(lap['LapNumber'])
@@ -30,6 +30,7 @@ def build_position_and_gap_map(session) -> dict:
         lap_position_gap.setdefault(lap_number, {})[driver] = {
             'position': lap['Position'],
             'laptime': lap['LapTime'],
+            'lap_start_time': lap.get('LapStartTime'),
         }
     return lap_position_gap
 
@@ -72,6 +73,7 @@ def is_on_track(driver_lap) -> bool:
 
 
 def calculate_gap_between_drivers(driver_a_info: dict, driver_b_info: dict) -> Optional[float]:
+    """Lap-time-based gap (fallback when LapStartTime is unavailable)."""
     laptime_a = driver_a_info.get('laptime')
     laptime_b = driver_b_info.get('laptime')
 
@@ -86,6 +88,38 @@ def calculate_gap_between_drivers(driver_a_info: dict, driver_b_info: dict) -> O
         return abs(secs_a - secs_b)
     except (TypeError, ValueError):
         return None
+
+
+def calculate_actual_gap(defender_info: dict, attacker_info: dict) -> Optional[float]:
+    """Actual inter-car gap from LapStartTime (seconds).
+
+    The attacker (behind) crosses the start line later than the defender (ahead),
+    so the gap = attacker_start - defender_start (positive = attacker behind).
+    Falls back to lap-time difference when LapStartTime is unavailable.
+    """
+    start_def = defender_info.get('lap_start_time')
+    start_att = attacker_info.get('lap_start_time')
+
+    if (start_def is not None and start_att is not None
+            and not pd.isna(start_def) and not pd.isna(start_att)):
+        try:
+            secs_def = start_def.total_seconds() if hasattr(start_def, 'total_seconds') else float(start_def)
+            secs_att = start_att.total_seconds() if hasattr(start_att, 'total_seconds') else float(start_att)
+            gap = abs(secs_att - secs_def)
+            if gap < 120:  # sanity: gaps > 2 min are likely errors
+                return gap
+        except (TypeError, ValueError):
+            pass
+
+    return calculate_gap_between_drivers(defender_info, attacker_info)
+
+
+def is_next_lap_pit(session, driver: str, lap_number: int) -> bool:
+    """True if the driver pits on the specified lap."""
+    lap_data = get_driver_info_at_lap(session, driver, lap_number)
+    if lap_data is None:
+        return False
+    return pd.notna(lap_data.get('PitInTime')) or pd.notna(lap_data.get('PitOutTime'))
 
 
 def are_on_same_lap(session, driver_a: str, driver_b: str, lap_number: int) -> bool:
@@ -114,11 +148,10 @@ def detect_safety_car_and_flags(session, lap: int) -> Tuple[bool, bool]:
     return safety_car, yellow_flag
 
 
-# ── new helpers ──────────────────────────────────────────────────
+# ── helpers ──────────────────────────────────────────────────────
 
 
 def _safe_float(value, default: float = 0.0) -> float:
-    """Convert a value to float, returning *default* for NaN / None / errors."""
     if value is None:
         return default
     try:
@@ -158,11 +191,7 @@ def _safe_bool(value, default: bool = False) -> bool:
 
 
 def get_speed_trap_data(lap_data) -> Dict[str, float]:
-    """Extract all speed-trap readings from a single lap row.
-
-    Returns dict with keys: speed_i1, speed_i2, finish_line_speed, straight_speed.
-    Missing values are returned as 0.0.
-    """
+    """Extract all speed-trap readings from a single lap row."""
     if lap_data is None:
         return {
             'speed_i1': 0.0, 'speed_i2': 0.0,
@@ -186,12 +215,7 @@ def get_stint_info(lap_data) -> Tuple[int, bool]:
 
 
 def build_weather_lookup(session) -> Dict[int, Dict[str, float]]:
-    """Build a {lap_number: weather_dict} lookup from session weather data.
-
-    Weather samples are matched to each lap by finding the closest weather
-    timestamp to each lap's start time.  If weather data is unavailable the
-    lookup will be empty.
-    """
+    """Build a {lap_number: weather_dict} lookup from session weather data."""
     lookup: Dict[int, Dict[str, float]] = {}
     try:
         weather = session.weather_data

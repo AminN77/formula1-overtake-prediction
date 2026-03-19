@@ -17,10 +17,11 @@ class BattleRecord:
     attacker_position: int
     defender_position: int
 
-    # ── lap-time gap ─────────────────────────────────────────────
+    # ── gap & pace ───────────────────────────────────────────────
     attacker_lap_time: float
     defender_lap_time: float
-    gap_ahead: float
+    gap_ahead: float            # actual inter-car gap (seconds) from LapStartTime
+    pace_delta: float           # defender_lap_time - attacker_lap_time (positive = attacker faster)
 
     # ── speed traps (km/h) ──────────────────────────────────────
     attacker_speed_i1: float
@@ -32,6 +33,12 @@ class BattleRecord:
     attacker_straight_speed: float
     defender_straight_speed: float
 
+    # ── speed deltas (attacker − defender, km/h) ────────────────
+    speed_i1_delta: float
+    speed_i2_delta: float
+    speed_fl_delta: float
+    speed_st_delta: float
+
     # ── flags ────────────────────────────────────────────────────
     safety_car: bool
     yellow_flag: bool
@@ -41,11 +48,14 @@ class BattleRecord:
     defender_tyre_compound: str
     attacker_tyre_age: int
     defender_tyre_age: int
-    tyre_age_difference: int
+    tyre_age_difference: int    # signed: attacker − defender (negative = attacker on fresher tyres)
     attacker_stint: int
     defender_stint: int
     attacker_fresh_tyre: bool
     defender_fresh_tyre: bool
+
+    # ── pit stop ─────────────────────────────────────────────────
+    pit_stop_involved: bool     # either driver pits on current or next lap
 
     # ── track / circuit ──────────────────────────────────────────
     track: str
