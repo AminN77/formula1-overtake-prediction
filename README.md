@@ -85,6 +85,11 @@ Open http://127.0.0.1:7860 — two tabs:
 - **Single Battle** — enter race parameters and get a live overtake probability.
 - **Batch CSV** — upload a battle CSV, get predictions for all rows with downloadable results.
 
+<p align="center">
+  <img src="docs/images/app_form.png" width="49%" alt="Single battle input form" />
+  <img src="docs/images/app_result.png" width="49%" alt="Prediction result card" />
+</p>
+
 ### CLI scoring
 
 ```bash
