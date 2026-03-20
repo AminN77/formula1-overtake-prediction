@@ -77,6 +77,10 @@ def main(argv: List[str] = None) -> None:
         help="Output CSV path (default: notebooks/battles_<years>.csv)",
     )
     parser.add_argument(
+        "--output-dir", type=str, default=None,
+        help="Write battles_<year>.csv per season into this directory (adds driver rolling features).",
+    )
+    parser.add_argument(
         "--cache", type=str, default=None,
         help="FastF1 cache directory",
     )
@@ -88,6 +92,17 @@ def main(argv: List[str] = None) -> None:
         sys.exit(1)
 
     df = battles_to_dataframe(battles)
+
+    if args.output_dir:
+        from .driver_features import enrich_driver_features
+
+        df = enrich_driver_features(df)
+        out_dir = Path(args.output_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        for y in sorted(set(df["year"].tolist())):
+            sub = df[df["year"] == y]
+            save_csv(sub, out_dir / f"battles_{y}.csv")
+        return
 
     if args.output:
         out_path = Path(args.output)

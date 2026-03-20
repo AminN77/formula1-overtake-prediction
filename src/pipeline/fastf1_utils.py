@@ -2,7 +2,7 @@ import fastf1
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from typing import Tuple, Optional, Dict
+from typing import Tuple, Optional, Dict, List
 
 
 def load_session(year: int, gp: str, identifier: str = "R",
@@ -188,6 +188,40 @@ def _safe_bool(value, default: bool = False) -> bool:
     except (TypeError, ValueError):
         pass
     return bool(value)
+
+
+def _sector_time_to_seconds(val) -> float:
+    if val is None:
+        return 0.0
+    try:
+        if pd.isna(val):
+            return 0.0
+    except (TypeError, ValueError):
+        pass
+    try:
+        if hasattr(val, "total_seconds"):
+            return float(val.total_seconds())
+        return float(val)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def get_sector_times(lap_data) -> Tuple[float, float, float]:
+    """Sector1/2/3 times in seconds (0 if missing). IP03 §3.4."""
+    if lap_data is None:
+        return 0.0, 0.0, 0.0
+    return (
+        _sector_time_to_seconds(lap_data.get("Sector1Time")),
+        _sector_time_to_seconds(lap_data.get("Sector2Time")),
+        _sector_time_to_seconds(lap_data.get("Sector3Time")),
+    )
+
+
+def strongest_sector_index(deltas: List[float]) -> int:
+    """Index 0–2 of max delta (attacker advantage); -1 if all non-positive or invalid."""
+    if not deltas or all(d <= 0 for d in deltas):
+        return -1
+    return int(np.argmax(deltas))
 
 
 def get_speed_trap_data(lap_data) -> Dict[str, float]:

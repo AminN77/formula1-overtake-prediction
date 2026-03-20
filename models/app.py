@@ -21,6 +21,8 @@ import gradio as gr
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 _HERE = Path(__file__).resolve().parent
+_V4_MODEL = _HERE / "artifacts" / "overtake_model_v4.pkl"
+_V4_META = _HERE / "artifacts" / "overtake_model_v4_meta.json"
 _V3_MODEL = _HERE / "artifacts" / "overtake_model_v3.pkl"
 _V3_META = _HERE / "artifacts" / "overtake_model_v3_meta.json"
 _V2_MODEL = _HERE / "artifacts" / "overtake_model_v2.pkl"
@@ -41,8 +43,9 @@ except ImportError:
 # ── Model loading ────────────────────────────────────────────────────────────
 
 def _load_model_and_meta():
-    """Prefer v3; fall back to v2."""
+    """Prefer v4; fall back to v3; then v2."""
     for model_p, meta_p, version in [
+        (_V4_MODEL, _V4_META, "v4"),
         (_V3_MODEL, _V3_META, "v3"),
         (_V2_MODEL, _V2_META, "v2"),
     ]:
@@ -50,7 +53,9 @@ def _load_model_and_meta():
             pipeline = joblib.load(model_p)
             meta = json.loads(meta_p.read_text())
             return pipeline, meta, version
-    raise FileNotFoundError("No model found in artifacts/. Run model_testing_3.ipynb first.")
+    raise FileNotFoundError(
+        "No model found in artifacts/. Run model_testing_4.ipynb first."
+    )
 
 
 _PIPELINE, _META, _MODEL_VERSION = _load_model_and_meta()
@@ -541,8 +546,8 @@ with gr.Blocks(title="F1 Overtake Predictor") as app:
     gr.Markdown(
         """
         # F1 Overtake Predictor
-        Predict the probability of an overtake during an F1 battle using the v3 model
-        (XGBoost + IP02 improvements, trained on 2022-2024).
+        Predict the probability of an overtake during an F1 battle using the latest v4 model
+        (IP03 improvements, trained on 2022-2024).
         """
     )
 
@@ -602,7 +607,7 @@ with gr.Blocks(title="F1 Overtake Predictor") as app:
                     rainfall = gr.Checkbox(value=False, label="Rainfall")
                     wind_speed = gr.Slider(0, 15, value=2, step=0.5, label="Wind speed (m/s)")
 
-                    gr.Markdown("**Battle context (v3)**")
+                    gr.Markdown("**Battle context (v4)**")
                     gap_delta_1 = gr.Number(value=-0.05, label="Gap change last lap (s)",
                                             info="Negative = closing")
                     battle_dur = gr.Slider(1, 20, value=3, step=1, label="Battle duration (laps)")
@@ -634,7 +639,7 @@ with gr.Blocks(title="F1 Overtake Predictor") as app:
         with gr.TabItem("Batch CSV Scoring"):
             gr.Markdown(
                 "### Upload a battle CSV and score all rows\n"
-                "Accepts v3 data (from `data/v3/`) or v2 data — missing features "
+                "Accepts v4 data (from `data/v4/`) or v3/v2 data — missing features "
                 "are engineered automatically."
             )
 
@@ -672,4 +677,4 @@ with gr.Blocks(title="F1 Overtake Predictor") as app:
 
 
 if __name__ == "__main__":
-    app.launch(share=False, show_error=True)
+    app.launch(share=False, show_error=True, server_port=7865)

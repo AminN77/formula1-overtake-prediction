@@ -14,6 +14,38 @@ def _timedelta_to_seconds(td) -> float:
     return float(td)
 
 
+def _attacker_leads_over_defender_at_lap(session, attacker: str, defender: str, lap_n: int) -> bool:
+    """True if attacker position number is lower (ahead) than defender at the given lap row."""
+    try:
+        max_lap = int(session.laps["LapNumber"].max())
+    except Exception:
+        return False
+    if lap_n > max_lap or lap_n < 1:
+        return False
+    laps = session.laps
+    next_lap_data = laps[
+        (laps["Driver"].isin([attacker, defender])) & (laps["LapNumber"] == lap_n)
+    ]
+    if len(next_lap_data) != 2:
+        return False
+    att_row = next_lap_data[next_lap_data["Driver"] == attacker]
+    def_row = next_lap_data[next_lap_data["Driver"] == defender]
+    if att_row.empty or def_row.empty:
+        return False
+    try:
+        return int(att_row.iloc[0]["Position"]) < int(def_row.iloc[0]["Position"])
+    except (ValueError, TypeError):
+        return False
+
+
+def _overtake_within_horizon(session, attacker: str, defender: str, lap_start: int, horizon: int) -> bool:
+    """IP03 §1.2: attacker passes within `horizon` completed laps (1=next lap only)."""
+    for k in range(1, horizon + 1):
+        if _attacker_leads_over_defender_at_lap(session, attacker, defender, lap_start + k):
+            return True
+    return False
+
+
 def detect_battles(session, year: int, race_name: str,
                    gap_threshold: float = 1.0,
                    start_lap: int = 2) -> List[BattleRecord]:
@@ -26,13 +58,28 @@ def detect_battles(session, year: int, race_name: str,
       - pit_stop_involved flags battles where either driver pits on current/next lap
       - speed delta features (attacker − defender) added
       - pace_delta separated from gap_ahead
+
+    v4 (IP03) additions:
+      - overtake_within_2 / overtake_within_3 multi-horizon labels
+      - sector1/2/3_delta and strongest_sector (IP03 §3.4)
+      - compound_mismatch; round_number & event_date for temporal ordering
     """
     lap_position_gap = ffu.build_position_and_gap_map(session)
     max_lap = max(lap_position_gap.keys())
     battles: List[BattleRecord] = []
 
+    try:
+        rn = session.event.get("RoundNumber")
+        round_number = int(rn) if rn is not None and not pd.isna(rn) else 0
+    except (TypeError, ValueError):
+        round_number = 0
+    ed = session.event.get("EventDate")
+    if ed is not None and not pd.isna(ed):
+        event_date = str(pd.Timestamp(ed).date())
+    else:
+        event_date = ""
+
     track = session.event['Location']
-    laps = session.laps
     total_laps = ffu.get_total_laps(session)
     weather_lookup = ffu.build_weather_lookup(session)
 
@@ -105,20 +152,22 @@ def detect_battles(session, year: int, race_name: str,
             attacker_quali = ffu.get_driver_qualification_rank(session, attacker)
             defender_quali = ffu.get_driver_qualification_rank(session, defender)
 
-            # ── overtake detection ───────────────────────────────
-            overtake = False
-            next_lap_data = laps[
-                (laps['Driver'].isin([attacker, defender])) &
-                (laps['LapNumber'] == lap_number + 1)
-            ]
-            if len(next_lap_data) == 2:
-                att_next = next_lap_data[next_lap_data['Driver'] == attacker]
-                def_next = next_lap_data[next_lap_data['Driver'] == defender]
-                if not att_next.empty and not def_next.empty:
-                    try:
-                        overtake = int(att_next.iloc[0]['Position']) < int(def_next.iloc[0]['Position'])
-                    except (ValueError, TypeError):
-                        pass
+            # ── overtake detection (next lap + multi-horizon, IP03 §1.2) ──
+            overtake = _attacker_leads_over_defender_at_lap(
+                session, attacker, defender, lap_number + 1
+            )
+            overtake_within_2 = _overtake_within_horizon(session, attacker, defender, lap_number, 2)
+            overtake_within_3 = _overtake_within_horizon(session, attacker, defender, lap_number, 3)
+
+            # ── sector micro-features (IP03 §3.4): defender − attacker (positive = attacker faster) ──
+            att_s1, att_s2, att_s3 = ffu.get_sector_times(attacker_lap)
+            def_s1, def_s2, def_s3 = ffu.get_sector_times(defender_lap)
+            sector1_delta = def_s1 - att_s1
+            sector2_delta = def_s2 - att_s2
+            sector3_delta = def_s3 - att_s3
+            strongest_sector = ffu.strongest_sector_index([sector1_delta, sector2_delta, sector3_delta])
+
+            compound_mismatch = attacker_tyre.strip().upper() != defender_tyre.strip().upper()
 
             # §1.2: flag battles where either driver pits on current or next lap
             pit_stop_involved = (
@@ -139,6 +188,8 @@ def detect_battles(session, year: int, race_name: str,
                 overtake=overtake,
                 year=year,
                 race_name=race_name,
+                round_number=round_number,
+                event_date=event_date,
                 lap_number=lap_number,
                 total_laps=total_laps,
                 race_progress=race_progress,
@@ -185,6 +236,13 @@ def detect_battles(session, year: int, race_name: str,
                 humidity=lap_weather['humidity'],
                 rainfall=lap_weather['rainfall'],
                 wind_speed=lap_weather['wind_speed'],
+                overtake_within_2=overtake_within_2,
+                overtake_within_3=overtake_within_3,
+                sector1_delta=sector1_delta,
+                sector2_delta=sector2_delta,
+                sector3_delta=sector3_delta,
+                strongest_sector=strongest_sector,
+                compound_mismatch=compound_mismatch,
             ))
 
     return battles

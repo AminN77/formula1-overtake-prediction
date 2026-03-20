@@ -44,20 +44,25 @@ SECTOR_TYPES = {
     ]
 }
 
+# IP03 §3.2: explicit mapping for all 2022–2025 calendar circuits (no silent "street" fallback).
+# Order of keys is not used; each substring should match at most one category (first match wins).
 TRACK_TYPES = {
     'high-speed': [
-        'italy', 'belgium', 'great britain', 'austria'
+        'italy', 'belgium', 'great britain', 'austria',
+        'qatar', 'saudi arabia',
     ],
     'medium-speed': [
-        'spain', 'france', 'japan', 'abu dhabi',
-        'bahrain', 'portugal', 'china'
+        'spain', 'japan', 'abu dhabi', 'bahrain', 'china',
+        'emilia', 'french', 'france', 'netherlands', 'dutch',
+        'canada', 'mexico', 'united states', 'usa', 'brazil',
+        'portugal', 'turkey',
     ],
     'low-speed': [
-        'monaco', 'hungary', 'singapore'
+        'monaco', 'hungary', 'singapore',
     ],
     'street': [
-        'azerbaijan', 'miami', 'saudi arabia', 'singapore'
-    ]
+        'azerbaijan', 'miami', 'las vegas', 'australia',
+    ],
 }
 
 
@@ -74,7 +79,8 @@ def get_track_type(track: str) -> str:
     for track_type, tracks in TRACK_TYPES.items():
         if any(t in track_lower for t in tracks):
             return track_type
-    return 'street'
+    # Unknown / new circuit: avoid labelling everything as "street" (IP03 §3.2).
+    return 'medium-speed'
 
 
 def get_drs_zone_info(track: str, sector: int) -> Tuple[bool, int]:

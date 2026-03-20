@@ -11,6 +11,8 @@ class BattleRecord:
     # ── race context ─────────────────────────────────────────────
     year: int
     race_name: str
+    round_number: int
+    event_date: str
     lap_number: int
     total_laps: int
     race_progress: float
@@ -75,6 +77,15 @@ class BattleRecord:
     humidity: float
     rainfall: bool
     wind_speed: float
+
+    # ── IP03 / v4: multi-horizon labels & sector micro-features ──
+    overtake_within_2: bool
+    overtake_within_3: bool
+    sector1_delta: float
+    sector2_delta: float
+    sector3_delta: float
+    strongest_sector: int  # 0=S1, 1=S2, 2=S3; -1 if no valid sector times
+    compound_mismatch: bool
 
     def to_dict(self) -> dict:
         return asdict(self)
