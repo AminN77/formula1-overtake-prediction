@@ -12,7 +12,7 @@ export function Header() {
     <header className="border-b border-white/10 bg-f1-surface/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-3">
-          <span className="h-8 w-1 bg-f1-red" />
+          <img src="/f1-logo.svg" alt="" className="h-9 w-auto" width={120} height={32} />
           <div>
             <div className="text-xs uppercase tracking-[0.2em] text-f1-muted">Formula 1</div>
             <div className="text-lg font-bold tracking-tight">Overtake Predictor</div>

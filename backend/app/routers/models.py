@@ -44,7 +44,7 @@ def models_schema(
 ) -> ModelsSchemaResponse:
     m = reg.active
     items = build_feature_schema(m.meta)
-    return ModelsSchemaResponse(model_version=m.version, features=items)
+    return ModelsSchemaResponse(model_version=m.version, features=items, ui_year=2025)
 
 
 @router.get("/versions")

@@ -4,7 +4,7 @@ export function TeamBadge({ name }: { name: string }) {
   const c = TEAM_COLORS[name] || "#8b949e";
   return (
     <span
-      className="inline-flex items-center rounded px-2 py-0.5 text-xs font-bold text-white"
+      className="mt-2 inline-flex items-center rounded px-2 py-1 text-xs font-bold text-white"
       style={{ backgroundColor: c }}
     >
       {name}

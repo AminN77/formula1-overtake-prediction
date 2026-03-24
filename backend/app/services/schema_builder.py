@@ -5,34 +5,21 @@ from __future__ import annotations
 from typing import Any
 
 from ..schemas.model_info import FeatureSchemaItem
+from .circuit_calendar import CIRCUIT_CALENDAR_2025
 from .feature_builder import build_single_row
+from .feature_metadata import (
+    BASIC_FEATURE_NAMES,
+    DERIVED_FROM,
+    READONLY_FEATURE_NAMES,
+    description_for,
+    label_for,
+)
 
-RACES = [
-    "Abu Dhabi Grand Prix",
-    "Australian Grand Prix",
-    "Austrian Grand Prix",
-    "Azerbaijan Grand Prix",
-    "Bahrain Grand Prix",
-    "Belgian Grand Prix",
-    "British Grand Prix",
-    "Canadian Grand Prix",
-    "Chinese Grand Prix",
-    "Dutch Grand Prix",
-    "Emilia Romagna Grand Prix",
-    "French Grand Prix",
-    "Hungarian Grand Prix",
-    "Italian Grand Prix",
-    "Japanese Grand Prix",
-    "Las Vegas Grand Prix",
-    "Mexico City Grand Prix",
-    "Miami Grand Prix",
-    "Monaco Grand Prix",
-    "Qatar Grand Prix",
-    "Saudi Arabian Grand Prix",
-    "Singapore Grand Prix",
-    "Spanish Grand Prix",
-    "United States Grand Prix",
-]
+# Championship order for dropdowns (2025 calendar).
+RACES = sorted(
+    CIRCUIT_CALENDAR_2025.keys(),
+    key=lambda n: int(CIRCUIT_CALENDAR_2025[n]["round"]),
+)
 COMPOUNDS = ["SOFT", "MEDIUM", "HARD", "INTERMEDIATE", "WET"]
 TEAMS = [
     "Red Bull Racing",
@@ -148,7 +135,12 @@ def build_feature_schema(meta: dict[str, Any]) -> list[FeatureSchemaItem]:
         opts = _options_for(name)
         mn, mx = _range_for(name, default)
         if kind == "boolean":
-            default = bool(default)
+            default = bool(default)  # type: ignore[assignment]
+
+        readonly = name in READONLY_FEATURE_NAMES
+        advanced = name not in BASIC_FEATURE_NAMES
+        derived = DERIVED_FROM.get(name)
+
         items.append(
             FeatureSchemaItem(
                 name=name,
@@ -158,6 +150,11 @@ def build_feature_schema(meta: dict[str, Any]) -> list[FeatureSchemaItem]:
                 max=mx,
                 options=opts,
                 group=GROUP_HINTS.get(name, "other"),
+                label=label_for(name),
+                description=description_for(name),
+                readonly=readonly,
+                advanced=advanced,
+                derived_from=derived,
             )
         )
     return items

@@ -11,6 +11,8 @@ from typing import Any, Mapping
 import numpy as np
 import pandas as pd
 
+from .circuit_calendar import CIRCUIT_CALENDAR_2025
+
 try:
     from pipeline.track_info import get_drs_zone_info, get_sector_type, get_track_type
 except ImportError:  # pragma: no cover
@@ -60,6 +62,8 @@ _CIRCUIT_SPEEDS = {
     "singapore": {"i1": 249.9, "i2": 260.8, "fl": 243.4, "st": 228.1},
     "spanish": {"i1": 240.3, "i2": 268.1, "fl": 276.8, "st": 252.3},
     "united states": {"i1": 184.7, "i2": 179.2, "fl": 199.3, "st": 300.9},
+    "são paulo": {"i1": 255.0, "i2": 275.0, "fl": 245.0, "st": 260.0},
+    "sao paulo": {"i1": 255.0, "i2": 275.0, "fl": 245.0, "st": 260.0},
 }
 _FALLBACK_SPEEDS = {"i1": 220.0, "i2": 265.0, "fl": 270.0, "st": 285.0}
 _COMPOUND_DELTA = {
@@ -97,9 +101,15 @@ def _coerce_bool(v: Any) -> bool:
 def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     """Construct one logical battle row from UI/API input (snake_case keys)."""
     race = str(raw.get("race_name", "Italian Grand Prix"))
-    year = int(raw.get("year", 2025))
+    cal = CIRCUIT_CALENDAR_2025.get(race)
+    year = 2025
     lap = int(raw.get("lap_number", 35))
-    total_laps = int(raw.get("total_laps", 53))
+    if cal is not None:
+        total_laps = int(raw.get("total_laps", cal["total_laps"]))
+        round_number = int(raw.get("round_number", cal["round"]))
+    else:
+        total_laps = int(raw.get("total_laps", 53))
+        round_number = int(raw.get("round_number", 0))
     attacker_pos = int(raw.get("attacker_position", 8))
     defender_pos = int(raw.get("defender_position", 7))
     gap = float(raw.get("gap_ahead", 0.56))
@@ -161,7 +171,7 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     row: dict[str, Any] = {
         "year": year,
         "race_name": race,
-        "round_number": int(raw.get("round_number", 0)),
+        "round_number": round_number,
         "lap_number": lap,
         "total_laps": total_laps,
         "race_progress": race_progress,

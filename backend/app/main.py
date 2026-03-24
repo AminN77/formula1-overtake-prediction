@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .routers import health, models, predict, sensitivity
+from .routers import circuits, health, models, predict, sensitivity
 from .services.model_registry import ModelRegistry
 
 
@@ -37,6 +37,7 @@ def create_app(registry: ModelRegistry | None = None) -> FastAPI:
     )
 
     app.include_router(health.router, prefix="/api")
+    app.include_router(circuits.router, prefix="/api")
     app.include_router(models.router, prefix="/api")
     app.include_router(predict.router, prefix="/api")
     app.include_router(sensitivity.router, prefix="/api")

@@ -6,11 +6,31 @@ export type FeatureSchemaItem = {
   max: number | null;
   options: unknown[] | null;
   group: string | null;
+  label: string | null;
+  description: string | null;
+  readonly: boolean;
+  advanced: boolean;
+  derived_from: string[] | null;
 };
 
 export type SchemaResponse = {
   model_version: string;
   features: FeatureSchemaItem[];
+  ui_year?: number;
+};
+
+export type CircuitMeta = {
+  race_name: string;
+  round: number;
+  total_laps: number;
+  country: string;
+  city: string;
+  drs_zones: number;
+};
+
+export type CircuitsResponse = {
+  season: number;
+  circuits: CircuitMeta[];
 };
 
 export type PredictResponse = {

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class FeatureSchemaItem(BaseModel):
@@ -13,6 +13,11 @@ class FeatureSchemaItem(BaseModel):
     max: float | None = None
     options: list[Any] | None = None
     group: str | None = None
+    label: str | None = None
+    description: str | None = None
+    readonly: bool = False
+    advanced: bool = False
+    derived_from: list[str] | None = None
 
 
 class ModelCurrentResponse(BaseModel):
@@ -29,3 +34,4 @@ class ModelCurrentResponse(BaseModel):
 class ModelsSchemaResponse(BaseModel):
     model_version: str
     features: list[FeatureSchemaItem]
+    ui_year: int = Field(default=2025, description="Season locked in the product UI")

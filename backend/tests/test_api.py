@@ -23,6 +23,15 @@ def test_models_schema(client: TestClient) -> None:
     j = r.json()
     assert j["model_version"] == "test"
     assert len(j["features"]) == 5
+    assert j.get("ui_year") == 2025
+
+
+def test_circuits(client: TestClient) -> None:
+    r = client.get("/api/circuits")
+    assert r.status_code == 200
+    j = r.json()
+    assert j["season"] == 2025
+    assert len(j["circuits"]) >= 20
 
 
 def test_predict_single_raw_vector(client: TestClient, raw_vector: dict) -> None:

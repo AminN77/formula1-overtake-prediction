@@ -20,6 +20,7 @@ export const api = {
   health: () => apiFetch<{ status: string }>("/api/health"),
   modelsCurrent: () => apiFetch<Record<string, unknown>>("/api/models/current"),
   modelsSchema: () => apiFetch<import("../types").SchemaResponse>("/api/models/schema"),
+  circuits: () => apiFetch<import("../types").CircuitsResponse>("/api/circuits"),
   predictSingle: (body: object) =>
     apiFetch<import("../types").PredictResponse>("/api/predict/single", {
       method: "POST",

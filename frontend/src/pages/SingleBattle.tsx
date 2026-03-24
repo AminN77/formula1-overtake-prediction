@@ -1,17 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api/client";
 import { BattleForm, useSchemaForm } from "../components/battle/BattleForm";
 import { FeatureImpact } from "../components/battle/FeatureImpact";
 import { PredictionCard } from "../components/battle/PredictionCard";
 import { SensitivityChart } from "../components/battle/SensitivityChart";
-import type { FeatureSchemaItem, PredictResponse, SchemaResponse } from "../types";
+import type { CircuitMeta, FeatureSchemaItem, PredictResponse, SchemaResponse } from "../types";
+
+const UI_YEAR = 2025;
 
 export function SingleBattle() {
   const [schema, setSchema] = useState<SchemaResponse | null>(null);
+  const [circuits, setCircuits] = useState<CircuitMeta[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { values, setValues } = useSchemaForm(schema?.features ?? null);
+  const [raceName, setRaceName] = useState("");
   const [pred, setPred] = useState<PredictResponse | null>(null);
+  const [predicting, setPredicting] = useState(false);
   const [sensFeature, setSensFeature] = useState<string>("");
   const [sens, setSens] = useState<{
     baseline_probability: number;
@@ -30,29 +35,72 @@ export function SingleBattle() {
       } finally {
         if (!cancelled) setLoading(false);
       }
+      try {
+        const c = await api.circuits();
+        if (!cancelled) setCircuits(c.circuits);
+      } catch {
+        /* circuit metadata optional — Advanced mode still works */
+      }
     })();
     return () => {
       cancelled = true;
     };
   }, []);
 
+  useEffect(() => {
+    if (!circuits?.length || !schema || raceName) return;
+    const c = circuits.find((x) => x.race_name === "Italian Grand Prix") ?? circuits[0];
+    setRaceName(c.race_name);
+    setValues((prev) => ({
+      ...prev,
+      round_number: c.round,
+      total_laps: c.total_laps,
+      year: UI_YEAR,
+      race_name: c.race_name,
+    }));
+  }, [circuits, schema, raceName, setValues]);
+
+  const mergedInputs = useMemo(
+    () => ({
+      ...values,
+      race_name: (values.race_name as string) || raceName || "Italian Grand Prix",
+      year: UI_YEAR,
+    }),
+    [values, raceName],
+  );
+
+  /** Drop readonly model inputs so the API runs `build_single_row` and recomputes derived speeds/progress. */
+  const sanitizedInputs = useMemo(() => {
+    const ro = new Set(schema?.features.filter((f) => f.readonly).map((f) => f.name) ?? []);
+    const out: Record<string, unknown> = { ...mergedInputs };
+    for (const k of ro) delete out[k];
+    return out;
+  }, [mergedInputs, schema?.features]);
+
+  const onRaceChange = useCallback((name: string, _meta: CircuitMeta) => {
+    setRaceName(name);
+  }, []);
+
   const onPredict = useCallback(async () => {
     setErr(null);
+    setPredicting(true);
     try {
-      const body = { inputs: values, include_impacts: true, include_row: false };
+      const body = { inputs: sanitizedInputs, include_impacts: true, include_row: false };
       const r = await api.predictSingle(body);
       setPred(r);
     } catch (e) {
       setErr(String(e));
+    } finally {
+      setPredicting(false);
     }
-  }, [values]);
+  }, [sanitizedInputs]);
 
   const onSensitivity = useCallback(async () => {
     if (!sensFeature) return;
     setErr(null);
     try {
       const r = await api.sensitivity({
-        inputs: values,
+        inputs: sanitizedInputs,
         feature: sensFeature,
         min: undefined,
         max: undefined,
@@ -62,10 +110,12 @@ export function SingleBattle() {
     } catch (e) {
       setErr(String(e));
     }
-  }, [values, sensFeature]);
+  }, [sanitizedInputs, sensFeature]);
 
   const numericFeatures: FeatureSchemaItem[] =
     schema?.features.filter((f) => f.kind === "number") ?? [];
+
+  const currentSensValue = sensFeature ? Number(values[sensFeature] ?? 0) : undefined;
 
   if (loading) return <div className="text-f1-muted">Loading schema…</div>;
   if (err && !schema) return <div className="text-red-400">{err}</div>;
@@ -75,24 +125,33 @@ export function SingleBattle() {
       <div>
         <h1 className="text-3xl font-bold text-white">Battle prediction</h1>
         <p className="mt-2 max-w-2xl text-f1-muted">
-          Adjust inputs — the form is driven by the active model schema. Run prediction, then explore
-          one-parameter sensitivity.
+          Pick a 2025 circuit, tune the battle, then run a prediction. Use <strong>Advanced</strong>{" "}
+          for full feature control and local sensitivity.
         </p>
       </div>
 
       {schema && (
-        <BattleForm features={schema.features} values={values} onChange={setValues} />
+        <BattleForm
+          features={schema.features}
+          values={values}
+          onChange={setValues}
+          circuits={circuits}
+          raceName={raceName || "Italian Grand Prix"}
+          onRaceChange={onRaceChange}
+          uiYear={schema.ui_year ?? UI_YEAR}
+        />
       )}
 
       {err && <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">{err}</div>}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex justify-center">
         <button
           type="button"
           onClick={onPredict}
-          className="rounded-lg bg-f1-red px-6 py-3 font-bold text-white shadow-lg transition hover:brightness-110"
+          disabled={predicting}
+          className="min-w-[200px] rounded-xl bg-f1-red px-8 py-4 text-lg font-bold text-white shadow-xl transition hover:brightness-110 disabled:opacity-50"
         >
-          Predict
+          {predicting ? "Scoring…" : "Predict overtake"}
         </button>
       </div>
 
@@ -123,7 +182,7 @@ export function SingleBattle() {
                 <option value="">Select…</option>
                 {numericFeatures.map((f) => (
                   <option key={f.name} value={f.name}>
-                    {f.name}
+                    {f.label || f.name}
                   </option>
                 ))}
               </select>
@@ -142,6 +201,7 @@ export function SingleBattle() {
               feature={sens.feature}
               curve={sens.curve}
               baseline={sens.baseline_probability}
+              currentValue={Number.isFinite(currentSensValue) ? currentSensValue : undefined}
             />
           )}
         </div>
