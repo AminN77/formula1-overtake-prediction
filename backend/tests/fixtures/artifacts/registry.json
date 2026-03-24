@@ -1,0 +1,1 @@
+{"default": "test", "models": {"test": {"pkl": "test_model.pkl", "meta": "test_model_meta.json", "data_version": "test"}}}

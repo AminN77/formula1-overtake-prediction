@@ -1,0 +1,11 @@
+.git
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/node_modules
+**/dist
+**/.venv
+**/venv
+data/**/*.csv
+**/cache
+notebooks/.ipynb_checkpoints

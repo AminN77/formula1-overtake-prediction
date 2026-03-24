@@ -1,0 +1,1 @@
+{"features": ["f0", "f1", "f2", "f3", "f4"], "num_cols": ["f0", "f1", "f2", "f3", "f4"], "cat_cols": [], "threshold": 0.5, "train_years": [2022], "train_rows": 10, "cv_metrics": {"roc_auc": 0.5}}

@@ -1,157 +1,125 @@
 # F1 Overtake Prediction
 
-Predict the probability of an on-track overtake during a Formula 1 battle using telemetry, tyre, weather, and race-context data from [FastF1](https://docs.fastf1.dev/).
+Predict the probability of an **on-track overtake** between two consecutive cars using lap-level battle features derived from **FastF1** race data. The project includes an offline data pipeline, research notebooks, serialized ML models, and a **React + FastAPI** web application (IP05).
 
-The model answers: *given two cars battling within 1 second of each other at the start of a lap, how likely is the attacker to gain position by the next lap?*
+---
 
-## Results
+## Architecture (IP05)
 
-Trained on 2022–2024 seasons, evaluated on the unseen 2025 season:
+| Layer | Tech | Role |
+|-------|------|------|
+| **Frontend** | React 19, TypeScript, Vite, Tailwind, Recharts | F1-inspired UI; dynamic form from `/api/models/schema`; batch CSV upload |
+| **Backend** | FastAPI, sklearn/XGBoost joblib pipelines | Model registry, `/api/predict/*`, `/api/sensitivity`, OpenAPI at `/docs` |
+| **Pipeline** | Python, FastF1 | Offline generation of `data/v*/battles_*.csv` |
 
-| Metric | v1 Baseline | v2 (RF) | v3 (XGBoost) |
-|--------|------------|---------|--------------|
-| ROC-AUC | 0.690 | 0.785 | **0.888** |
-| PR-AUC | 0.080 | 0.200 | **0.467** |
-| Brier | 0.040 | 0.035 | **0.037** |
+The frontend is **model-agnostic**: it loads feature definitions from the backend so new model versions do not require hardcoded field lists in the client.
 
-**Battle-pair level** (2025 holdout): ROC-AUC **0.910**, PR-AUC **0.696** — the model reliably identifies which battles will produce overtakes.
+---
 
-## Project Structure
+## Quick start (Docker)
 
-```
-├── data/
-│   ├── v1/                  # Original 22-column battles (2022 only)
-│   ├── v2/                  # Enriched 45-column battles (2022–2025)
-│   ├── v3/                  # IP02-fixed 51-column battles (2022–2025)
-│   └── v4/                  # IP03: track_type fix, sectors, horizons, driver rates (62 cols)
-├── docs/
-│   ├── problem_definition.md
-│   ├── roadmap.md
-│   ├── IP01.md              # Improvement proposal: baseline fixes
-│   ├── IP02.md              # Improvement proposal: closing the prediction gap
-│   ├── IP03.md              # Improvement proposal: battle-pair & sequence models
-│   └── IP04.md              # Improvement proposal: context-aware features + app architecture
-├── models/
-│   ├── model_testing_1.ipynb  # v1: Logistic Regression + Random Forest baseline
-│   ├── model_testing_2.ipynb  # v2: RF + calibration, GroupKFold, 2025 holdout
-│   ├── model_testing_3.ipynb  # v3: XGBoost + Optuna, IP02 features, battle-pair eval
-│   ├── model_testing_4.ipynb  # v4: IP03 — SHAP prune, pair model, temporal / LOCO eval
-│   ├── app.py                 # Gradio web UI (single battle + batch CSV scoring)
-│   ├── predict.py             # CLI batch inference
-│   ├── score_battle.py        # CLI single-battle scoring
-│   └── artifacts/             # Saved model pipelines and metadata (.pkl gitignored)
-└── src/
-    └── pipeline/
-        ├── main.py            # Entry point: generate battle CSVs from FastF1
-        ├── battle_detector.py # Detect battles and label overtakes
-        ├── fastf1_utils.py    # FastF1 session loading, gap, speed, weather helpers
-        ├── models.py          # BattleRecord dataclass (60 fields; v4 CSV +2 driver columns)
-        └── track_info.py      # DRS zones, sector types, track classification
-```
-
-## Quick Start
-
-### Prerequisites
+1. Trained artifacts live under `models/artifacts/` (at minimum `overtake_model_v5.pkl` + `overtake_model_v5_meta.json` + `registry.json`); they are versioned in this repository.
+2. From the repository root:
 
 ```bash
-pip install fastf1 pandas scikit-learn xgboost optuna gradio joblib shap
+docker compose up --build
 ```
 
-### Generate data
+- **Frontend:** http://localhost:3000 (nginx → proxies `/api` to backend)
+- **Backend API:** http://localhost:8000 — interactive docs: http://localhost:8000/docs  
+- Configure default model: `DEFAULT_MODEL=v4 docker compose up`
+
+---
+
+## Local development
+
+### Backend
 
 ```bash
-cd src/
-python -m pipeline.main --years 2022 --output ../data/v3/battles_2022.csv --cache cache
-python -m pipeline.main --years 2023 --output ../data/v3/battles_2023.csv --cache cache
-python -m pipeline.main --years 2024 --output ../data/v3/battles_2024.csv --cache cache
-python -m pipeline.main --years 2025 --output ../data/v3/battles_2025.csv --cache cache
+cd backend
+pip install -r requirements.txt
+export MODEL_ARTIFACTS_DIR="$(pwd)/../models/artifacts"
+export PYTHONPATH="$(pwd)/..:${PYTHONPATH}"   # repo root for `pipeline` package
+uvicorn app.main:app --reload --port 8000
 ```
 
-**v4 (IP03) — all seasons in one run** (needed for driver rolling features):
+### Frontend
 
 ```bash
-python -m pipeline.main --years 2022 2023 2024 2025 --output-dir ../data/v4 --cache cache
+cd frontend
+npm install
+npm run dev
 ```
 
-### Train the model
+Vite dev server proxies `/api` to `http://127.0.0.1:8000` (override with `VITE_PROXY_TARGET`).
 
-Open and run `models/model_testing_3.ipynb` in Jupyter. This will:
-1. Load v3 data for 2022–2024 (train) and 2025 (holdout test).
-2. Filter pit-stop overtakes and engineer 56 features.
-3. Tune XGBoost with 30-trial Optuna Bayesian optimisation.
-4. Evaluate with ROC/PR curves, multi-threshold, battle-pair, per-year, and per-track metrics.
-5. Save the model to `models/artifacts/overtake_model_v3.pkl`.
+Set `VITE_API_URL` only if the API is on another origin; leave empty when using the proxy.
 
-**v4 / IP03:** run `models/model_testing_4.ipynb` on `data/v4` — adds SHAP-based feature pruning, a dedicated **battle-pair** XGBoost model, temporal-progressive and leave-one-circuit-style checks, and saves `overtake_model_v4.pkl`.
+---
 
-### Web UI
+## Data pipeline (offline)
+
+From the **repository root** (so the `pipeline` package resolves):
 
 ```bash
-cd models/
-python app.py
+export PYTHONPATH=.
+python -m pipeline.main --years 2022 2023 2024 2025 --output-dir data/v5 --cache cache
 ```
 
-Open http://127.0.0.1:7860 — two tabs:
+See `data/v5/README.md` for column descriptions.
 
-- **Single Battle** — enter race parameters and get a live overtake probability.
-- **Batch CSV** — upload a battle CSV, get predictions for all rows with downloadable results.
+---
 
-<p align="center">
-  <img src="docs/images/app_form.png" width="49%" alt="Single battle input form" />
-  <img src="docs/images/app_result.png" width="49%" alt="Prediction result card" />
-</p>
+## Model training
 
-### CLI scoring
+Research notebooks live in `notebooks/` (e.g. `model_testing_5.ipynb` for the v5 model). Trained pipelines and JSON metadata are written under `models/artifacts/` and committed alongside the code.
 
-```bash
-# Batch: score an entire CSV
-cd models/
-python predict.py --input ../data/v3/battles_2025.csv
+---
 
-# Single battle
-python score_battle.py \
-    --race "Italian Grand Prix" --year 2025 \
-    --lap 35 --total-laps 53 \
-    --attacker-pos 8 --defender-pos 7 \
-    --gap -0.56 \
-    --attacker-compound HARD --attacker-tyre-age 20 \
-    --defender-compound HARD --defender-tyre-age 22 \
-    --attacker-lap-time 92.1 --defender-lap-time 92.8
+## Project layout
+
+```
+├── backend/                 # FastAPI application
+├── frontend/                # React SPA (Vite)
+├── pipeline/                # FastF1 battle extraction & feature enrichment
+├── notebooks/               # Jupyter experiments (model_testing_*.ipynb)
+├── models/artifacts/        # registry.json + *.pkl + *_meta.json
+├── data/                    # Versioned battle CSVs (v1…v5)
+├── docs/                    # IP01–IP05, roadmap, images
+├── docker-compose.yml
+└── README.md
 ```
 
-## Data Pipeline
+---
 
-The pipeline (`src/pipeline/`) uses FastF1 to extract per-lap battle records:
+## API highlights
 
-1. **Battle detection** — for each lap, find consecutive-position pairs within 1s actual gap (LapStartTime-based).
-2. **Feature extraction** — lap times, speed traps, tyre data, stint info, weather, DRS zones, qualifying rank.
-3. **Overtake labelling** — position change on the next lap, excluding pit stops.
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/health` | Liveness |
+| GET | `/api/models/current` | Active model metadata |
+| GET | `/api/models/schema` | Feature list + types for dynamic UI |
+| POST | `/api/models/switch` | `{"version": "v4"}` — switch loaded model |
+| POST | `/api/predict/single` | JSON `inputs` → probability + optional local impacts |
+| POST | `/api/predict/batch` | multipart CSV + `threshold` + `filter_pits` query params |
+| POST | `/api/sensitivity` | 1D curve for a numeric feature |
 
-### v3 data improvements (IP02)
+If the request JSON contains **all** keys in `meta["features"]`, the backend uses them directly as the feature vector (useful for tests); otherwise it engineers a row from battle-oriented UI fields (same behaviour as the legacy Gradio app).
 
-- `gap_ahead` uses the real inter-car gap from `LapStartTime` (v2 used pace difference, which was inverted for 54% of rows).
-- `pit_stop_involved` flag allows filtering strategic position changes.
-- `tyre_age_difference` is now signed (negative = attacker on fresher tyres).
-- Speed deltas (attacker − defender) and `pace_delta` added as first-class features.
+---
 
-## Model Evolution
+## Improvement proposals
 
-| Version | Model | Features | Key Change |
-|---------|-------|----------|------------|
-| v1 | Logistic Regression + Random Forest | 22 | Baseline with driver identity (leakage) |
-| v2 | Random Forest + isotonic calibration | 40 | Remove driver IDs, add speed traps/weather, GroupKFold |
-| v3 | XGBoost + Optuna + isotonic calibration | 56 | Fix gap_ahead, filter pit stops, gap trends, battle context, tyre cliff |
-| v4 | XGBoost + Optuna + SHAP prune + pair-level model | 60+ (pruned in notebook) | IP03: track_type, sectors, horizons, driver rates; pair aggregation & extra eval |
+| Doc | Topic |
+|-----|--------|
+| [docs/IP05.md](docs/IP05.md) | **Product overhaul** — FastAPI + React + Docker |
+| [docs/IP04.md](docs/IP04.md) | Context-aware driver/team features (v5) |
+| [docs/IP03.md](docs/IP03.md) | v4 dataset & modelling |
+| [docs/IP02.md](docs/IP02.md) | Data quality & features |
+| [docs/IP01.md](docs/IP01.md) | Baseline audit |
 
-## Improvement Proposals
-
-The project follows a proposal-driven development process:
-
-- **[IP01](docs/IP01.md)** — Identified driver identity leakage, collinearity, missing calibration, and temporal leakage in the baseline.
-- **[IP02](docs/IP02.md)** — Diagnosed weak class separation; fixed gap semantics, added temporal features, moved to XGBoost with Optuna tuning.
-- **[IP03](docs/IP03.md)** — Proposes battle-pair aggregation model, GRU sequence modelling, SHAP pruning, Venn-Abers calibration, and track-type coverage fix.
-- **[IP04](docs/IP04.md)** — Proposes constructor/team and within-season driver-form features, richer race-situation context, and a cleaner app/API architecture with better UI explanations.
+---
 
 ## License
 
-This project is for academic purposes (AI in Industry course).
+Academic / coursework context — see your institution’s policies for redistribution of FastF1-derived data.

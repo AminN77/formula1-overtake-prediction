@@ -1,0 +1,25 @@
+{
+  "default": "v5",
+  "models": {
+    "v5": {
+      "pkl": "overtake_model_v5.pkl",
+      "meta": "overtake_model_v5_meta.json",
+      "data_version": "v5"
+    },
+    "v4": {
+      "pkl": "overtake_model_v4.pkl",
+      "meta": "overtake_model_v4_meta.json",
+      "data_version": "v4"
+    },
+    "v3": {
+      "pkl": "overtake_model_v3.pkl",
+      "meta": "overtake_model_v3_meta.json",
+      "data_version": "v3"
+    },
+    "v2": {
+      "pkl": "overtake_model_v2.pkl",
+      "meta": "overtake_model_v2_meta.json",
+      "data_version": "v2"
+    }
+  }
+}

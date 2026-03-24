@@ -206,12 +206,16 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Cached files
-src/cache/
+# Cached files (FastF1)
+cache/
+**/cache/
 
-# Model artifacts (large binaries — regenerate from notebooks)
-models/artifacts/*.pkl
-models/artifacts/*.joblib
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend tests
+backend/.pytest_cache/
 
 # Gradio / temp
 flagged/
