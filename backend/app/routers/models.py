@@ -43,8 +43,14 @@ def models_schema(
     reg: Annotated[ModelRegistry, Depends(get_registry)],
 ) -> ModelsSchemaResponse:
     m = reg.active
+    trained = list(m.meta.get("features") or [])
     items = build_feature_schema(m.meta)
-    return ModelsSchemaResponse(model_version=m.version, features=items, ui_year=2025)
+    return ModelsSchemaResponse(
+        model_version=m.version,
+        features=items,
+        ui_year=2025,
+        trained_feature_names=trained,
+    )
 
 
 @router.get("/versions")

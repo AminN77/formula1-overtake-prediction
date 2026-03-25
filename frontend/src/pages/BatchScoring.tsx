@@ -8,12 +8,14 @@ export function BatchScoring() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [modelVersion, setModelVersion] = useState<string>("");
 
   useEffect(() => {
     (async () => {
       try {
         const m = await api.modelsCurrent();
         if (typeof m.threshold === "number") setThreshold(m.threshold as number);
+        if (typeof m.version === "string") setModelVersion(m.version);
       } catch {
         /* ignore */
       }
@@ -54,7 +56,14 @@ export function BatchScoring() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Batch scoring</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-3xl font-bold">Batch scoring</h1>
+          {modelVersion && (
+            <span className="rounded-full border border-white/15 bg-f1-surface/80 px-3 py-1 font-mono text-xs text-f1-muted">
+              Model: <span className="text-white">{modelVersion}</span>
+            </span>
+          )}
+        </div>
         <p className="mt-2 text-f1-muted">Upload a battle CSV (e.g. from <code className="text-f1-red">data/v5</code>).</p>
       </div>
 

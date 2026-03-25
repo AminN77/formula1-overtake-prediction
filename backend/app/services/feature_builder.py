@@ -14,6 +14,14 @@ import pandas as pd
 from .circuit_calendar import CIRCUIT_CALENDAR_2025
 
 try:
+    from pipeline.constructor_standings import constructor_position_for_team
+except ImportError:  # pragma: no cover
+
+    def constructor_position_for_team(year: int, app_team_name: str) -> int | None:
+        return None
+
+
+try:
     from pipeline.track_info import get_drs_zone_info, get_sector_type, get_track_type
 except ImportError:  # pragma: no cover
 
@@ -102,7 +110,7 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     """Construct one logical battle row from UI/API input (snake_case keys)."""
     race = str(raw.get("race_name", "Italian Grand Prix"))
     cal = CIRCUIT_CALENDAR_2025.get(race)
-    year = 2025
+    year = int(raw.get("year", 2025))
     lap = int(raw.get("lap_number", 35))
     if cal is not None:
         total_laps = int(raw.get("total_laps", cal["total_laps"]))
@@ -128,16 +136,30 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     defender_stint = int(raw.get("defender_stint", 2))
     attacker_qual_rank = int(raw.get("attacker_qualification_rank", 8))
     defender_qual_rank = int(raw.get("defender_qualification_rank", 7))
+    qual_diff_raw = raw.get("qualification_rank_difference")
+    if qual_diff_raw is not None and str(qual_diff_raw).strip() != "":
+        qualification_rank_difference = int(float(qual_diff_raw))
+    else:
+        qualification_rank_difference = attacker_qual_rank - defender_qual_rank
     air_temp = float(raw.get("air_temp", 25.0))
     track_temp = float(raw.get("track_temp", 36.0))
     humidity = float(raw.get("humidity", 50.0))
     rainfall = _coerce_bool(raw.get("rainfall", False))
     wind_speed = float(raw.get("wind_speed", 2.0))
-    gap_delta_1 = float(raw.get("gap_delta_1", raw.get("closing_rate", -0.05)))
-    battle_duration = int(raw.get("battle_duration", 3))
+    gap_delta_1 = float(raw.get("gap_delta_1", raw.get("closing_rate", -0.2)))
+    battle_duration = int(raw.get("battle_duration", 5))
     overtakes_this_race = int(raw.get("overtakes_this_race", 5))
     attacker_team = str(raw.get("attacker_team", "McLaren"))
     defender_team = str(raw.get("defender_team", "Ferrari"))
+
+    # Avoid network on `build_single_row({})` (schema defaults).
+    if raw:
+        acr = constructor_position_for_team(year, attacker_team)
+        dcr = constructor_position_for_team(year, defender_team)
+        att_cons = int(acr) if acr is not None else 10
+        def_cons = int(dcr) if dcr is not None else 10
+    else:
+        att_cons, def_cons = 10, 10
     gap_to_car_ahead = float(raw.get("gap_to_car_ahead", 2.5))
     gap_to_car_behind = float(raw.get("gap_to_car_behind", 1.8))
     drs_train_size = int(raw.get("drs_train_size", 2))
@@ -225,9 +247,12 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
         "compound_advantage": compound_advantage,
         "tyre_cliff_risk": tyre_cliff_risk,
         "attacker_on_newer_stint": attacker_on_newer_stint,
-        "qualification_rank_difference": attacker_qual_rank - defender_qual_rank,
+        "qualification_rank_difference": qualification_rank_difference,
         "attacker_team": attacker_team,
         "defender_team": defender_team,
+        "attacker_constructor_rank": att_cons,
+        "defender_constructor_rank": def_cons,
+        "constructor_rank_delta": att_cons - def_cons,
         "same_team": attacker_team == defender_team,
         "gap_to_car_ahead": gap_to_car_ahead,
         "gap_to_car_behind": gap_to_car_behind,

@@ -11,7 +11,10 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
+from pipeline.constructor_standings import standings_positions_by_year_team
+
 DEFAULT_RANK = 10.0
+DEFAULT_CONSTRUCTOR_POS = 10
 DEFAULT_RATE = 0.0
 
 
@@ -208,4 +211,25 @@ def enrich_team_features(df: pd.DataFrame) -> pd.DataFrame:
     out["defender_quali_vs_teammate"] = def_qvt
     out["attacker_race_pace_vs_teammate"] = att_rpvt
     out["defender_race_pace_vs_teammate"] = def_rpvt
+
+    # Constructor championship positions (f1api.dev snapshot for that season)
+    year_maps: dict[int, dict[str, int]] = {}
+    att_cons: list[int] = []
+    def_cons: list[int] = []
+    cons_delta: list[int] = []
+    for _, row in df.iterrows():
+        y = int(row["year"])
+        if y not in year_maps:
+            year_maps[y] = standings_positions_by_year_team(y)
+        m = year_maps[y]
+        at = str(row["attacker_team"])
+        dt = str(row["defender_team"])
+        ac = m.get(at, DEFAULT_CONSTRUCTOR_POS)
+        dc = m.get(dt, DEFAULT_CONSTRUCTOR_POS)
+        att_cons.append(ac)
+        def_cons.append(dc)
+        cons_delta.append(ac - dc)
+    out["attacker_constructor_rank"] = att_cons
+    out["defender_constructor_rank"] = def_cons
+    out["constructor_rank_delta"] = cons_delta
     return out

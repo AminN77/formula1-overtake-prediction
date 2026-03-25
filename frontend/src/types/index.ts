@@ -17,6 +17,8 @@ export type SchemaResponse = {
   model_version: string;
   features: FeatureSchemaItem[];
   ui_year?: number;
+  /** Model artifact feature list; UI may append supplemental inputs for `build_single_row`. */
+  trained_feature_names?: string[];
 };
 
 export type CircuitMeta = {
@@ -31,6 +33,21 @@ export type CircuitMeta = {
 export type CircuitsResponse = {
   season: number;
   circuits: CircuitMeta[];
+};
+
+export type StandingsEntry = {
+  position: number;
+  team_id: string;
+  points: number;
+  wins: number;
+  app_team: string;
+  team_name: string | null;
+};
+
+export type StandingsResponse = {
+  season: number;
+  source: string;
+  entries: StandingsEntry[];
 };
 
 export type PredictResponse = {

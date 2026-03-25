@@ -18,6 +18,17 @@ BASIC_FEATURE_NAMES: frozenset[str] = frozenset(
         "defender_lap_time",
         "gap_ahead",
         "drs_train_size",
+        # Strong drivers of P(overtake); were stuck on neutral defaults (IP06).
+        "battle_duration",
+        "closing_rate",
+        "attacker_overtake_rate_last5",
+        "defender_defend_rate_last5",
+        "attacker_team_pace_rank",
+        "defender_team_pace_rank",
+        "team_delta",
+        "gap_delta_1",
+        "attacker_qualification_rank",
+        "defender_qualification_rank",
     }
 )
 
@@ -28,6 +39,10 @@ READONLY_FEATURE_NAMES: frozenset[str] = frozenset(
         "round_number",
         "total_laps",
         "race_progress",
+        "qualification_rank_difference",
+        "attacker_constructor_rank",
+        "defender_constructor_rank",
+        "constructor_rank_delta",
         "pace_delta",
         "attacker_speed_i1",
         "defender_speed_i1",
@@ -44,7 +59,6 @@ READONLY_FEATURE_NAMES: frozenset[str] = frozenset(
         "tyre_age_difference",
         "compound_advantage",
         "tyre_cliff_risk",
-        "qualification_rank_difference",
     }
 )
 
@@ -53,7 +67,8 @@ DERIVED_FROM: dict[str, list[str]] = {
     "pace_delta": ["attacker_lap_time", "defender_lap_time"],
     "tyre_age_difference": ["attacker_tyre_age", "defender_tyre_age"],
     "compound_advantage": ["attacker_tyre_compound", "defender_tyre_compound"],
-    "qualification_rank_difference": [],
+    "qualification_rank_difference": ["attacker_qualification_rank", "defender_qualification_rank"],
+    "constructor_rank_delta": ["attacker_constructor_rank", "defender_constructor_rank"],
 }
 
 FEATURE_LABELS: dict[str, str] = {
@@ -115,6 +130,12 @@ FEATURE_LABELS: dict[str, str] = {
     "compound_advantage": "Compound advantage",
     "tyre_cliff_risk": "Tyre cliff risk",
     "qualification_rank_difference": "Qualifying rank difference",
+    "attacker_qualification_rank": "Attacker qualifying position",
+    "defender_qualification_rank": "Defender qualifying position",
+    "gap_delta_1": "Gap trend (lap vs lap)",
+    "attacker_constructor_rank": "Attacker constructor championship rank",
+    "defender_constructor_rank": "Defender constructor championship rank",
+    "constructor_rank_delta": "Constructor rank delta (att − def)",
     "battle_duration": "Battle duration (laps)",
     "closing_rate": "Closing rate (gap trend)",
 }
@@ -177,7 +198,13 @@ FEATURE_DESCRIPTIONS: dict[str, str] = {
     "defender_race_pace_vs_teammate": "Defender race pace vs teammate",
     "compound_advantage": "Tyre pace advantage (defender vs attacker compounds).",
     "tyre_cliff_risk": "Binary risk that defender tyres are past the cliff.",
-    "qualification_rank_difference": "Attacker quali rank minus defender quali rank.",
+    "qualification_rank_difference": "Attacker quali position minus defender (derived from qual ranks).",
+    "attacker_qualification_rank": "Attacker grid position from qualifying.",
+    "defender_qualification_rank": "Defender grid position from qualifying.",
+    "gap_delta_1": "Change in gap to car ahead vs previous lap (negative = closing).",
+    "attacker_constructor_rank": "Constructor championship position for attacker team (f1api.dev).",
+    "defender_constructor_rank": "Constructor championship position for defender team (f1api.dev).",
+    "constructor_rank_delta": "Attacker constructor rank minus defender (negative = attacker ahead in standings).",
     "battle_duration": "How long this pair has been fighting (laps).",
     "closing_rate": "Trend in gap closing (negative = closing in).",
 }

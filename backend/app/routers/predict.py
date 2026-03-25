@@ -23,17 +23,20 @@ def get_registry(request: Request) -> ModelRegistry:
 
 
 def _verdict_label(p: float, threshold: float) -> tuple[str, str]:
+    """Verdict uses trained threshold; labels below threshold describe score bands without implying pass/fail."""
     if p >= threshold:
         return "overtake", "Predicted overtake"
     if p < 0.05:
-        return "hold", "Very unlikely"
+        return "hold", "Below threshold · score band: very low"
     if p < 0.15:
-        return "hold", "Possible"
+        return "hold", "Below threshold · score band: low"
     if p < 0.30:
-        return "hold", "Likely"
+        return "hold", "Below threshold · score band: moderate-low"
     if p < 0.50:
-        return "hold", "Very likely"
-    return "hold", "Highly likely"
+        return "hold", "Below threshold · score band: moderate"
+    if p < threshold:
+        return "hold", "Below threshold · score band: high"
+    return "hold", "Below threshold · score band: very high"
 
 
 @router.post("/single", response_model=PredictSingleResponse)

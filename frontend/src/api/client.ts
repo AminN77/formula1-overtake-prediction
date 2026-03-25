@@ -20,7 +20,15 @@ export const api = {
   health: () => apiFetch<{ status: string }>("/api/health"),
   modelsCurrent: () => apiFetch<Record<string, unknown>>("/api/models/current"),
   modelsSchema: () => apiFetch<import("../types").SchemaResponse>("/api/models/schema"),
+  modelsVersions: () => apiFetch<{ versions: string[] }>("/api/models/versions"),
+  modelsSwitch: (version: string) =>
+    apiFetch<{ active: string }>("/api/models/switch", {
+      method: "POST",
+      body: JSON.stringify({ version }),
+    }),
   circuits: () => apiFetch<import("../types").CircuitsResponse>("/api/circuits"),
+  standings: (year: number) =>
+    apiFetch<import("../types").StandingsResponse>(`/api/standings?year=${year}`),
   predictSingle: (body: object) =>
     apiFetch<import("../types").PredictResponse>("/api/predict/single", {
       method: "POST",

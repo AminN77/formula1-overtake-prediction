@@ -34,6 +34,16 @@ TEAMS = [
     "Haas F1 Team",
 ]
 
+# Shown in the UI + sent to `build_single_row` even if not yet in older model artifacts (IP06).
+SUPPLEMENTAL_FEATURES: tuple[str, ...] = (
+    "gap_delta_1",
+    "attacker_qualification_rank",
+    "defender_qualification_rank",
+    "attacker_constructor_rank",
+    "defender_constructor_rank",
+    "constructor_rank_delta",
+)
+
 GROUP_HINTS: dict[str, str] = {
     "race_name": "race",
     "year": "race",
@@ -57,6 +67,9 @@ GROUP_HINTS: dict[str, str] = {
     "defender_stint": "defender",
     "defender_qualification_rank": "defender",
     "defender_team": "teams",
+    "attacker_constructor_rank": "teams",
+    "defender_constructor_rank": "teams",
+    "constructor_rank_delta": "teams",
     "sector": "track",
     "air_temp": "weather",
     "track_temp": "weather",
@@ -103,6 +116,12 @@ def _range_for(name: str, default: Any) -> tuple[float | None, float | None]:
         "total_laps": (1, 100),
         "attacker_position": (1, 20),
         "defender_position": (1, 20),
+        "attacker_qualification_rank": (1, 20),
+        "defender_qualification_rank": (1, 20),
+        "attacker_constructor_rank": (1, 20),
+        "defender_constructor_rank": (1, 20),
+        "constructor_rank_delta": (-20, 20),
+        "qualification_rank_difference": (-20, 20),
         "gap_ahead": (0.0, 5.0),
         "attacker_tyre_age": (0, 60),
         "defender_tyre_age": (0, 60),
@@ -124,9 +143,19 @@ def _range_for(name: str, default: Any) -> tuple[float | None, float | None]:
 
 def build_feature_schema(meta: dict[str, Any]) -> list[FeatureSchemaItem]:
     features: list[str] = list(meta.get("features") or [])
+    seen = set(features)
+    for name in SUPPLEMENTAL_FEATURES:
+        if name not in seen:
+            features.append(name)
+            seen.add(name)
+
     nums = set(meta.get("num_cols") or [])
     cats = set(meta.get("cat_cols") or [])
     defaults = build_single_row({})
+    for name in SUPPLEMENTAL_FEATURES:
+        v = defaults.get(name)
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            nums.add(name)
 
     items: list[FeatureSchemaItem] = []
     for name in features:

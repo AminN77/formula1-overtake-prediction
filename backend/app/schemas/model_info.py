@@ -35,3 +35,7 @@ class ModelsSchemaResponse(BaseModel):
     model_version: str
     features: list[FeatureSchemaItem]
     ui_year: int = Field(default=2025, description="Season locked in the product UI")
+    trained_feature_names: list[str] = Field(
+        default_factory=list,
+        description="Features the loaded model was trained on (subset of `features` when UI supplements inputs).",
+    )
