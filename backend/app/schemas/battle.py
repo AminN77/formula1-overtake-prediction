@@ -40,3 +40,11 @@ class SensitivityResponse(BaseModel):
 
 class SwitchModelRequest(BaseModel):
     version: str
+
+
+class DeriveRowRequest(BaseModel):
+    inputs: dict[str, Any] = Field(default_factory=dict)
+
+
+class DeriveRowResponse(BaseModel):
+    row: dict[str, Any]

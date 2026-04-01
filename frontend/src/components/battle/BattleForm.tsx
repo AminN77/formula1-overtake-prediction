@@ -5,6 +5,37 @@ import { TeamBadge } from "../shared/TeamBadge";
 import { TyreIcon } from "../shared/TyreIcon";
 import { CircuitSelector } from "./CircuitSelector";
 
+const INPUT_CLASS =
+  "mt-1.5 w-full rounded-lg border border-white/15 bg-f1-card px-3 py-2.5 text-sm text-white shadow-inner transition placeholder:text-f1-muted/50 focus:border-f1-red/45 focus:outline-none focus:ring-2 focus:ring-f1-red/20 disabled:cursor-not-allowed disabled:opacity-45";
+
+/** Hint text for numeric fields: example from schema default + allowed range when present. */
+function placeholderForNumberField(f: FeatureSchemaItem): string {
+  const parts: string[] = [];
+  const d = f.default;
+  if (typeof d === "number" && Number.isFinite(d)) {
+    parts.push(`e.g. ${d}`);
+  }
+  const { min: mn, max: mx } = f;
+  if (mn != null && mx != null) {
+    parts.push(`${mn}–${mx}`);
+  } else if (mn != null) {
+    parts.push(`≥ ${mn}`);
+  } else if (mx != null) {
+    parts.push(`≤ ${mx}`);
+  }
+  if (parts.length) return parts.join(" · ");
+  return "Enter a number";
+}
+
+function emptySelectLabel(f: FeatureSchemaItem): string {
+  const n = f.name.toLowerCase();
+  if (n.includes("team")) return "Select a constructor…";
+  if (n.includes("compound") || n.includes("tyre_compound")) return "Select compound…";
+  if (n === "race_name") return "Select a race…";
+  if (n.includes("stint_phase")) return "Select phase…";
+  return "Select…";
+}
+
 const GROUP_TITLES: Record<string, string> = {
   race: "Race",
   positions: "Grid positions",
@@ -36,28 +67,108 @@ function FieldLabel({
   );
 }
 
+function readonlyHelpText(f: FeatureSchemaItem, byName: Record<string, FeatureSchemaItem>): string {
+  if (f.derived_from?.length) {
+    const labels = f.derived_from.map((n) => byName[n]?.label || n.replace(/_/g, " "));
+    return `This value updates when you edit: ${labels.join(", ")}. It is recomputed from your inputs (and reflected here in real time).`;
+  }
+  if (f.description) return f.description;
+  return "Derived or fixed for this form.";
+}
+
 function ReadonlyField({
   f,
   displayValue,
   showTechnical,
+  byName,
 }: {
   f: FeatureSchemaItem;
   displayValue: string;
   showTechnical: boolean;
+  byName: Record<string, FeatureSchemaItem>;
 }) {
+  const help = readonlyHelpText(f, byName);
   return (
-    <div className="rounded-lg border border-white/10 bg-black/20 px-3 py-2">
+    <div className="rounded-lg border border-amber-500/20 bg-gradient-to-br from-black/30 to-f1-surface/30 px-3 py-2.5">
       <div className="flex items-start justify-between gap-2">
         <FieldLabel f={f} showTechnical={showTechnical} />
-        <span className="text-lg" title="Derived / fixed for this UI">
-          🔒
-        </span>
+        <InfoTooltip text={help} />
       </div>
-      <div className="mt-1 font-mono text-sm text-f1-red">{displayValue}</div>
+      <div className="mt-1.5 rounded-md border border-white/5 bg-black/25 px-2.5 py-2 font-mono text-sm tabular-nums text-f1-red">
+        {displayValue}
+      </div>
       {f.derived_from && f.derived_from.length > 0 && (
-        <p className="mt-1 text-[10px] text-f1-muted">From: {f.derived_from.join(", ")}</p>
+        <p className="mt-2 text-[11px] leading-snug text-f1-muted">
+          Driven by:{" "}
+          <span className="text-white/90">
+            {f.derived_from.map((n) => byName[n]?.label || n).join(" · ")}
+          </span>
+        </p>
       )}
     </div>
+  );
+}
+
+function valueToNumberText(v: unknown): string {
+  if (v === "" || v === null || v === undefined) return "";
+  if (typeof v === "number" && Number.isFinite(v)) return String(v);
+  return "";
+}
+
+/** Plain text — no spinners; commits `number` or `""` on blur; allows free typing in between. */
+function NumberFieldEditor({
+  f,
+  value,
+  onChange,
+  showTechnical,
+  disabled,
+}: {
+  f: FeatureSchemaItem;
+  value: unknown;
+  onChange: (v: unknown) => void;
+  showTechnical: boolean;
+  disabled: boolean;
+}) {
+  const [text, setText] = useState(() => valueToNumberText(value));
+
+  useEffect(() => {
+    setText(valueToNumberText(value));
+  }, [f.name, value]);
+
+  return (
+    <label className="block text-sm">
+      <span className="flex items-center gap-1 text-f1-muted">
+        <FieldLabel f={f} showTechnical={showTechnical} />
+      </span>
+      <input
+        type="text"
+        inputMode="decimal"
+        autoComplete="off"
+        spellCheck={false}
+        className={INPUT_CLASS}
+        disabled={disabled}
+        placeholder={placeholderForNumberField(f)}
+        title={f.description || undefined}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onBlur={() => {
+          const t = text.trim();
+          if (t === "" || t === "-" || t === "." || t === "-.") {
+            setText("");
+            onChange("");
+            return;
+          }
+          const n = parseFloat(t);
+          if (Number.isFinite(n)) {
+            onChange(n);
+            setText(String(n));
+          } else {
+            setText("");
+            onChange("");
+          }
+        }}
+      />
+    </label>
   );
 }
 
@@ -78,13 +189,15 @@ function FieldEditor({
 
   if (f.kind === "boolean") {
     return (
-      <label className={`flex items-center gap-2 text-sm ${ro ? "opacity-60" : ""}`}>
+      <label
+        className={`flex cursor-pointer items-start gap-3 rounded-lg border border-white/10 bg-f1-surface/30 px-3 py-2.5 text-sm transition hover:border-white/20 ${ro ? "opacity-60" : ""}`}
+      >
         <input
           type="checkbox"
           checked={Boolean(value)}
           disabled={ro}
           onChange={(e) => onChange(e.target.checked)}
-          className="accent-f1-red"
+          className="mt-0.5 accent-f1-red"
         />
         <FieldLabel f={f} showTechnical={showTechnical} />
       </label>
@@ -99,11 +212,13 @@ function FieldEditor({
             <FieldLabel f={f} showTechnical={showTechnical} />
           </span>
           <select
-            className="mt-1 w-full rounded border border-white/10 bg-f1-card px-2 py-2 disabled:opacity-50"
+            className={INPUT_CLASS}
             value={String(value ?? "")}
             disabled={ro}
+            title={f.description || undefined}
             onChange={(e) => onChange(e.target.value)}
           >
+            <option value="">{emptySelectLabel(f)}</option>
             {opts.map((o) => (
               <option key={o} value={o}>
                 {o}
@@ -121,11 +236,13 @@ function FieldEditor({
             <FieldLabel f={f} showTechnical={showTechnical} />
           </span>
           <select
-            className="mt-1 w-full rounded border border-white/10 bg-f1-card px-2 py-2 disabled:opacity-50"
+            className={INPUT_CLASS}
             value={String(value ?? "")}
             disabled={ro}
+            title={f.description || undefined}
             onChange={(e) => onChange(e.target.value)}
           >
+            <option value="">{emptySelectLabel(f)}</option>
             {opts.map((o) => (
               <option key={o} value={o}>
                 {o}
@@ -142,11 +259,13 @@ function FieldEditor({
           <FieldLabel f={f} showTechnical={showTechnical} />
         </span>
         <select
-          className="mt-1 w-full rounded border border-white/10 bg-f1-card px-2 py-2 disabled:opacity-50"
+          className={INPUT_CLASS}
           value={String(value ?? "")}
           disabled={ro}
+          title={f.description || undefined}
           onChange={(e) => onChange(e.target.value)}
         >
+          <option value="">{emptySelectLabel(f)}</option>
           {opts.map((o) => (
             <option key={o} value={o}>
               {o}
@@ -156,23 +275,14 @@ function FieldEditor({
       </label>
     );
   }
-  const numVal = typeof value === "number" ? value : Number(value);
   return (
-    <label className="block text-sm">
-      <span className="flex items-center gap-1 text-f1-muted">
-        <FieldLabel f={f} showTechnical={showTechnical} />
-      </span>
-      <input
-        type="number"
-        step="any"
-        className="mt-1 w-full rounded border border-white/10 bg-f1-card px-2 py-2 disabled:opacity-50"
-        value={Number.isFinite(numVal) ? numVal : 0}
-        min={f.min ?? undefined}
-        max={f.max ?? undefined}
-        disabled={ro}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
-      />
-    </label>
+    <NumberFieldEditor
+      f={f}
+      value={value}
+      onChange={onChange}
+      showTechnical={showTechnical}
+      disabled={ro}
+    />
   );
 }
 
@@ -183,6 +293,8 @@ export function BattleForm({
   circuits,
   raceName,
   onRaceChange,
+  advanced,
+  onAdvancedChange,
   uiYear = 2025,
 }: {
   features: FeatureSchemaItem[];
@@ -191,9 +303,10 @@ export function BattleForm({
   circuits: CircuitMeta[] | null;
   raceName: string;
   onRaceChange: (name: string, meta: CircuitMeta) => void;
+  advanced: boolean;
+  onAdvancedChange: (advanced: boolean) => void;
   uiYear?: number;
 }) {
-  const [advanced, setAdvanced] = useState(false);
 
   const byName = useMemo(() => {
     const m: Record<string, FeatureSchemaItem> = {};
@@ -202,9 +315,10 @@ export function BattleForm({
   }, [features]);
 
   const raceProgressPct = useMemo(() => {
-    const lap = Number(values.lap_number ?? 0);
+    const lapRaw = values.lap_number;
+    const lap = typeof lapRaw === "number" && Number.isFinite(lapRaw) ? lapRaw : Number(lapRaw);
     const total = Number(values.total_laps ?? 1);
-    if (!total || total <= 0) return 0;
+    if (!Number.isFinite(lap) || !total || total <= 0) return null;
     return Math.round((lap / total) * 1000) / 10;
   }, [values.lap_number, values.total_laps]);
 
@@ -239,6 +353,7 @@ export function BattleForm({
     const v = values[f.name];
     if (f.name === "race_progress" && typeof v === "number") return `${(v * 100).toFixed(1)}%`;
     if (typeof v === "number") return Number.isFinite(v) ? String(v) : "—";
+    if (typeof v === "boolean") return v ? "true" : "false";
     return String(v ?? "—");
   };
 
@@ -252,7 +367,7 @@ export function BattleForm({
         <div className="flex rounded-full border border-white/10 p-0.5">
           <button
             type="button"
-            onClick={() => setAdvanced(false)}
+            onClick={() => onAdvancedChange(false)}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
               !advanced ? "bg-f1-red text-white" : "text-f1-muted hover:text-white"
             }`}
@@ -261,7 +376,7 @@ export function BattleForm({
           </button>
           <button
             type="button"
-            onClick={() => setAdvanced(true)}
+            onClick={() => onAdvancedChange(true)}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
               advanced ? "bg-f1-red text-white" : "text-f1-muted hover:text-white"
             }`}
@@ -292,7 +407,8 @@ export function BattleForm({
         )}
         {byName.race_progress && (
           <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs text-f1-muted">
-            Progress <span className="font-mono text-f1-red">{raceProgressPct}%</span>
+            Progress{" "}
+            <span className="font-mono text-f1-red">{raceProgressPct != null ? `${raceProgressPct}%` : "—"}</span>
             <InfoTooltip text="lap ÷ total laps — recomputed on the server from your inputs." />
           </span>
         )}
@@ -300,9 +416,9 @@ export function BattleForm({
 
       {!advanced && (
         <div className="space-y-6">
-          <div className="rounded-xl border border-f1-red/20 bg-gradient-to-br from-f1-surface/80 to-f1-card/40 p-4">
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-f1-red">Quick inputs</h3>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-f1-red/20 bg-gradient-to-br from-f1-surface/80 to-f1-card/40 p-5 shadow-lg shadow-black/20">
+            <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-f1-red">Quick inputs</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {basicFeatures.map((f) => (
                 <FieldEditor
                   key={f.name}
@@ -332,6 +448,7 @@ export function BattleForm({
                       f={f}
                       displayValue={formatReadonlyValue(f)}
                       showTechnical
+                      byName={byName}
                     />
                   ) : (
                     <FieldEditor
@@ -352,18 +469,3 @@ export function BattleForm({
   );
 }
 
-export function useSchemaForm(features: FeatureSchemaItem[] | null) {
-  const [values, setValues] = useState<Record<string, unknown>>({});
-
-  useEffect(() => {
-    if (!features?.length) return;
-    const init: Record<string, unknown> = {};
-    for (const f of features) {
-      init[f.name] = f.default ?? (f.kind === "boolean" ? false : 0);
-    }
-    init.year = 2025;
-    setValues(init);
-  }, [features]);
-
-  return { values, setValues };
-}

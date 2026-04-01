@@ -64,11 +64,52 @@ READONLY_FEATURE_NAMES: frozenset[str] = frozenset(
 
 DERIVED_FROM: dict[str, list[str]] = {
     "race_progress": ["lap_number", "total_laps"],
+    "round_number": ["race_name"],
+    "total_laps": ["race_name"],
     "pace_delta": ["attacker_lap_time", "defender_lap_time"],
     "tyre_age_difference": ["attacker_tyre_age", "defender_tyre_age"],
     "compound_advantage": ["attacker_tyre_compound", "defender_tyre_compound"],
     "qualification_rank_difference": ["attacker_qualification_rank", "defender_qualification_rank"],
     "constructor_rank_delta": ["attacker_constructor_rank", "defender_constructor_rank"],
+    "attacker_constructor_rank": ["attacker_team", "year"],
+    "defender_constructor_rank": ["defender_team", "year"],
+    "tyre_cliff_risk": ["defender_tyre_age", "defender_tyre_compound"],
+    "attacker_speed_i1": ["race_name", "attacker_lap_time", "defender_lap_time", "attacker_tyre_compound"],
+    "attacker_speed_i2": ["race_name", "attacker_lap_time", "defender_lap_time", "attacker_tyre_compound"],
+    "attacker_finish_line_speed": ["race_name", "attacker_lap_time", "defender_lap_time", "attacker_tyre_compound"],
+    "attacker_straight_speed": ["race_name", "attacker_lap_time", "defender_lap_time", "attacker_tyre_compound"],
+    "defender_speed_i1": ["race_name", "attacker_lap_time", "defender_lap_time", "defender_tyre_compound"],
+    "defender_speed_i2": ["race_name", "attacker_lap_time", "defender_lap_time", "defender_tyre_compound"],
+    "defender_finish_line_speed": ["race_name", "attacker_lap_time", "defender_lap_time", "defender_tyre_compound"],
+    "defender_straight_speed": ["race_name", "attacker_lap_time", "defender_lap_time", "defender_tyre_compound"],
+    "speed_i1_delta": [
+        "race_name",
+        "attacker_lap_time",
+        "defender_lap_time",
+        "attacker_tyre_compound",
+        "defender_tyre_compound",
+    ],
+    "speed_i2_delta": [
+        "race_name",
+        "attacker_lap_time",
+        "defender_lap_time",
+        "attacker_tyre_compound",
+        "defender_tyre_compound",
+    ],
+    "speed_fl_delta": [
+        "race_name",
+        "attacker_lap_time",
+        "defender_lap_time",
+        "attacker_tyre_compound",
+        "defender_tyre_compound",
+    ],
+    "speed_st_delta": [
+        "race_name",
+        "attacker_lap_time",
+        "defender_lap_time",
+        "attacker_tyre_compound",
+        "defender_tyre_compound",
+    ],
 }
 
 FEATURE_LABELS: dict[str, str] = {

@@ -28,11 +28,21 @@ export function SensitivityChart({
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={curve} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="value" stroke="#8b949e" fontSize={11} />
-          <YAxis domain={[0, 1]} stroke="#8b949e" fontSize={11} />
+          <XAxis
+            dataKey="value"
+            stroke="#8b949e"
+            fontSize={11}
+            tickFormatter={(x: number) => (typeof x === "number" ? x.toFixed(5) : String(x))}
+          />
+          <YAxis
+            domain={[0, 1]}
+            stroke="#8b949e"
+            fontSize={11}
+            tickFormatter={(x: number) => (typeof x === "number" ? x.toFixed(5) : String(x))}
+          />
           <Tooltip
             contentStyle={{ background: "#1e1e2e", border: "1px solid #333" }}
-            formatter={(v: number) => [v.toFixed(4), "P"]}
+            formatter={(v: number, name: string) => [v.toFixed(5), name === "probability" ? "P" : name]}
           />
           <ReferenceLine y={baseline} stroke="#666" strokeDasharray="4 4" />
           {currentValue !== undefined && (

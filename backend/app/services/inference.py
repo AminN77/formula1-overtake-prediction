@@ -7,7 +7,12 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from .feature_builder import build_single_row, dataframe_for_model, engineer_batch_features
+from .feature_builder import build_single_row, clean_raw_inputs, dataframe_for_model, engineer_batch_features
+
+
+def derive_engineered_row(raw: dict[str, Any]) -> dict[str, Any]:
+    """Full logical battle row from UI inputs (same as inference path, no model)."""
+    return build_single_row(raw)
 
 
 def predict_proba_df(pipeline: Any, df: pd.DataFrame) -> np.ndarray:
@@ -16,6 +21,7 @@ def predict_proba_df(pipeline: Any, df: pd.DataFrame) -> np.ndarray:
 
 def _feature_frame(raw: dict[str, Any], meta: dict[str, Any]) -> pd.DataFrame:
     """If `raw` contains all model feature keys, use it directly; else engineer from battle UI."""
+    raw = clean_raw_inputs(dict(raw))
     feats: list[str] = list(meta.get("features") or [])
     if feats and all(k in raw for k in feats):
         return dataframe_for_model({k: raw[k] for k in feats}, feats)

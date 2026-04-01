@@ -1,32 +1,50 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
-import { BattleForm, useSchemaForm } from "../components/battle/BattleForm";
+import { BattleForm } from "../components/battle/BattleForm";
 import { ConstructorContext } from "../components/battle/ConstructorContext";
 import { FeatureImpact } from "../components/battle/FeatureImpact";
+import { FeatureImportanceRank } from "../components/battle/FeatureImportanceRank";
 import { ModelSwitcher } from "../components/model/ModelSwitcher";
 import { PredictionCard } from "../components/battle/PredictionCard";
 import { SensitivityChart } from "../components/battle/SensitivityChart";
-import type { CircuitMeta, FeatureSchemaItem, PredictResponse, SchemaResponse } from "../types";
+import { useBattlePageState } from "../context/BattlePageContext";
+import type { CircuitMeta, FeatureSchemaItem, SchemaResponse } from "../types";
+import { applySampleBattleInputs } from "../utils/applySampleBattle";
+import {
+  hasAllEditableFields,
+  missingEditableFieldLabels,
+  requiredFeaturesForMode,
+} from "../utils/battleFormValidation";
 
 const UI_YEAR = 2025;
 
 export function SingleBattle() {
+  const {
+    values,
+    setValues,
+    raceName,
+    setRaceName,
+    pred,
+    setPred,
+    advancedMode,
+    setAdvancedMode,
+    sens,
+    setSens,
+    sensFeature,
+    setSensFeature,
+    analysisTab,
+    setAnalysisTab,
+    syncInitialValuesFromSchema,
+  } = useBattlePageState();
+
   const [schema, setSchema] = useState<SchemaResponse | null>(null);
   const [versions, setVersions] = useState<string[]>([]);
   const [circuits, setCircuits] = useState<CircuitMeta[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [switchingModel, setSwitchingModel] = useState(false);
-  const { values, setValues } = useSchemaForm(schema?.features ?? null);
-  const [raceName, setRaceName] = useState("");
-  const [pred, setPred] = useState<PredictResponse | null>(null);
   const [predicting, setPredicting] = useState(false);
-  const [sensFeature, setSensFeature] = useState<string>("");
-  const [sens, setSens] = useState<{
-    baseline_probability: number;
-    curve: { value: number; probability: number }[];
-    feature: string;
-  } | null>(null);
+  const [globalImportance, setGlobalImportance] = useState<{ feature: string; importance: number }[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,13 +67,36 @@ export function SingleBattle() {
         const c = await api.circuits();
         if (!cancelled) setCircuits(c.circuits);
       } catch {
-        /* circuit metadata optional — Advanced mode still works */
+        /* optional */
       }
     })();
     return () => {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!schema) return;
+    syncInitialValuesFromSchema(schema);
+  }, [schema, syncInitialValuesFromSchema]);
+
+  useEffect(() => {
+    if (!schema?.model_version) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const r = await api.modelsGlobalImportance();
+        if (!cancelled && r.model_version === schema.model_version) {
+          setGlobalImportance(r.importance);
+        }
+      } catch {
+        if (!cancelled) setGlobalImportance([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [schema?.model_version]);
 
   useEffect(() => {
     if (!circuits?.length || !schema || raceName) return;
@@ -68,9 +109,8 @@ export function SingleBattle() {
       year: UI_YEAR,
       race_name: c.race_name,
     }));
-  }, [circuits, schema, raceName, setValues]);
+  }, [circuits, schema, raceName, setValues, setRaceName]);
 
-  /** After model switch, `useSchemaForm` resets — re-apply circuit round/laps from the selected race. */
   useEffect(() => {
     if (!circuits?.length || !schema || !raceName) return;
     const c = circuits.find((x) => x.race_name === raceName) ?? circuits[0];
@@ -92,7 +132,6 @@ export function SingleBattle() {
     [values, raceName],
   );
 
-  /** Drop readonly model inputs so the API runs `build_single_row` and recomputes derived speeds/progress. */
   const sanitizedInputs = useMemo(() => {
     const ro = new Set(schema?.features.filter((f) => f.readonly).map((f) => f.name) ?? []);
     const out: Record<string, unknown> = { ...mergedInputs };
@@ -100,9 +139,51 @@ export function SingleBattle() {
     return out;
   }, [mergedInputs, schema?.features]);
 
-  const onRaceChange = useCallback((name: string, _meta: CircuitMeta) => {
-    setRaceName(name);
-  }, []);
+  const sanitizedInputsStableKey = useMemo(() => JSON.stringify(sanitizedInputs), [sanitizedInputs]);
+  const sanitizedInputsRef = useRef(sanitizedInputs);
+  sanitizedInputsRef.current = sanitizedInputs;
+
+  const requiredFields = useMemo(
+    () => (schema ? requiredFeaturesForMode(schema.features, advancedMode) : []),
+    [schema, advancedMode],
+  );
+
+  const formInputsComplete = useMemo(
+    () => hasAllEditableFields(requiredFields, values),
+    [requiredFields, values],
+  );
+
+  useEffect(() => {
+    if (!schema || !formInputsComplete) return;
+    const id = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const { row } = await api.deriveRow(sanitizedInputsRef.current as Record<string, unknown>);
+          const roNames = schema.features.filter((x) => x.readonly).map((x) => x.name);
+          setValues((prev) => {
+            const next = { ...prev };
+            const r = row as Record<string, unknown>;
+            for (const k of roNames) {
+              if (k in r && r[k] !== undefined) {
+                next[k] = r[k];
+              }
+            }
+            return next;
+          });
+        } catch {
+          /* ignore transient derive errors */
+        }
+      })();
+    }, 400);
+    return () => clearTimeout(id);
+  }, [sanitizedInputsStableKey, schema, setValues, formInputsComplete]);
+
+  const onRaceChange = useCallback(
+    (name: string, _meta: CircuitMeta) => {
+      setRaceName(name);
+    },
+    [setRaceName],
+  );
 
   const handleModelChange = useCallback(
     async (v: string) => {
@@ -122,11 +203,17 @@ export function SingleBattle() {
         setSwitchingModel(false);
       }
     },
-    [schema],
+    [schema, setPred, setSens, setSensFeature],
   );
 
   const onPredict = useCallback(async () => {
     setErr(null);
+    if (!schema) return;
+    const missing = missingEditableFieldLabels(requiredFields, values);
+    if (missing.length) {
+      setErr(`Please enter values for: ${missing.join(", ")}.`);
+      return;
+    }
     setPredicting(true);
     try {
       const body = { inputs: sanitizedInputs, include_impacts: true, include_row: false };
@@ -137,11 +224,17 @@ export function SingleBattle() {
     } finally {
       setPredicting(false);
     }
-  }, [sanitizedInputs]);
+  }, [sanitizedInputs, schema, values, requiredFields, setPred]);
 
   const onSensitivity = useCallback(async () => {
     if (!sensFeature) return;
     setErr(null);
+    if (!schema) return;
+    const missing = missingEditableFieldLabels(requiredFields, values);
+    if (missing.length) {
+      setErr(`Please enter values for: ${missing.join(", ")}.`);
+      return;
+    }
     try {
       const r = await api.sensitivity({
         inputs: sanitizedInputs,
@@ -154,7 +247,7 @@ export function SingleBattle() {
     } catch (e) {
       setErr(String(e));
     }
-  }, [sanitizedInputs, sensFeature]);
+  }, [sanitizedInputs, sensFeature, schema, values, requiredFields, setSens]);
 
   const trained = useMemo(() => new Set(schema?.trained_feature_names ?? []), [schema?.trained_feature_names]);
   const numericFeatures: FeatureSchemaItem[] = useMemo(
@@ -165,7 +258,16 @@ export function SingleBattle() {
     [schema?.features, trained],
   );
 
-  const currentSensValue = sensFeature ? Number(values[sensFeature] ?? 0) : undefined;
+  const currentSensValue =
+    sensFeature && typeof values[sensFeature] === "number" && Number.isFinite(values[sensFeature] as number)
+      ? (values[sensFeature] as number)
+      : undefined;
+
+  const onFillSample = useCallback(() => {
+    if (!schema) return;
+    applySampleBattleInputs(schema.features, setValues, setRaceName);
+    setErr(null);
+  }, [schema, setValues, setRaceName]);
 
   if (loading) return <div className="text-f1-muted">Loading schema…</div>;
   if (err && !schema) return <div className="text-red-400">{err}</div>;
@@ -209,13 +311,23 @@ export function SingleBattle() {
           circuits={circuits}
           raceName={raceName || "Italian Grand Prix"}
           onRaceChange={onRaceChange}
+          advanced={advancedMode}
+          onAdvancedChange={setAdvancedMode}
           uiYear={schema.ui_year ?? UI_YEAR}
         />
       )}
 
       {err && <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">{err}</div>}
 
-      <div className="flex justify-center">
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <button
+          type="button"
+          onClick={onFillSample}
+          disabled={!schema || switchingModel}
+          className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40"
+        >
+          Fill sample values
+        </button>
         <button
           type="button"
           onClick={onPredict}
@@ -226,16 +338,61 @@ export function SingleBattle() {
         </button>
       </div>
 
-      {pred && (
-        <div className="grid gap-8 lg:grid-cols-2">
-          <PredictionCard
-            probability={pred.probability}
-            threshold={pred.threshold}
-            verdict={pred.verdict}
-            label={pred.label}
-            modelVersion={pred.model_version}
-          />
-          {pred.impacts && <FeatureImpact impacts={pred.impacts} />}
+      {(pred || globalImportance.length > 0) && (
+        <div className={`grid gap-8 ${pred ? "lg:grid-cols-2" : "lg:grid-cols-1"}`}>
+          {pred ? (
+            <PredictionCard
+              probability={pred.probability}
+              threshold={pred.threshold}
+              verdict={pred.verdict}
+              label={pred.label}
+              modelVersion={pred.model_version}
+            />
+          ) : (
+            <div className="rounded-xl border border-white/10 bg-f1-surface/20 p-6 text-sm text-f1-muted">
+              Run <strong className="text-white">Predict overtake</strong> to see probability, verdict, and local
+              sensitivity for this scenario.
+            </div>
+          )}
+          <div className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-f1-surface/25">
+            <div className="flex flex-wrap gap-1 border-b border-white/10 p-2">
+              <button
+                type="button"
+                onClick={() => setAnalysisTab("local")}
+                className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                  analysisTab === "local" ? "bg-f1-red text-white" : "text-f1-muted hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                Local sensitivity
+              </button>
+              <button
+                type="button"
+                onClick={() => setAnalysisTab("ranked")}
+                className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                  analysisTab === "ranked" ? "bg-f1-red text-white" : "text-f1-muted hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                Global importance
+              </button>
+            </div>
+            <div className="p-2">
+              {analysisTab === "local" ? (
+                pred?.impacts && pred.impacts.length > 0 ? (
+                  <FeatureImpact impacts={pred.impacts} className="border-0 bg-transparent" />
+                ) : (
+                  <p className="p-4 text-sm text-f1-muted">
+                    {pred
+                      ? "No local impacts returned for this prediction."
+                      : "Run a prediction to see how small bumps to each numeric input move probability for this battle."}
+                  </p>
+                )
+              ) : globalImportance.length > 0 ? (
+                <FeatureImportanceRank rows={globalImportance} className="border-0 bg-transparent" />
+              ) : (
+                <p className="p-4 text-sm text-f1-muted">Loading global importance…</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -261,7 +418,7 @@ export function SingleBattle() {
             <button
               type="button"
               onClick={onSensitivity}
-              disabled={!sensFeature}
+              disabled={!sensFeature || !formInputsComplete}
               className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
             >
               Run curve

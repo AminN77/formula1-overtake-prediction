@@ -106,8 +106,21 @@ def _coerce_bool(v: Any) -> bool:
     return bool(v)
 
 
+def clean_raw_inputs(raw: dict[str, Any]) -> dict[str, Any]:
+    """Drop None and blank strings so `raw.get(key, default)` uses defaults (avoids int(''))."""
+    out: dict[str, Any] = {}
+    for k, v in raw.items():
+        if v is None:
+            continue
+        if isinstance(v, str) and v.strip() == "":
+            continue
+        out[k] = v
+    return out
+
+
 def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     """Construct one logical battle row from UI/API input (snake_case keys)."""
+    raw = clean_raw_inputs(dict(raw))
     race = str(raw.get("race_name", "Italian Grand Prix"))
     cal = CIRCUIT_CALENDAR_2025.get(race)
     year = int(raw.get("year", 2025))

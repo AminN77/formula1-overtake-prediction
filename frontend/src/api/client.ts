@@ -20,6 +20,8 @@ export const api = {
   health: () => apiFetch<{ status: string }>("/api/health"),
   modelsCurrent: () => apiFetch<Record<string, unknown>>("/api/models/current"),
   modelsSchema: () => apiFetch<import("../types").SchemaResponse>("/api/models/schema"),
+  modelsGlobalImportance: () =>
+    apiFetch<import("../types").GlobalImportanceResponse>("/api/models/importance"),
   modelsVersions: () => apiFetch<{ versions: string[] }>("/api/models/versions"),
   modelsSwitch: (version: string) =>
     apiFetch<{ active: string }>("/api/models/switch", {
@@ -33,6 +35,11 @@ export const api = {
     apiFetch<import("../types").PredictResponse>("/api/predict/single", {
       method: "POST",
       body: JSON.stringify(body),
+    }),
+  deriveRow: (inputs: Record<string, unknown>) =>
+    apiFetch<import("../types").DeriveRowResponse>("/api/predict/derive", {
+      method: "POST",
+      body: JSON.stringify({ inputs }),
     }),
   sensitivity: (body: object) =>
     apiFetch<import("../types").SensitivityResponse>("/api/sensitivity", {
@@ -48,6 +55,6 @@ export const api = {
     });
     const res = await fetch(`${base()}/api/predict/batch?${q}`, { method: "POST", body: fd });
     if (!res.ok) throw new Error(await res.text());
-    return res.json() as Promise<Record<string, unknown>>;
+    return res.json() as Promise<import("../types").BatchPredictResponse>;
   },
 };

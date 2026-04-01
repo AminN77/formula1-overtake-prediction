@@ -65,3 +65,35 @@ export type SensitivityResponse = {
   curve: { value: number; probability: number }[];
   feature: string;
 };
+
+export type DeriveRowResponse = {
+  row: Record<string, unknown>;
+};
+
+export type BatchEvaluation = {
+  has_labels: boolean;
+  tp?: number;
+  fp?: number;
+  tn?: number;
+  fn?: number;
+  accuracy?: number;
+  precision?: number | null;
+  recall?: number | null;
+  f1?: number | null;
+  confusion_matrix?: number[][];
+  confusion_labels?: { rows: string[]; cols: string[] };
+};
+
+export type GlobalImportanceResponse = {
+  model_version: string;
+  importance: { feature: string; importance: number }[];
+};
+
+export type BatchPredictResponse = {
+  summary: Record<string, unknown>;
+  evaluation: BatchEvaluation | null;
+  columns: string[];
+  rows: Record<string, unknown>[];
+  row_count: number;
+  csv_base64: string;
+};

@@ -8,6 +8,7 @@ export function InfoTooltip({ text }: { text: string | null | undefined }) {
     <span className="group relative inline-flex align-middle">
       <button
         type="button"
+        tabIndex={-1}
         className="ml-1 inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-f1-muted/60 text-[10px] font-bold leading-none text-f1-muted transition hover:border-f1-red hover:text-white focus:outline-none focus:ring-1 focus:ring-f1-red"
         aria-describedby={id}
       >

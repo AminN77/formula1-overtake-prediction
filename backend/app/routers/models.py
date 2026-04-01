@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from ..schemas.battle import SwitchModelRequest
 from ..schemas.model_info import ModelCurrentResponse, ModelsSchemaResponse
 from ..services.model_registry import LoadedModel, ModelRegistry
+from ..services.global_importance import global_feature_importance_ranking
 from ..services.schema_builder import build_feature_schema
 
 router = APIRouter(prefix="/models", tags=["models"])
@@ -56,6 +57,16 @@ def models_schema(
 @router.get("/versions")
 def model_versions(reg: Annotated[ModelRegistry, Depends(get_registry)]) -> dict[str, list[str]]:
     return {"versions": reg.available_versions()}
+
+
+@router.get("/importance")
+def model_global_importance(
+    reg: Annotated[ModelRegistry, Depends(get_registry)],
+) -> dict[str, object]:
+    """Global (model-level) feature ranking from the trained estimator — not local |ΔP|."""
+    m = reg.active
+    rows = global_feature_importance_ranking(m.pipeline, m.meta)
+    return {"model_version": m.version, "importance": rows}
 
 
 @router.post("/switch")
