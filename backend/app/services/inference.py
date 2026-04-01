@@ -48,8 +48,9 @@ def predict_batch(
 ) -> pd.DataFrame:
     if filter_pits and "pit_stop_involved" in df.columns:
         df = df[~df["pit_stop_involved"]].reset_index(drop=True)
-    df = engineer_batch_features(df)
     feats = meta["features"]
+    if not all(c in df.columns for c in feats):
+        df = engineer_batch_features(df)
     for c in feats:
         if c not in df.columns:
             df[c] = 0

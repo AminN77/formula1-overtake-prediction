@@ -72,6 +72,7 @@ export type DeriveRowResponse = {
 
 export type BatchEvaluation = {
   has_labels: boolean;
+  label_column?: string;
   tp?: number;
   fp?: number;
   tn?: number;
@@ -95,5 +96,6 @@ export type BatchPredictResponse = {
   columns: string[];
   rows: Record<string, unknown>[];
   row_count: number;
-  csv_base64: string;
+  /** Present when `include_csv_base64=true` (default). Full scored table for download. */
+  csv_base64?: string;
 };

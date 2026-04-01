@@ -5,7 +5,7 @@ from typing import Annotated
 
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
 
 from ..schemas.battle import DeriveRowRequest, DeriveRowResponse, PredictSingleRequest, PredictSingleResponse
@@ -51,6 +51,20 @@ def _verdict_label(p: float, threshold: float) -> tuple[str, str]:
     if p < threshold:
         return "hold", "Below threshold · score band: high"
     return "hold", "Below threshold · score band: very high"
+
+
+def _resolve_label_column(meta: dict, df: pd.DataFrame) -> str | None:
+    target = meta.get("target")
+    candidates: list[str] = []
+    if isinstance(target, str) and target:
+        candidates.append(target)
+    for name in ("overtake", "label"):
+        if name not in candidates:
+            candidates.append(name)
+    for col in candidates:
+        if col in df.columns:
+            return col
+    return None
 
 
 @router.post("/single", response_model=PredictSingleResponse)
@@ -101,6 +115,16 @@ def predict_batch_endpoint(
     file: UploadFile = File(...),
     threshold: float = 0.5,
     filter_pits: bool = True,
+    preview_rows: int = Query(
+        500,
+        ge=1,
+        le=50_000,
+        description="Cap rows returned in JSON `rows` (full scoring still runs on the upload).",
+    ),
+    include_csv_base64: bool = Query(
+        True,
+        description="Include a base64-encoded CSV of the full scored table (can be large).",
+    ),
 ) -> dict:
     m = reg.active
     meta = m.meta
@@ -120,19 +144,23 @@ def predict_batch_endpoint(
     probas = scored["overtake_probability"].values
     scored["overtake_predicted"] = (probas >= th).astype(int)
 
+    n_scored = len(scored)
     summary: dict = {
-        "rows": len(scored),
+        "rows": n_scored,
         "rows_input": n0,
         "threshold": th,
         "predicted_positive_rate": float(scored["overtake_predicted"].mean())
-        if len(scored)
+        if n_scored
         else 0.0,
         "model_version": m.version,
+        "rows_preview_limit": preview_rows,
     }
     evaluation: dict | None = None
-    if "overtake" in scored.columns:
-        y = scored["overtake"].astype(int).values
+    label_col = _resolve_label_column(meta, scored)
+    if label_col is not None:
+        y = scored[label_col].astype(int).values
         pred = scored["overtake_predicted"].astype(int).values
+        summary["label_column"] = label_col
         summary["actual_positive_rate"] = float(y.mean()) if len(y) else 0.0
         if 0 < int(y.sum()) < len(y):
             summary["roc_auc"] = float(roc_auc_score(y, probas))
@@ -157,6 +185,7 @@ def predict_batch_endpoint(
             "precision": prec,
             "recall": rec,
             "f1": f1,
+            "label_column": label_col,
             "confusion_matrix": [[tn, fp], [fn, tp]],
             "confusion_labels": {"rows": ["actual 0", "actual 1"], "cols": ["pred 0", "pred 1"]},
         }
@@ -164,8 +193,10 @@ def predict_batch_endpoint(
         evaluation = {"has_labels": False}
 
     scored_display = scored.copy()
-    if "overtake" in scored_display.columns:
-        yv = scored_display["overtake"].astype(int).values
+    if label_col is not None:
+        if label_col != "overtake" and "overtake" not in scored_display.columns:
+            scored_display["overtake"] = scored_display[label_col]
+        yv = scored_display[label_col].astype(int).values
         pv = scored_display["overtake_predicted"].astype(int).values
         outcomes: list[str | None] = []
         for yi, pi in zip(yv, pv):
@@ -180,17 +211,27 @@ def predict_batch_endpoint(
         scored_display["eval_outcome"] = outcomes
 
     rows_json = scored_display.replace({np.nan: None}).to_dict(orient="records")
+    total_rows = len(rows_json)
+    truncated = total_rows > preview_rows
+    if truncated:
+        rows_out = rows_json[:preview_rows]
+    else:
+        rows_out = rows_json
+    summary["rows_in_response"] = len(rows_out)
+    summary["rows_truncated"] = truncated
 
-    csv_buf = io.StringIO()
-    scored_display.to_csv(csv_buf, index=False)
-    import base64
-
-    b64 = base64.b64encode(csv_buf.getvalue().encode("utf-8")).decode("ascii")
-    return {
+    out: dict = {
         "summary": summary,
         "evaluation": evaluation,
         "columns": list(scored_display.columns),
-        "rows": rows_json,
-        "row_count": len(rows_json),
-        "csv_base64": b64,
+        "rows": rows_out,
+        "row_count": total_rows,
     }
+    if include_csv_base64:
+        csv_buf = io.StringIO()
+        scored_display.to_csv(csv_buf, index=False)
+        import base64
+
+        b64 = base64.b64encode(csv_buf.getvalue().encode("utf-8")).decode("ascii")
+        out["csv_base64"] = b64
+    return out

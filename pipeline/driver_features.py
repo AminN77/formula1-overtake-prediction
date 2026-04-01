@@ -13,7 +13,7 @@ import pandas as pd
 DEFAULT_RATE = 0.5
 
 
-def enrich_driver_features(df: pd.DataFrame) -> pd.DataFrame:
+def enrich_driver_features(df: pd.DataFrame, label_col: str = "overtake") -> pd.DataFrame:
     """
     Add:
       - attacker_overtake_rate_last5: mean(overtake) over prior rows where attacker is attacker,
@@ -23,7 +23,7 @@ def enrich_driver_features(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
 
-    need = {"year", "round_number", "lap_number", "attacker", "defender", "overtake"}
+    need = {"year", "round_number", "lap_number", "attacker", "defender", label_col}
     missing = need - set(df.columns)
     if missing:
         raise ValueError(f"enrich_driver_features: missing columns {missing}")
@@ -55,8 +55,8 @@ def enrich_driver_features(df: pd.DataFrame) -> pd.DataFrame:
             sub = df.loc[prev_idx]
             att_sub = sub[sub["attacker"] == row["attacker"]]
             def_sub = sub[sub["defender"] == row["defender"]]
-            att_r = float(att_sub["overtake"].astype(bool).mean()) if len(att_sub) else DEFAULT_RATE
-            def_r = float((~def_sub["overtake"].astype(bool)).mean()) if len(def_sub) else DEFAULT_RATE
+            att_r = float(att_sub[label_col].astype(bool).mean()) if len(att_sub) else DEFAULT_RATE
+            def_r = float((~def_sub[label_col].astype(bool)).mean()) if len(def_sub) else DEFAULT_RATE
         else:
             att_r = def_r = DEFAULT_RATE
 

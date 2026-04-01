@@ -52,6 +52,8 @@ export const api = {
     const q = new URLSearchParams({
       threshold: String(threshold),
       filter_pits: String(filterPits),
+      preview_rows: "500",
+      include_csv_base64: "true",
     });
     const res = await fetch(`${base()}/api/predict/batch?${q}`, { method: "POST", body: fd });
     if (!res.ok) throw new Error(await res.text());

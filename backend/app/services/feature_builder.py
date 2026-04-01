@@ -91,6 +91,13 @@ def _circuit_base(race_name: str) -> dict:
     return _FALLBACK_SPEEDS.copy()
 
 
+def _track_location_for_race(race_name: str) -> str:
+    cal = CIRCUIT_CALENDAR_2025.get(race_name)
+    if cal is not None:
+        return str(cal.get("city", race_name)).upper()
+    return str(race_name).upper()
+
+
 def _estimate_speeds(race: str, compound: str, lap_time: float, ref_time: float) -> dict:
     base = _circuit_base(race)
     c_mult = _COMPOUND_DELTA.get(compound.upper(), 1.0)
@@ -128,9 +135,11 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     if cal is not None:
         total_laps = int(raw.get("total_laps", cal["total_laps"]))
         round_number = int(raw.get("round_number", cal["round"]))
+        track = str(raw.get("track", cal.get("city", race))).upper()
     else:
         total_laps = int(raw.get("total_laps", 53))
         round_number = int(raw.get("round_number", 0))
+        track = str(raw.get("track", race)).upper()
     attacker_pos = int(raw.get("attacker_position", 8))
     defender_pos = int(raw.get("defender_position", 7))
     gap = float(raw.get("gap_ahead", 0.56))
@@ -159,9 +168,15 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     humidity = float(raw.get("humidity", 50.0))
     rainfall = _coerce_bool(raw.get("rainfall", False))
     wind_speed = float(raw.get("wind_speed", 2.0))
+    pit_stop_involved = _coerce_bool(raw.get("pit_stop_involved", False))
+    accurate_timing = _coerce_bool(raw.get("accurate_timing", True))
+    lap1_or_restart_like = _coerce_bool(raw.get("lap1_or_restart_like", lap <= 2))
     gap_delta_1 = float(raw.get("gap_delta_1", raw.get("closing_rate", -0.2)))
+    gap_delta_2 = float(raw.get("gap_delta_2", gap_delta_1 * 2))
+    gap_delta_3 = float(raw.get("gap_delta_3", gap_delta_1 * 3))
     battle_duration = int(raw.get("battle_duration", 5))
     overtakes_this_race = int(raw.get("overtakes_this_race", 5))
+    prior_pair_overtakes = int(raw.get("prior_pair_overtakes", 0))
     attacker_team = str(raw.get("attacker_team", "McLaren"))
     defender_team = str(raw.get("defender_team", "Ferrari"))
 
@@ -175,6 +190,7 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
         att_cons, def_cons = 10, 10
     gap_to_car_ahead = float(raw.get("gap_to_car_ahead", 2.5))
     gap_to_car_behind = float(raw.get("gap_to_car_behind", 1.8))
+    gap_to_leader = float(raw.get("gap_to_leader", max(gap_to_car_ahead + gap, 8.0)))
     drs_train_size = int(raw.get("drs_train_size", 2))
 
     ref_time = (attacker_lap_time + defender_lap_time) / 2
@@ -183,9 +199,19 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     in_drs, drs_len = get_drs_zone_info(race, sector)
 
     race_progress = round(lap / total_laps, 4) if total_laps > 0 else 0.0
+    laps_remaining = max(total_laps - lap, 0)
     pace_delta = defender_lap_time - attacker_lap_time
     is_closing = 1 if gap_delta_1 < 0 else 0
     tyre_age_diff = attacker_tyre_age - defender_tyre_age
+    closing_laps = int(raw.get("closing_laps", max(0, min(battle_duration, 1 if is_closing else 0))))
+    gap_mean_3 = float(raw.get("gap_mean_3", gap + min(abs(gap_delta_1), 0.5)))
+    gap_min_3 = float(raw.get("gap_min_3", min(gap, gap_mean_3)))
+    pace_delta_avg_3 = float(raw.get("pace_delta_avg_3", pace_delta))
+    pace_delta_std_3 = float(raw.get("pace_delta_std_3", abs(pace_delta) * 0.15))
+    speed_st_delta_avg_3 = float(raw.get("speed_st_delta_avg_3", att_s["st"] - def_s["st"]))
+    gap_pressure_ratio = float(raw.get("gap_pressure_ratio", gap_to_car_ahead / max(gap, 0.05)))
+    rear_pressure_ratio = float(raw.get("rear_pressure_ratio", gap_to_car_behind / max(gap, 0.05)))
+    overtakes_so_far = int(raw.get("overtakes_so_far", overtakes_this_race))
 
     att_pace_rank = TYRE_PACE_RANK.get(attacker_compound, 1)
     def_pace_rank = TYRE_PACE_RANK.get(defender_compound, 1)
@@ -203,6 +229,13 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
     else:
         stint_phase = "cliff"
 
+    if race_progress <= 0.25:
+        race_phase = "opening"
+    elif race_progress <= 0.75:
+        race_phase = "middle"
+    else:
+        race_phase = "closing"
+
     row: dict[str, Any] = {
         "year": year,
         "race_name": race,
@@ -215,6 +248,7 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
         "attacker_lap_time": attacker_lap_time,
         "defender_lap_time": defender_lap_time,
         "gap_ahead": gap,
+        "gap_to_leader": gap_to_leader,
         "pace_delta": pace_delta,
         "attacker_speed_i1": att_s["i1"],
         "defender_speed_i1": def_s["i1"],
@@ -239,11 +273,15 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
         "defender_stint": defender_stint,
         "attacker_fresh_tyre": attacker_fresh_tyre,
         "defender_fresh_tyre": defender_fresh_tyre,
+        "pit_stop_involved": pit_stop_involved,
+        "track": track,
         "sector": sector,
         "sector_type": get_sector_type(race),
         "is_in_drs_zone": in_drs,
         "drs_zone_length": drs_len,
         "track_type": get_track_type(race),
+        "attacker_qualification_rank": attacker_qual_rank,
+        "defender_qualification_rank": defender_qual_rank,
         "air_temp": air_temp,
         "track_temp": track_temp,
         "humidity": humidity,
@@ -270,11 +308,16 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
         "gap_to_car_ahead": gap_to_car_ahead,
         "gap_to_car_behind": gap_to_car_behind,
         "drs_train_size": drs_train_size,
+        "race_phase": raw.get("race_phase", race_phase),
         "stint_phase": raw.get("stint_phase", stint_phase),
+        "accurate_timing": accurate_timing,
+        "lap1_or_restart_like": lap1_or_restart_like,
+        "prior_pair_overtakes": prior_pair_overtakes,
         "sector1_delta": float(raw.get("sector1_delta", 0.0)),
         "sector2_delta": float(raw.get("sector2_delta", 0.0)),
         "sector3_delta": float(raw.get("sector3_delta", 0.0)),
         "strongest_sector": int(raw.get("strongest_sector", -1)),
+        "gap_delta_2": gap_delta_2,
         "attacker_overtake_rate_last5": float(raw.get("attacker_overtake_rate_last5", 0.5)),
         "defender_defend_rate_last5": float(raw.get("defender_defend_rate_last5", 0.5)),
         "attacker_team_pace_rank": float(raw.get("attacker_team_pace_rank", 5.0)),
@@ -287,6 +330,18 @@ def build_single_row(raw: Mapping[str, Any]) -> dict[str, Any]:
         "attacker_race_pace_vs_teammate": float(raw.get("attacker_race_pace_vs_teammate", 0.0)),
         "defender_race_pace_vs_teammate": float(raw.get("defender_race_pace_vs_teammate", 0.0)),
         "closing_rate": float(raw.get("closing_rate", gap_delta_1)),
+        "gap_delta_3": gap_delta_3,
+        "is_closing": is_closing,
+        "closing_laps": closing_laps,
+        "gap_mean_3": gap_mean_3,
+        "gap_min_3": gap_min_3,
+        "pace_delta_avg_3": pace_delta_avg_3,
+        "pace_delta_std_3": pace_delta_std_3,
+        "speed_st_delta_avg_3": speed_st_delta_avg_3,
+        "gap_pressure_ratio": gap_pressure_ratio,
+        "rear_pressure_ratio": rear_pressure_ratio,
+        "laps_remaining": laps_remaining,
+        "overtakes_so_far": overtakes_so_far,
     }
     return row
 
@@ -304,6 +359,20 @@ def engineer_batch_features(df: pd.DataFrame) -> pd.DataFrame:
     if "pace_delta" not in df.columns:
         if "defender_lap_time" in df.columns and "attacker_lap_time" in df.columns:
             df["pace_delta"] = df["defender_lap_time"] - df["attacker_lap_time"]
+
+    if "laps_remaining" not in df.columns and "total_laps" in df.columns and "lap_number" in df.columns:
+        df["laps_remaining"] = (df["total_laps"] - df["lap_number"]).clip(lower=0)
+
+    if "race_progress" not in df.columns and "lap_number" in df.columns and "total_laps" in df.columns:
+        total = df["total_laps"].replace(0, np.nan)
+        df["race_progress"] = (df["lap_number"] / total).fillna(0)
+
+    if "race_phase" not in df.columns and "race_progress" in df.columns:
+        df["race_phase"] = np.where(
+            df["race_progress"] <= 0.25,
+            "opening",
+            np.where(df["race_progress"] <= 0.75, "middle", "closing"),
+        )
 
     for delta, att, dfn in [
         ("speed_i1_delta", "attacker_speed_i1", "defender_speed_i1"),
@@ -335,15 +404,26 @@ def engineer_batch_features(df: pd.DataFrame) -> pd.DataFrame:
     if "gap_ahead" in df.columns:
         grp = df.groupby("_bg")["gap_ahead"]
         df["gap_delta_1"] = grp.diff(1).fillna(0)
+        df["gap_delta_2"] = grp.diff(2).fillna(0)
         df["gap_delta_3"] = grp.diff(3).fillna(0)
         df["is_closing"] = (df["gap_delta_1"] < 0).astype(int)
         df["closing_laps"] = (
             df.groupby("_bg")["is_closing"].transform(lambda s: s.rolling(3, min_periods=1).sum())
         )
+        df["gap_mean_3"] = grp.transform(lambda s: s.rolling(3, min_periods=1).mean())
+        df["gap_min_3"] = grp.transform(lambda s: s.rolling(3, min_periods=1).min())
 
     if "pace_delta" in df.columns:
         df["pace_delta_avg_3"] = (
             df.groupby("_bg")["pace_delta"].transform(lambda s: s.rolling(3, min_periods=1).mean())
+        )
+        df["pace_delta_std_3"] = (
+            df.groupby("_bg")["pace_delta"].transform(lambda s: s.rolling(3, min_periods=1).std())
+        ).fillna(0)
+
+    if "speed_st_delta" in df.columns:
+        df["speed_st_delta_avg_3"] = (
+            df.groupby("_bg")["speed_st_delta"].transform(lambda s: s.rolling(3, min_periods=1).mean())
         )
 
     df["battle_duration"] = df.groupby("_bg").cumcount() + 1
@@ -378,6 +458,15 @@ def engineer_batch_features(df: pd.DataFrame) -> pd.DataFrame:
         df["attempted_before"] = 0
         df["overtakes_this_race"] = 0
 
+    if "prior_pair_overtakes" not in df.columns:
+        if "attempted_before" in df.columns:
+            df["prior_pair_overtakes"] = df["attempted_before"].astype(int)
+        else:
+            df["prior_pair_overtakes"] = 0
+
+    if "overtakes_so_far" not in df.columns:
+        df["overtakes_so_far"] = df.get("overtakes_this_race", 0)
+
     att_pace = df["attacker_tyre_compound"].map(TYRE_PACE_RANK).fillna(1)
     def_pace = df["defender_tyre_compound"].map(TYRE_PACE_RANK).fillna(1)
     df["compound_advantage"] = def_pace - att_pace
@@ -389,6 +478,27 @@ def engineer_batch_features(df: pd.DataFrame) -> pd.DataFrame:
 
     if "closing_rate" not in df.columns and "gap_delta_1" in df.columns:
         df["closing_rate"] = df["gap_delta_1"]
+
+    if "gap_to_leader" not in df.columns:
+        df["gap_to_leader"] = 0.0
+    if "accurate_timing" not in df.columns:
+        df["accurate_timing"] = 1
+    if "lap1_or_restart_like" not in df.columns and "lap_number" in df.columns:
+        df["lap1_or_restart_like"] = (df["lap_number"] <= 2).astype(int)
+    if "pit_stop_involved" not in df.columns:
+        df["pit_stop_involved"] = 0
+    if "track" not in df.columns and "race_name" in df.columns:
+        df["track"] = df["race_name"].astype(str).map(_track_location_for_race)
+    if "sector_type" not in df.columns and "track" in df.columns:
+        df["sector_type"] = df["track"].astype(str).map(get_sector_type)
+    if "track_type" not in df.columns and "track" in df.columns:
+        df["track_type"] = df["track"].astype(str).map(get_track_type)
+    if "gap_pressure_ratio" not in df.columns and "gap_to_car_ahead" in df.columns and "gap_ahead" in df.columns:
+        denom = df["gap_ahead"].clip(lower=0.05)
+        df["gap_pressure_ratio"] = df["gap_to_car_ahead"] / denom
+    if "rear_pressure_ratio" not in df.columns and "gap_to_car_behind" in df.columns and "gap_ahead" in df.columns:
+        denom = df["gap_ahead"].clip(lower=0.05)
+        df["rear_pressure_ratio"] = df["gap_to_car_behind"] / denom
 
     df.drop(columns=["_pair", "_lap_gap", "_break", "_seq", "_bg"], inplace=True, errors="ignore")
     return df

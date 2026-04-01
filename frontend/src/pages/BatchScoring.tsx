@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
 import { ModelSwitcher } from "../components/model/ModelSwitcher";
 import type { BatchEvaluation, BatchPredictResponse } from "../types";
+
+/** API body without the large CSV blob (stored in a ref for download). */
+type BatchResultUi = Omit<BatchPredictResponse, "csv_base64">;
 
 const OUTCOME_STYLES: Record<string, string> = {
   TP: "bg-emerald-500/15 hover:bg-emerald-500/25",
@@ -16,17 +19,31 @@ function formatCell(v: unknown): string {
   return String(v);
 }
 
+function inferLabelColumn(
+  summary: Record<string, unknown> | undefined,
+  columns: string[],
+): string | null {
+  const fromSummary = typeof summary?.label_column === "string" ? String(summary.label_column) : null;
+  if (fromSummary && columns.includes(fromSummary)) return fromSummary;
+  if (columns.includes("overtake")) return "overtake";
+  if (columns.includes("label")) return "label";
+  return null;
+}
+
 export function BatchScoring() {
   const [file, setFile] = useState<File | null>(null);
   const [threshold, setThreshold] = useState(0.5);
   const [filterPits, setFilterPits] = useState(true);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [result, setResult] = useState<BatchPredictResponse | null>(null);
+  const [result, setResult] = useState<BatchResultUi | null>(null);
+  const [downloadAvailable, setDownloadAvailable] = useState(false);
   const [modelVersion, setModelVersion] = useState<string>("");
   const [versions, setVersions] = useState<string[]>([]);
   const [switchingModel, setSwitchingModel] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  /** Keep CSV payload out of React state to avoid retaining two huge copies of the scored table. */
+  const batchCsvBase64Ref = useRef<string | null>(null);
 
   const refreshModel = useCallback(async () => {
     try {
@@ -55,6 +72,8 @@ export function BatchScoring() {
       setErr(null);
       setResult(null);
       setSelectedIdx(null);
+      batchCsvBase64Ref.current = null;
+      setDownloadAvailable(false);
       try {
         await api.modelsSwitch(v);
         await refreshModel();
@@ -72,9 +91,14 @@ export function BatchScoring() {
     setLoading(true);
     setErr(null);
     setSelectedIdx(null);
+    batchCsvBase64Ref.current = null;
+    setDownloadAvailable(false);
     try {
       const r = await api.predictBatch(file, threshold, filterPits);
-      setResult(r);
+      const { csv_base64: csvB64, ...rest } = r;
+      batchCsvBase64Ref.current = typeof csvB64 === "string" && csvB64.length > 0 ? csvB64 : null;
+      setDownloadAvailable(batchCsvBase64Ref.current !== null);
+      setResult(rest);
     } catch (e) {
       setErr(
         String(e).includes("400") || String(e).includes("failed")
@@ -82,14 +106,17 @@ export function BatchScoring() {
           : String(e),
       );
       setResult(null);
+      batchCsvBase64Ref.current = null;
+      setDownloadAvailable(false);
     } finally {
       setLoading(false);
     }
   };
 
   const downloadCsv = () => {
-    if (!result?.csv_base64) return;
-    const bin = atob(String(result.csv_base64));
+    const b64 = batchCsvBase64Ref.current;
+    if (!b64) return;
+    const bin = atob(b64);
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
     const blob = new Blob([bytes], { type: "text/csv" });
@@ -104,17 +131,29 @@ export function BatchScoring() {
   const rows = result?.rows ?? [];
   const evaluation = result?.evaluation as BatchEvaluation | null | undefined;
   const summary = result?.summary;
+  const totalRowCount = result?.row_count ?? rows.length;
+  const tableTruncated = summary?.rows_truncated === true;
   const columns = useMemo(() => {
     if (result?.columns?.length) return result.columns;
     if (rows[0]) return Object.keys(rows[0]);
     return [];
   }, [result?.columns, rows]);
+  const labelColumn = useMemo(() => inferLabelColumn(summary, columns), [summary, columns]);
 
   const displayCols = useMemo(() => {
-    const preferred = ["eval_outcome", "overtake", "overtake_predicted", "overtake_probability"];
-    const rest = columns.filter((c) => !preferred.includes(c));
-    return [...preferred.filter((c) => columns.includes(c)), ...rest];
-  }, [columns]);
+    const preferred = [
+      "eval_outcome",
+      ...(labelColumn ? [labelColumn] : []),
+      "overtake_predicted",
+      "overtake_probability",
+    ];
+    const rest = columns.filter((c) => {
+      if (preferred.includes(c)) return false;
+      if (labelColumn && labelColumn !== "overtake" && c === "overtake") return false;
+      return true;
+    });
+    return [...preferred.filter((c, idx) => columns.includes(c) && preferred.indexOf(c) === idx), ...rest];
+  }, [columns, labelColumn]);
 
   const selectedRow = selectedIdx !== null && rows[selectedIdx] ? rows[selectedIdx] : null;
 
@@ -132,8 +171,10 @@ export function BatchScoring() {
           {switchingModel && <span className="text-xs text-f1-muted">Switching model…</span>}
         </div>
         <p className="mt-2 text-f1-muted">
-          Upload a battle CSV aligned with the <strong>active</strong> model feature schema (e.g.{" "}
-          <code className="text-f1-red">data/v5</code> for v5). Switching models clears results until you score again.
+          Upload a CSV aligned with the <strong>active</strong> model feature schema (for example{" "}
+          <code className="text-f1-red">data/v5/battles_2025.csv</code> for v5 or{" "}
+          <code className="text-f1-red">data/v6/scenarios_2025.csv</code> for v6). Switching models clears results until you
+          score again.
         </p>
       </div>
 
@@ -201,7 +242,9 @@ export function BatchScoring() {
               </dd>
               {summary.actual_positive_rate !== undefined && (
                 <>
-                  <dt className="text-f1-muted">Actual positive rate</dt>
+                  <dt className="text-f1-muted">
+                    Actual positive rate{labelColumn ? ` (${labelColumn})` : ""}
+                  </dt>
                   <dd className="font-mono text-white">
                     {(Number(summary.actual_positive_rate) * 100).toFixed(2)}%
                   </dd>
@@ -220,7 +263,12 @@ export function BatchScoring() {
                 </>
               )}
             </dl>
-            <button type="button" onClick={downloadCsv} className="mt-4 text-sm font-semibold text-f1-red underline">
+            <button
+              type="button"
+              disabled={!downloadAvailable}
+              onClick={downloadCsv}
+              className="mt-4 text-sm font-semibold text-f1-red underline disabled:cursor-not-allowed disabled:opacity-40"
+            >
               Download full CSV
             </button>
           </div>
@@ -292,8 +340,8 @@ export function BatchScoring() {
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-white/15 bg-f1-surface/30 p-4 text-sm text-f1-muted">
-              No <code className="text-white/80">overtake</code> label column — confusion matrix and classification metrics
-              are skipped. Predictions and probabilities are still produced.
+              No recognized target label column was found for the active model. Confusion matrix and classification metrics
+              are skipped, but predictions and probabilities are still produced.
             </div>
           )}
         </div>
@@ -308,7 +356,13 @@ export function BatchScoring() {
               <span className="inline-flex items-center gap-1 rounded bg-amber-500/20 px-2 py-0.5">FP</span>
               <span className="inline-flex items-center gap-1 rounded bg-slate-500/20 px-2 py-0.5">TN</span>
               <span className="inline-flex items-center gap-1 rounded bg-rose-500/20 px-2 py-0.5">FN</span>
-              <span className="text-f1-muted">({result?.row_count ?? rows.length} rows)</span>
+              <span className="text-f1-muted">
+                (
+                {tableTruncated
+                  ? `preview ${rows.length} of ${totalRowCount} rows — full table in download`
+                  : `${totalRowCount} rows`}
+                )
+              </span>
             </div>
             <div className="max-h-[min(70vh,560px)] overflow-auto rounded-xl border border-white/10">
               <table className="min-w-full text-left text-xs">

@@ -25,6 +25,8 @@ def build_position_and_gap_map(session) -> dict:
     """Build {lap_number: {driver: {'position', 'laptime', 'lap_start_time'}}}."""
     lap_position_gap = {}
     for _, lap in session.laps.iterrows():
+        if pd.isna(lap.get('LapNumber')) or pd.isna(lap.get('Position')) or pd.isna(lap.get('Driver')):
+            continue
         lap_number = int(lap['LapNumber'])
         driver = lap['Driver']
         lap_position_gap.setdefault(lap_number, {})[driver] = {
@@ -39,6 +41,8 @@ def build_position_map(laps) -> dict:
     """Build {lap_number: {driver: position}}."""
     lap_position = {}
     for _, lap in laps.iterrows():
+        if pd.isna(lap.get('LapNumber')) or pd.isna(lap.get('Position')) or pd.isna(lap.get('Driver')):
+            continue
         lap_number = int(lap['LapNumber'])
         lap_position.setdefault(lap_number, {})[lap['Driver']] = lap['Position']
     return lap_position
@@ -129,7 +133,10 @@ def are_on_same_lap(session, driver_a: str, driver_b: str, lap_number: int) -> b
 
 
 def get_driver_qualification_rank(session, driver: str) -> int:
-    return int(session.get_driver(driver)["GridPosition"])
+    try:
+        return _safe_int(session.get_driver(driver).get("GridPosition"), default=0)
+    except Exception:
+        return 0
 
 
 def get_driver_team(session, driver: str) -> str:

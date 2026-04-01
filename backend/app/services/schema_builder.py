@@ -21,6 +21,23 @@ RACES = sorted(
     key=lambda n: int(CIRCUIT_CALENDAR_2025[n]["round"]),
 )
 COMPOUNDS = ["SOFT", "MEDIUM", "HARD", "INTERMEDIATE", "WET"]
+TRACK_LOCATIONS = sorted({str(meta["city"]).upper() for meta in CIRCUIT_CALENDAR_2025.values()})
+SECTOR_TYPES = ["speed", "technical", "mixed"]
+TRACK_TYPES = ["high-speed", "medium-speed", "low-speed", "street"]
+BOOLEAN_FEATURES = {
+    "attacker_fresh_tyre",
+    "defender_fresh_tyre",
+    "safety_car",
+    "yellow_flag",
+    "rainfall",
+    "same_team",
+    "is_in_drs_zone",
+    "pit_stop_involved",
+    "accurate_timing",
+    "lap1_or_restart_like",
+    "is_closing",
+    "attacker_on_newer_stint",
+}
 TEAMS = [
     "Red Bull Racing",
     "McLaren",
@@ -50,9 +67,14 @@ GROUP_HINTS: dict[str, str] = {
     "lap_number": "race",
     "total_laps": "race",
     "round_number": "race",
+    "race_progress": "race",
+    "laps_remaining": "race",
+    "race_phase": "race",
+    "track": "track",
     "attacker_position": "positions",
     "defender_position": "positions",
     "gap_ahead": "positions",
+    "gap_to_leader": "positions",
     "attacker_tyre_compound": "attacker",
     "attacker_tyre_age": "attacker",
     "attacker_lap_time": "attacker",
@@ -71,6 +93,10 @@ GROUP_HINTS: dict[str, str] = {
     "defender_constructor_rank": "teams",
     "constructor_rank_delta": "teams",
     "sector": "track",
+    "sector_type": "track",
+    "track_type": "track",
+    "is_in_drs_zone": "track",
+    "drs_zone_length": "track",
     "air_temp": "weather",
     "track_temp": "weather",
     "humidity": "weather",
@@ -78,19 +104,36 @@ GROUP_HINTS: dict[str, str] = {
     "wind_speed": "weather",
     "safety_car": "flags",
     "yellow_flag": "flags",
+    "pit_stop_involved": "flags",
+    "accurate_timing": "flags",
+    "lap1_or_restart_like": "flags",
     "gap_delta_1": "battle",
+    "gap_delta_2": "battle",
+    "gap_delta_3": "battle",
+    "is_closing": "battle",
+    "closing_laps": "battle",
+    "gap_mean_3": "battle",
+    "gap_min_3": "battle",
+    "pace_delta_avg_3": "battle",
+    "pace_delta_std_3": "battle",
+    "speed_st_delta_avg_3": "battle",
     "battle_duration": "battle",
     "overtakes_this_race": "battle",
+    "prior_pair_overtakes": "battle",
+    "overtakes_so_far": "battle",
+    "attacker_on_newer_stint": "battle",
+    "gap_pressure_ratio": "situation",
+    "rear_pressure_ratio": "situation",
     "gap_to_car_ahead": "situation",
     "gap_to_car_behind": "situation",
     "drs_train_size": "situation",
 }
 
 
-def _kind_for_feature(name: str, num_cols: set[str], cat_cols: set[str]) -> str:
+def _kind_for_feature(name: str, num_cols: set[str], cat_cols: set[str], default: Any) -> str:
+    if name in BOOLEAN_FEATURES or isinstance(default, bool):
+        return "boolean"
     if name in cat_cols:
-        if name in ("attacker_fresh_tyre", "defender_fresh_tyre"):
-            return "boolean"
         return "category"
     if name in num_cols:
         return "number"
@@ -104,8 +147,16 @@ def _options_for(name: str) -> list[Any] | None:
         return list(COMPOUNDS)
     if name in ("attacker_team", "defender_team"):
         return list(TEAMS)
+    if name == "track":
+        return list(TRACK_LOCATIONS)
+    if name == "sector_type":
+        return list(SECTOR_TYPES)
+    if name == "track_type":
+        return list(TRACK_TYPES)
     if name == "stint_phase":
         return ["fresh", "mid", "degraded", "cliff"]
+    if name == "race_phase":
+        return ["opening", "middle", "closing"]
     return None
 
 
@@ -123,6 +174,7 @@ def _range_for(name: str, default: Any) -> tuple[float | None, float | None]:
         "constructor_rank_delta": (-20, 20),
         "qualification_rank_difference": (-20, 20),
         "gap_ahead": (0.0, 5.0),
+        "gap_to_leader": (0.0, 120.0),
         "attacker_tyre_age": (0, 60),
         "defender_tyre_age": (0, 60),
         "attacker_lap_time": (70.0, 130.0),
@@ -133,10 +185,23 @@ def _range_for(name: str, default: Any) -> tuple[float | None, float | None]:
         "humidity": (0.0, 100.0),
         "wind_speed": (0.0, 30.0),
         "gap_delta_1": (-2.0, 2.0),
+        "gap_delta_2": (-4.0, 4.0),
+        "gap_delta_3": (-6.0, 6.0),
         "battle_duration": (1, 40),
+        "closing_laps": (0, 40),
+        "gap_mean_3": (0.0, 5.0),
+        "gap_min_3": (0.0, 5.0),
+        "pace_delta_avg_3": (-5.0, 5.0),
+        "pace_delta_std_3": (0.0, 5.0),
+        "speed_st_delta_avg_3": (-50.0, 50.0),
+        "prior_pair_overtakes": (0, 10),
         "gap_to_car_ahead": (0.0, 99.0),
         "gap_to_car_behind": (0.0, 99.0),
         "drs_train_size": (1, 20),
+        "gap_pressure_ratio": (0.0, 100.0),
+        "rear_pressure_ratio": (0.0, 100.0),
+        "laps_remaining": (0, 100),
+        "overtakes_so_far": (0, 200),
     }
     return ranges.get(name, (None, None))
 
@@ -159,8 +224,8 @@ def build_feature_schema(meta: dict[str, Any]) -> list[FeatureSchemaItem]:
 
     items: list[FeatureSchemaItem] = []
     for name in features:
-        kind = _kind_for_feature(name, nums, cats)
         default = defaults.get(name, 0)
+        kind = _kind_for_feature(name, nums, cats, default)
         opts = _options_for(name)
         mn, mx = _range_for(name, default)
         if kind == "boolean":

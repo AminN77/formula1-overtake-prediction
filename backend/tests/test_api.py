@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import json
 from unittest.mock import patch
 
@@ -142,6 +143,47 @@ def test_predict_single_blank_extra_keys(client: TestClient, raw_vector: dict) -
     r = client.post("/api/predict/single", json={"inputs": body, "include_impacts": False})
     assert r.status_code == 200
     assert 0.0 <= r.json()["probability"] <= 1.0
+
+
+def test_predict_batch_supports_label_column(client: TestClient) -> None:
+    csv_text = "\n".join(
+        [
+            "f0,f1,f2,f3,f4,label",
+            "0.0,1.0,2.0,3.0,4.0,0",
+            "1.0,2.0,3.0,4.0,5.0,1",
+            "2.0,3.0,4.0,5.0,6.0,1",
+        ]
+    )
+    r = client.post(
+        "/api/predict/batch?threshold=0.5&filter_pits=false",
+        files={"file": ("batch.csv", io.BytesIO(csv_text.encode("utf-8")), "text/csv")},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["summary"]["label_column"] == "label"
+    assert body["evaluation"]["has_labels"] is True
+    assert body["evaluation"]["label_column"] == "label"
+    assert "eval_outcome" in body["columns"]
+    assert "overtake_predicted" in body["columns"]
+
+
+def test_predict_batch_preview_rows_limits_json_payload(client: TestClient) -> None:
+    """Large JSON `rows` arrays duplicate memory in the browser; cap with preview_rows."""
+    lines = ["f0,f1,f2,f3,f4,label"]
+    for i in range(10):
+        lines.append(f"{i}.0,{i + 1}.0,{i + 2}.0,{i + 3}.0,{i + 4}.0,{i % 2}")
+    csv_text = "\n".join(lines)
+    r = client.post(
+        "/api/predict/batch?threshold=0.5&filter_pits=false&preview_rows=3",
+        files={"file": ("batch.csv", io.BytesIO(csv_text.encode("utf-8")), "text/csv")},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["row_count"] == 10
+    assert len(body["rows"]) == 3
+    assert body["summary"]["rows_truncated"] is True
+    assert body["summary"]["rows_in_response"] == 3
+    assert "csv_base64" in body
 
 
 def test_sensitivity(client: TestClient, raw_vector: dict) -> None:

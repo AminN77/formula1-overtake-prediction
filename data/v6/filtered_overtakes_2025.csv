@@ -1,0 +1,747 @@
+year,race_name,round_number,event_format,lap_number,overtaker,overtaken,overtaker_prev_pos,overtaker_next_pos,overtaken_prev_pos,overtaken_next_pos,position_gain,consecutive_before,consecutive_after,pit_related,accurate_timing,safety_car,yellow_flag,lap1_or_restart_like
+2025,Australian Grand Prix,1,conventional,14,ANT,HUL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,16,HUL,ANT,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,17,ANT,HUL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,17,PIA,VER,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,19,LAW,OCO,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,22,ANT,STR,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,43,TSU,LEC,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,44,GAS,LEC,9,4,6,5,5,False,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,44,HAM,LEC,8,3,6,5,5,False,False,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,45,HAM,TSU,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,46,LEC,TSU,5,2,3,4,3,False,False,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,51,PIA,OCO,13,12,12,13,1,True,True,False,False,False,False,False
+2025,Australian Grand Prix,1,conventional,52,LEC,HAM,10,9,9,10,1,True,True,False,False,False,False,False
+2025,Australian Grand Prix,1,conventional,53,PIA,TSU,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,54,HAM,GAS,10,9,8,10,1,False,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,54,LEC,GAS,9,8,8,10,1,True,False,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,55,PIA,GAS,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,56,ANT,ALB,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Australian Grand Prix,1,conventional,57,PIA,HAM,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,16,HAM,BEA,9,7,8,9,2,True,False,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,17,OCO,HUL,14,13,12,14,1,False,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,17,PIA,ALB,2,1,1,2,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,17,TSU,HUL,13,12,12,14,1,True,False,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,17,VER,LAW,11,9,10,11,2,True,False,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,18,ANT,HUL,15,13,14,15,2,True,False,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,18,HAD,HUL,16,14,14,15,2,False,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,18,HAM,STR,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,18,NOR,RUS,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,18,VER,BEA,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,19,DOO,HUL,17,15,15,16,2,False,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,19,GAS,HUL,16,14,15,16,2,True,False,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,19,LEC,STR,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,19,NOR,ALB,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,20,VER,STR,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,21,LEC,HAM,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,24,SAI,DOO,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,32,BEA,DOO,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,35,BEA,SAI,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,39,STR,DOO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,40,BEA,GAS,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,43,STR,SAI,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,43,TSU,DOO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,45,BOR,HUL,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Chinese Grand Prix,2,sprint_qualifying,53,VER,LEC,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,2,SAI,HUL,16,15,15,16,1,True,True,False,False,False,False,True
+2025,Japanese Grand Prix,3,conventional,6,HAM,HAD,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,22,RUS,GAS,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,28,ALB,BOR,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,29,ALB,OCO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,30,ALB,SAI,11,10,9,11,1,False,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,30,HAD,SAI,10,9,9,11,1,True,False,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,31,HAD,LAW,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,32,ALB,LAW,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,33,GAS,DOO,17,15,16,16,2,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,36,SAI,LAW,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,48,SAI,HUL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Japanese Grand Prix,3,conventional,50,SAI,DOO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,2,OCO,ALO,13,12,12,13,1,True,True,False,False,False,False,True
+2025,Bahrain Grand Prix,4,conventional,3,ALB,ALO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,5,ANT,SAI,7,6,6,8,1,True,False,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,5,BEA,ALO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,5,VER,SAI,8,7,6,8,1,False,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,9,HAM,SAI,9,8,8,10,1,True,False,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,9,TSU,SAI,10,9,8,10,1,False,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,14,TSU,HAD,18,16,17,17,2,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,15,NOR,ALO,9,6,8,7,3,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,17,BEA,HUL,17,14,16,15,3,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,18,SAI,HAD,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,19,ALO,STR,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,20,ALB,HUL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,20,ANT,VER,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,21,BEA,HAD,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,22,HAM,DOO,10,8,9,10,2,True,False,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,22,HAM,VER,10,8,8,9,2,False,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,23,ALB,HAD,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,25,HAM,ANT,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,25,LEC,NOR,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,26,ALO,HUL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,26,HAM,OCO,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,29,ALB,BEA,11,8,10,9,3,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,29,VER,STR,17,14,16,15,3,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,30,SAI,TSU,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,31,ANT,ALO,13,12,11,13,1,False,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,31,OCO,ALO,12,11,11,13,1,True,False,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,ALB,SAI,13,12,10,13,1,False,True,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,BEA,SAI,12,11,10,13,1,False,False,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,HAD,ALO,16,17,15,18,-1,True,True,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,HUL,ALO,17,15,15,18,2,False,False,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,HUL,HAD,17,15,16,17,2,True,False,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,LAW,ALO,18,16,15,18,2,False,False,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,LAW,HAD,18,16,16,17,2,False,True,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,36,TSU,SAI,11,10,10,13,1,True,False,False,False,False,False,False
+2025,Bahrain Grand Prix,4,conventional,37,HAM,NOR,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,38,ANT,SAI,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,38,NOR,HAM,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,38,VER,OCO,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,39,ANT,ALB,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,41,LAW,HUL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,42,LAW,SAI,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,43,HUL,SAI,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,45,TSU,DOO,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,46,ANT,DOO,12,11,10,12,1,False,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,46,BEA,DOO,11,10,10,12,1,True,False,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,47,ALB,DOO,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,50,LAW,DOO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,52,NOR,LEC,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Bahrain Grand Prix,4,conventional,57,VER,GAS,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,3,RUS,PIA,3,2,2,3,1,True,True,False,False,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,4,HAD,ALO,11,10,10,11,1,True,True,False,False,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,4,PIA,RUS,3,2,2,3,1,True,True,False,False,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,7,NOR,SAI,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,12,NOR,HAM,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,14,HAM,NOR,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,15,LAW,ALO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,15,NOR,HAM,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,21,OCO,DOO,15,13,14,14,2,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,24,SAI,DOO,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,25,ALB,DOO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,25,LAW,BOR,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,26,ALO,BOR,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,26,SAI,OCO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,27,BEA,BOR,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,28,ALB,OCO,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,28,LAW,DOO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,28,SAI,HUL,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,29,ALB,HUL,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,29,ALO,DOO,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,30,ANT,HAD,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,31,ALB,STR,11,10,9,11,1,False,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,31,BEA,DOO,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,31,SAI,STR,10,9,9,11,1,True,False,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,33,LAW,OCO,14,12,13,13,2,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,34,ALO,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,36,LAW,STR,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,38,LEC,RUS,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,40,BEA,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,41,NOR,RUS,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,42,HUL,BOR,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,46,STR,BOR,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Saudi Arabian Grand Prix,5,conventional,49,DOO,BOR,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,4,HAM,HAD,12,11,11,12,1,True,True,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,4,NOR,ALB,6,5,5,6,1,True,True,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,4,PIA,ANT,3,2,2,3,1,True,True,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,5,SAI,ALB,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,7,NOR,RUS,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,9,GAS,ALO,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,9,NOR,ANT,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,14,ALB,SAI,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,14,PIA,VER,2,1,1,2,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,18,NOR,VER,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,22,HAM,OCO,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,27,GAS,BEA,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,30,STR,BOR,17,16,15,17,1,False,True,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,30,TSU,GAS,12,11,11,12,1,True,True,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,31,ALB,ANT,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,34,HAM,SAI,9,8,7,9,1,False,True,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,34,LEC,SAI,8,7,7,9,1,True,False,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,34,TSU,HUL,11,10,10,11,1,True,True,False,False,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,38,HAM,LEC,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Miami Grand Prix,6,sprint_qualifying,52,LEC,HAM,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,3,ANT,GAS,12,11,9,14,1,False,False,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,3,BOR,GAS,14,13,9,14,1,False,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,3,HAD,GAS,11,10,9,14,1,False,False,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,3,HAM,GAS,13,12,9,14,1,False,False,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,3,LEC,GAS,10,9,9,14,1,True,False,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,14,GAS,OCO,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,15,LAW,OCO,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,16,BOR,OCO,20,19,19,20,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,18,PIA,TSU,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,19,PIA,BEA,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,20,PIA,COL,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,21,LEC,TSU,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,22,PIA,HUL,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,23,LEC,BEA,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,25,RUS,TSU,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,26,PIA,HAM,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,27,LEC,HUL,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,27,PIA,ANT,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,28,PIA,HAD,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,32,LEC,STR,10,9,9,10,1,True,True,False,False,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,32,SAI,TSU,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,33,LEC,ALO,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,33,RUS,HUL,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,34,HAM,ANT,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,35,RUS,STR,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,36,HAM,HAD,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,36,HUL,STR,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,36,RUS,ALO,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,37,SAI,STR,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,38,LEC,ANT,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,38,TSU,STR,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,39,HUL,ALO,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,40,PIA,ALB,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,40,SAI,ALO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,41,LEC,HAD,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,42,SAI,HUL,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,42,TSU,ALO,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,43,GAS,COL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,54,TSU,HUL,11,10,10,11,1,True,True,False,False,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,55,ALO,LAW,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,57,ALO,GAS,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,57,HAM,RUS,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,58,BEA,BOR,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,58,NOR,PIA,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,59,ALO,HUL,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,60,HAM,ALB,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,61,HAM,LEC,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Emilia Romagna Grand Prix,7,conventional,63,ALB,LEC,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Monaco Grand Prix,8,conventional,48,RUS,ALB,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Monaco Grand Prix,8,conventional,64,ALB,SAI,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Monaco Grand Prix,8,conventional,76,STR,HUL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,2,HUL,ALO,11,10,10,11,1,True,True,False,False,False,False,True
+2025,Spanish Grand Prix,9,conventional,10,LEC,HAM,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,13,BOR,ALO,10,10,9,11,0,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,13,LAW,ALO,11,9,9,11,2,False,False,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,13,LAW,BOR,11,9,10,10,2,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,17,VER,ANT,7,5,6,6,2,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,18,ALO,COL,19,17,18,19,2,True,False,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,18,ALO,SAI,19,17,17,18,2,False,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,19,GAS,OCO,12,9,11,10,3,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,19,VER,RUS,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,24,ANT,GAS,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,24,HAD,HUL,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,25,ALO,ALB,14,13,12,14,1,False,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,25,BOR,COL,18,16,17,17,2,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,25,HAD,GAS,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,25,LAW,ALB,13,12,12,14,1,True,False,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,26,OCO,COL,18,16,17,18,2,True,False,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,28,HUL,GAS,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,29,TSU,COL,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,36,VER,LEC,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,37,SAI,COL,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,38,TSU,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,44,RUS,ANT,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,47,TSU,OCO,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,52,ALO,BEA,13,12,11,13,1,False,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,52,LAW,BEA,12,11,11,13,1,True,False,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,61,ALO,OCO,13,12,11,13,1,False,True,False,False,False,False,False
+2025,Spanish Grand Prix,9,conventional,61,BOR,OCO,12,11,11,13,1,True,False,False,False,False,False,False
+2025,Spanish Grand Prix,9,conventional,61,HUL,HAD,8,7,7,8,1,True,True,False,False,False,False,False
+2025,Spanish Grand Prix,9,conventional,61,LEC,VER,4,3,3,4,1,True,True,False,False,False,False,False
+2025,Spanish Grand Prix,9,conventional,63,BEA,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,64,ALO,BOR,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,64,RUS,VER,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,64,TSU,OCO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,65,ALO,LAW,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,65,HUL,HAM,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,65,SAI,OCO,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Spanish Grand Prix,9,conventional,66,COL,OCO,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,11,NOR,ALO,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,12,ALB,HAD,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,13,LEC,ALO,7,5,6,6,2,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,13,OCO,BEA,14,12,13,13,2,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,15,VER,HUL,8,5,7,6,3,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,16,SAI,BOR,13,12,12,14,1,True,False,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,16,TSU,BOR,14,13,12,14,1,False,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,17,ANT,HUL,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,17,SAI,BEA,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,19,ALO,GAS,17,15,16,16,2,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,19,OCO,ALB,9,7,8,8,2,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,20,ALO,LAW,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,20,HAM,ALB,9,7,8,10,2,True,False,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,20,HAM,OCO,9,7,7,8,2,False,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,20,SAI,ALB,10,9,8,10,1,False,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,21,ALO,STR,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,21,TSU,ALB,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,22,BOR,ALB,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,23,ALO,BOR,13,11,11,12,2,False,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,26,RUS,LEC,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,28,ALO,TSU,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,33,ALO,SAI,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,34,HUL,GAS,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,35,COL,GAS,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,35,HUL,LAW,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,37,ALO,OCO,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,37,COL,LAW,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,37,HUL,BOR,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,42,HAD,GAS,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,43,BEA,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,44,STR,GAS,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,45,ALB,GAS,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,46,BEA,HAD,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,46,GAS,ALB,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,48,HUL,TSU,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,53,ALO,TSU,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,56,HUL,SAI,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,59,BEA,COL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,61,ALO,HUL,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,62,TSU,HAD,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,64,BOR,HAD,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,64,TSU,COL,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Canadian Grand Prix,10,conventional,65,GAS,HAD,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,5,BEA,COL,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,9,ALB,GAS,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,12,OCO,STR,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,15,GAS,BEA,15,13,14,14,2,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,15,TSU,STR,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,22,HUL,BEA,13,11,12,12,2,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,25,HAD,STR,8,7,7,9,1,True,False,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,25,RUS,STR,9,8,7,9,1,False,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,26,RUS,HAD,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,27,BOR,GAS,11,10,9,11,1,False,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,27,HUL,GAS,10,9,9,11,1,True,False,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,28,BOR,HUL,10,8,9,9,2,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,28,LEC,LAW,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,28,OCO,COL,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,29,HAM,ALO,6,4,5,6,2,True,False,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,29,HAM,LAW,6,4,4,5,2,False,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,30,OCO,BEA,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,33,OCO,GAS,11,9,10,10,2,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,35,BEA,GAS,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,36,HAD,COL,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,48,BEA,STR,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,54,COL,TSU,16,14,15,15,2,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,54,RUS,ALO,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,55,RUS,LAW,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,56,BOR,HAD,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,57,HUL,HAD,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,58,OCO,HAD,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,66,BEA,HAD,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Austrian Grand Prix,11,conventional,66,STR,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,5,RUS,ANT,14,13,13,14,1,True,True,False,False,False,False,False
+2025,British Grand Prix,12,conventional,8,PIA,VER,2,1,1,2,1,True,True,False,False,False,False,False
+2025,British Grand Prix,12,conventional,9,STR,OCO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,12,HUL,OCO,12,6,10,7,6,False,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,18,BEA,ANT,17,15,15,16,2,False,True,False,False,False,False,False
+2025,British Grand Prix,12,conventional,18,LEC,TSU,14,13,13,14,1,True,True,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,ALO,VER,10,8,2,10,2,False,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,GAS,VER,7,5,2,10,2,False,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,HAM,VER,8,6,2,10,2,False,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,HUL,VER,5,4,2,10,1,False,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,NOR,VER,3,2,2,10,1,True,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,RUS,VER,9,7,2,10,2,False,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,SAI,VER,11,9,2,10,2,False,True,False,False,False,False,False
+2025,British Grand Prix,12,conventional,21,STR,VER,4,3,2,10,1,False,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,22,OCO,BEA,15,13,14,15,2,True,False,False,False,False,False,False
+2025,British Grand Prix,12,conventional,22,OCO,TSU,15,13,13,14,2,False,True,False,False,False,False,False
+2025,British Grand Prix,12,conventional,24,RUS,HAM,7,6,6,7,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,26,BEA,TSU,15,14,14,15,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,26,HAM,RUS,7,6,6,7,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,29,HAM,GAS,6,5,5,6,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,30,BEA,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,34,HUL,STR,4,3,3,4,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,34,VER,SAI,10,9,9,10,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,35,HAM,STR,5,4,4,5,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,35,LEC,ALB,12,11,11,12,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,39,LEC,SAI,10,8,9,9,2,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,43,ALO,RUS,14,9,13,10,5,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,51,VER,STR,6,5,5,6,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,52,ALB,ALO,9,8,8,9,1,True,True,False,True,False,False,False
+2025,British Grand Prix,12,conventional,52,GAS,STR,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,5,PIA,NOR,2,1,1,2,1,True,True,False,False,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,5,SAI,STR,17,16,16,17,1,True,True,False,False,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,6,HAM,STR,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,6,RUS,ALB,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,7,ANT,STR,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,7,HAM,SAI,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,8,HAM,COL,16,14,15,16,2,True,False,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,8,HAM,HUL,16,14,14,15,2,False,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,9,HAM,GAS,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,10,ALO,STR,20,19,19,20,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,11,BEA,OCO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,17,ANT,HAD,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,17,BEA,ALO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,18,STR,HAD,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,19,SAI,HAD,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,20,ANT,COL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,20,BOR,HUL,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,22,STR,COL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,27,ANT,ALO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,39,HUL,STR,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,43,BEA,TSU,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Belgian Grand Prix,13,sprint_qualifying,44,HUL,TSU,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,2,VER,LAW,9,8,8,9,1,True,True,False,False,False,False,True
+2025,Hungarian Grand Prix,14,conventional,3,NOR,ALO,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,3,VER,STR,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,5,GAS,COL,19,17,18,18,2,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,22,PIA,ALO,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,22,VER,HUL,15,13,14,14,2,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,24,VER,GAS,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,26,RUS,ALO,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,29,VER,HAM,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,30,VER,HAD,11,9,10,10,2,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,38,HAD,BEA,18,16,17,17,2,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,39,STR,SAI,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,41,ANT,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,43,LAW,SAI,11,9,10,10,2,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,44,HAD,OCO,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,45,ANT,SAI,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,46,GAS,BEA,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,47,HAD,SAI,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,47,HAM,BEA,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,49,HAM,GAS,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,49,HUL,TSU,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,50,HAM,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,51,PIA,LEC,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,58,SAI,HUL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,59,SAI,ALB,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,60,HUL,ALB,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,61,HUL,SAI,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,62,RUS,LEC,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,63,HUL,GAS,15,14,14,16,1,True,False,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,63,SAI,GAS,16,15,14,16,1,False,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,64,ALB,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,64,HUL,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,65,SAI,OCO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Hungarian Grand Prix,14,conventional,66,ALB,OCO,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,3,HUL,OCO,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,3,STR,BOR,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,5,COL,GAS,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,9,NOR,VER,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,16,GAS,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,23,STR,BEA,15,13,14,14,2,True,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,27,ALB,OCO,10,7,9,9,3,True,False,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,27,ANT,OCO,11,8,9,9,3,False,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,27,TSU,ALO,15,12,14,13,3,True,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,29,STR,OCO,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,32,LEC,RUS,6,5,5,6,1,True,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,34,ANT,ALB,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,41,ANT,RUS,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,50,ALO,HUL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,51,ALO,BOR,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,52,ALO,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,52,HUL,BOR,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,58,BEA,BOR,11,10,10,12,1,True,False,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,58,STR,BOR,12,11,10,12,1,False,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,59,TSU,BOR,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,60,BEA,ALO,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,62,STR,ALO,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,63,BEA,GAS,9,8,8,10,1,True,False,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,63,STR,GAS,10,9,8,10,1,False,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,65,ALO,GAS,11,9,10,10,2,True,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,69,COL,HUL,14,13,13,15,1,True,False,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,69,LAW,HUL,15,14,13,15,1,False,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,69,TSU,GAS,11,10,10,11,1,True,True,False,False,False,False,False
+2025,Dutch Grand Prix,15,conventional,70,OCO,GAS,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,70,SAI,BOR,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,71,COL,GAS,13,12,12,16,1,True,False,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,71,HUL,GAS,15,15,12,16,0,False,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,71,LAW,GAS,14,13,12,16,1,False,False,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,71,SAI,GAS,16,14,12,16,2,False,False,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,71,SAI,HUL,16,14,15,15,2,True,True,False,True,False,False,False
+2025,Dutch Grand Prix,15,conventional,72,BOR,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,2,BOR,ALO,7,6,6,7,1,True,True,False,False,False,False,True
+2025,Italian Grand Prix,16,conventional,2,LEC,PIA,4,3,3,4,1,True,True,False,False,False,False,True
+2025,Italian Grand Prix,16,conventional,2,NOR,VER,2,1,1,2,1,True,True,False,False,False,False,True
+2025,Italian Grand Prix,16,conventional,4,VER,NOR,2,1,1,2,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,5,HAM,ALO,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,6,PIA,LEC,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,7,HAM,BOR,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,13,HAD,COL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,18,ANT,TSU,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,25,ALB,SAI,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,25,BEA,LAW,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,27,TSU,LAW,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,30,GAS,COL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,35,RUS,STR,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,36,RUS,OCO,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,39,ANT,GAS,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,40,HAD,BEA,15,13,13,15,2,False,False,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,40,HAD,SAI,15,13,14,14,2,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,40,SAI,BEA,14,14,13,15,0,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,41,BOR,GAS,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,41,HAM,STR,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,42,HAM,OCO,8,6,7,7,2,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,44,ALB,ANT,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Italian Grand Prix,16,conventional,49,NOR,PIA,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,4,HAD,TSU,7,6,6,7,1,True,True,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,COL,STR,14,13,13,14,1,True,True,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,GAS,BEA,16,16,15,17,0,True,True,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,HUL,BEA,17,15,15,17,2,False,False,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,HUL,GAS,17,15,16,16,2,True,True,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,LEC,HAD,9,7,6,8,2,False,True,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,LEC,NOR,9,7,8,9,2,True,False,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,TSU,HAD,7,5,6,8,2,True,False,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,5,TSU,RUS,7,5,5,6,2,False,True,False,False,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,6,NOR,HAD,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,7,BOR,ALO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,8,HAM,HAD,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,10,RUS,TSU,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,13,BEA,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,16,OCO,GAS,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,25,ANT,BOR,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,29,ALB,GAS,17,15,16,16,2,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,34,BOR,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,35,ALB,OCO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,35,BOR,HUL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,36,BEA,ALO,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,40,NOR,LEC,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,41,BEA,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,43,HAM,LEC,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,48,ALB,BOR,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Azerbaijan Grand Prix,17,conventional,48,GAS,COL,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,2,OCO,TSU,17,16,16,17,1,True,True,False,False,False,False,True
+2025,Singapore Grand Prix,18,conventional,3,ALO,HAD,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,26,BEA,ALB,15,13,14,14,2,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,37,ALO,HAD,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,42,TSU,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,45,ALO,BEA,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,47,ALB,STR,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,47,ALO,LAW,10,8,8,9,2,False,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,47,ALO,SAI,10,8,9,10,2,True,False,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,48,STR,ALB,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,50,OCO,GAS,16,16,15,17,0,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,50,STR,GAS,17,15,15,17,2,False,False,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,50,STR,OCO,17,15,16,16,2,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,52,ALB,OCO,17,16,16,18,1,True,False,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,52,LAW,OCO,18,17,16,18,1,False,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,53,ALB,BOR,16,15,14,16,1,False,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,53,ANT,LEC,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,53,SAI,COL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,53,STR,BOR,15,14,14,16,1,True,False,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,54,LAW,BOR,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,56,HAM,LEC,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,57,SAI,TSU,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,57,STR,COL,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,58,ALB,COL,15,14,14,16,1,True,False,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,58,LAW,COL,16,15,14,16,1,False,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,59,SAI,HAD,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,61,GAS,HUL,20,19,19,20,1,True,True,False,True,False,False,False
+2025,Singapore Grand Prix,18,conventional,61,LEC,HAM,7,6,6,7,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,2,BOR,OCO,16,15,15,17,1,True,False,False,False,False,False,True
+2025,United States Grand Prix,19,sprint_qualifying,2,COL,OCO,17,16,15,17,1,False,True,False,False,False,False,True
+2025,United States Grand Prix,19,sprint_qualifying,2,SAI,BEA,9,8,8,9,1,True,True,False,False,False,False,True
+2025,United States Grand Prix,19,sprint_qualifying,3,STR,OCO,18,17,17,18,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,3,TSU,BEA,10,9,9,10,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,ALB,ANT,20,18,7,19,2,False,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,ALO,ANT,12,10,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,BEA,ANT,10,8,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,BOR,ANT,15,13,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,COL,ANT,16,14,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,GAS,ANT,14,12,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,HAD,ANT,19,17,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,HUL,ANT,11,9,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,LAW,ANT,13,11,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,OCO,ANT,18,16,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,STR,ANT,17,15,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,6,TSU,ANT,9,7,7,19,2,False,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,12,STR,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,17,ANT,HAD,17,16,16,17,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,20,ANT,OCO,16,15,15,16,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,20,STR,GAS,13,12,12,13,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,21,NOR,LEC,3,2,2,3,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,22,ALB,HAD,18,17,17,18,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,23,ANT,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,26,ALB,COL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,26,LEC,HUL,9,8,8,9,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,28,LEC,BEA,8,7,7,8,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,33,ALO,BOR,13,11,12,13,2,True,False,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,33,LAW,BOR,14,12,12,13,2,False,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,34,STR,BOR,14,13,13,14,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,35,OCO,BOR,15,14,14,15,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,37,ANT,GAS,17,14,16,15,3,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,40,ALB,GAS,16,15,15,16,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,47,ANT,OCO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,51,HAD,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,51,NOR,LEC,3,2,2,3,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,54,ALB,OCO,15,14,14,15,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,54,COL,GAS,18,17,17,18,1,True,True,False,True,False,False,False
+2025,United States Grand Prix,19,sprint_qualifying,55,BOR,GAS,19,18,18,19,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,2,ALO,GAS,16,14,15,15,2,True,True,False,False,False,False,True
+2025,Mexico City Grand Prix,20,conventional,3,ALB,HUL,17,16,16,18,1,True,False,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,3,STR,HUL,18,17,16,18,1,False,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,5,ALB,GAS,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,6,ANT,RUS,7,6,5,7,1,False,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,6,BEA,RUS,6,4,5,7,2,True,False,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,6,BEA,VER,6,4,4,5,2,False,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,6,STR,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,7,HUL,GAS,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,8,GAS,HUL,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,8,STR,ALB,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,9,BOR,SAI,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,9,HUL,GAS,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,11,PIA,TSU,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,21,SAI,COL,19,17,18,18,2,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,22,SAI,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,25,ANT,STR,12,10,11,11,2,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,26,ALO,COL,19,17,18,18,2,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,26,ANT,BOR,10,8,8,9,2,False,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,27,HAM,ALB,14,12,13,13,2,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,28,ALO,GAS,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,28,ANT,HAD,7,6,5,7,1,False,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,28,BEA,HAD,6,5,5,7,1,True,False,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,28,RUS,BOR,10,8,9,9,2,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,29,PIA,BOR,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,29,RUS,HAD,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,29,SAI,ALB,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,29,STR,GAS,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,30,HAM,BOR,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,30,PIA,HAD,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,31,HAM,HAD,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,32,BEA,TSU,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,33,ANT,TSU,6,5,5,7,1,True,False,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,33,RUS,TSU,7,6,5,7,1,False,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,34,PIA,TSU,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,35,HAM,TSU,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,35,OCO,ALB,14,12,13,13,2,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,36,SAI,BOR,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,38,STR,ALB,13,11,12,12,2,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,41,RUS,ANT,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,50,HAM,OCO,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,51,SAI,ALB,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,60,PIA,RUS,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,62,ANT,RUS,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,62,BOR,HAD,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,63,TSU,HAD,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Mexico City Grand Prix,20,conventional,64,ALB,HAD,13,12,12,13,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,2,BEA,GAS,9,8,8,9,1,True,True,False,False,False,False,True
+2025,São Paulo Grand Prix,21,sprint_qualifying,2,SAI,HUL,13,12,12,13,1,True,True,False,False,False,False,True
+2025,São Paulo Grand Prix,21,sprint_qualifying,5,COL,STR,15,14,14,15,1,True,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,ALB,ALO,11,9,10,10,2,True,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,HAM,STR,19,17,15,18,2,False,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,OCO,STR,17,16,15,18,1,False,False,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,PIA,ANT,4,2,2,3,2,False,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,TSU,OCO,18,15,17,16,3,True,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,TSU,STR,18,15,15,18,3,False,False,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,VER,COL,16,13,14,14,3,False,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,6,VER,STR,16,13,15,18,3,True,False,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,8,TSU,COL,14,13,13,14,1,True,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,9,RUS,LAW,6,5,5,6,1,True,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,9,SAI,ALO,11,10,10,11,1,True,True,False,False,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,12,RUS,HAD,5,4,4,5,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,13,BEA,LAW,7,6,6,7,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,13,VER,COL,16,14,14,15,2,False,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,13,VER,HAM,16,14,15,16,2,True,False,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,15,VER,TSU,14,13,13,14,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,17,VER,ALO,13,10,11,11,3,False,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,17,VER,HUL,13,10,12,12,3,True,False,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,20,SAI,HAM,18,17,17,18,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,21,HUL,ALO,8,7,7,8,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,21,VER,ALB,6,5,5,6,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,22,GAS,OCO,15,14,13,16,1,False,False,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,22,HAD,OCO,14,13,13,16,1,True,False,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,22,LAW,OCO,16,15,13,16,1,False,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,23,SAI,OCO,17,16,16,17,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,25,ANT,ALO,8,7,7,8,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,25,BEA,STR,11,10,10,11,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,27,BEA,COL,10,9,9,10,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,29,ANT,HUL,7,6,6,7,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,30,ANT,ALB,6,5,5,6,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,34,HUL,ALB,7,6,6,7,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,37,RUS,BEA,5,4,4,5,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,37,VER,GAS,9,6,8,7,3,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,38,ALB,COL,15,13,13,14,2,False,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,41,HUL,ALO,10,9,9,10,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,42,ALB,ALO,11,10,10,11,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,42,SAI,TSU,17,16,16,17,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,42,STR,COL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,45,BEA,ALO,11,10,10,11,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,47,BEA,ALB,10,8,9,9,2,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,49,BEA,HUL,8,7,7,8,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,50,ANT,LAW,5,4,4,5,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,51,RUS,LAW,6,5,5,6,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,52,GAS,STR,12,11,10,12,1,False,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,52,HAD,STR,11,10,10,12,1,True,False,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,55,PIA,LAW,6,5,5,6,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,57,BEA,LAW,7,6,6,7,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,59,ALB,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,60,ALB,ALO,14,13,13,14,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,63,VER,RUS,4,3,3,4,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,67,ALB,SAI,13,12,11,13,1,False,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,67,OCO,SAI,12,11,11,13,1,True,False,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,70,ALB,OCO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,São Paulo Grand Prix,21,sprint_qualifying,70,HAD,HUL,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,5,LEC,BEA,8,7,7,8,1,True,True,False,False,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,10,ANT,COL,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,12,LEC,PIA,7,6,6,7,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,13,LEC,HAD,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,16,PIA,HAD,7,6,6,7,1,True,True,False,False,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,20,HAM,OCO,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,22,ALO,COL,14,12,12,13,2,False,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,22,ALO,TSU,14,12,13,14,2,True,False,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,23,BEA,TSU,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,24,ANT,OCO,8,7,7,8,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,24,BEA,COL,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,31,ALB,COL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,31,BEA,ALO,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,32,OCO,ALO,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,33,OCO,BEA,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,34,NOR,RUS,3,2,2,3,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,40,LAW,COL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Las Vegas Grand Prix,22,conventional,45,TSU,GAS,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Qatar Grand Prix,23,sprint_qualifying,2,HUL,LEC,11,10,10,11,1,True,True,False,False,False,False,True
+2025,Qatar Grand Prix,23,sprint_qualifying,2,STR,BOR,19,18,18,19,1,True,True,False,False,False,False,True
+2025,Qatar Grand Prix,23,sprint_qualifying,30,PIA,ANT,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Qatar Grand Prix,23,sprint_qualifying,41,HAD,ALO,7,6,6,8,1,True,False,False,True,False,False,False
+2025,Qatar Grand Prix,23,sprint_qualifying,41,RUS,ALO,8,7,6,8,1,False,True,False,True,False,False,False
+2025,Qatar Grand Prix,23,sprint_qualifying,56,NOR,ANT,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,2,HAM,SAI,14,13,13,14,1,True,True,False,False,False,False,True
+2025,Abu Dhabi Grand Prix,24,conventional,4,RUS,ALO,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,16,STR,SAI,11,9,10,10,2,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,19,LEC,ANT,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,19,NOR,LAW,7,5,5,6,2,False,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,19,NOR,STR,7,5,6,7,2,True,False,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,20,LEC,LAW,8,5,6,6,3,False,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,20,LEC,STR,8,5,7,7,3,True,False,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,20,RUS,ANT,10,8,9,9,2,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,21,RUS,STR,8,6,7,7,2,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,23,ALO,HUL,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,23,NOR,TSU,4,3,3,4,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,23,OCO,BEA,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,24,BOR,HUL,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,24,HAM,ANT,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,24,LEC,TSU,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,24,OCO,HAD,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,25,BEA,HAD,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,25,OCO,ALB,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,27,ALO,ANT,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,28,BEA,ALB,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,29,RUS,TSU,6,5,5,6,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,30,BOR,ANT,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,31,OCO,HUL,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,32,SAI,HAD,17,15,16,16,2,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,33,BEA,HUL,12,10,11,11,2,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,35,HAM,COL,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,36,HAM,GAS,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,37,TSU,COL,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,38,HAM,HAD,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,38,OCO,BOR,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,39,ANT,COL,19,18,17,19,1,False,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,39,LAW,COL,18,17,17,19,1,True,False,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,39,TSU,GAS,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,41,ANT,LAW,18,16,17,17,2,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,41,BEA,BOR,10,9,9,10,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,41,HAM,SAI,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,42,LEC,RUS,5,4,4,5,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,43,ALB,LAW,18,15,17,16,3,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,43,HAM,BOR,11,9,10,10,2,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,44,TSU,HAD,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,45,HAM,BEA,9,8,8,9,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,46,HUL,LAW,18,17,17,18,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,47,ANT,HAD,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,47,STR,ALB,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,49,STR,HAD,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,50,HUL,ALB,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,51,HUL,HAD,16,15,15,16,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,51,STR,ANT,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,52,STR,TSU,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,53,ALB,HAD,17,16,16,17,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,54,HUL,ANT,15,14,14,15,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,54,STR,SAI,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,55,HUL,TSU,14,13,13,14,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,55,STR,BOR,11,10,10,11,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,57,HUL,SAI,13,12,12,13,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,58,HUL,BOR,12,11,11,12,1,True,True,False,True,False,False,False
+2025,Abu Dhabi Grand Prix,24,conventional,58,STR,BEA,10,9,9,10,1,True,True,False,True,False,False,False

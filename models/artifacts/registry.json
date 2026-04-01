@@ -1,6 +1,11 @@
 {
   "default": "v5",
   "models": {
+    "v6": {
+      "pkl": "overtake_model_v6.pkl",
+      "meta": "overtake_model_v6_meta.json",
+      "data_version": "v6"
+    },
     "v5": {
       "pkl": "overtake_model_v5.pkl",
       "meta": "overtake_model_v5_meta.json",

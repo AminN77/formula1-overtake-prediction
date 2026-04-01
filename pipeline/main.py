@@ -17,6 +17,7 @@ import pandas as pd
 
 from .battle_detector import detect_races_battles
 from .models import BattleRecord
+from .v6_pipeline import generate_v6_dataset
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -67,7 +68,7 @@ def save_csv(df: pd.DataFrame, path: Path) -> None:
 
 
 def main(argv: List[str] = None) -> None:
-    parser = argparse.ArgumentParser(description="Generate F1 battle dataset as CSV")
+    parser = argparse.ArgumentParser(description="Generate F1 overtaking datasets as CSV")
     parser.add_argument(
         "--years", type=int, nargs="+", default=[2022, 2023, 2024],
         help="Season years to process (default: 2022 2023 2024)",
@@ -84,7 +85,36 @@ def main(argv: List[str] = None) -> None:
         "--cache", type=str, default=None,
         help="FastF1 cache directory",
     )
+    parser.add_argument(
+        "--dataset-version",
+        type=str,
+        choices=["v5", "v6"],
+        default="v5",
+        help="Dataset generator to run (default: v5 legacy battle dataset).",
+    )
+    parser.add_argument(
+        "--candidate-gap",
+        type=float,
+        default=3.0,
+        help="v6 only: maximum attacker-defender gap in seconds for candidate scenario rows.",
+    )
     args = parser.parse_args(argv)
+
+    if args.dataset_version == "v6":
+        if not args.output_dir:
+            print("v6 requires --output-dir (for scenarios_<year>.csv and traceability files).")
+            sys.exit(1)
+        outputs = generate_v6_dataset(
+            args.years,
+            cache_path=args.cache,
+            output_dir=args.output_dir,
+            gap_threshold=args.candidate_gap,
+        )
+        summary = outputs.get("summary")
+        if summary is not None and not summary.empty:
+            print("\nv6 summary")
+            print(summary.to_string(index=False))
+        return
 
     battles = collect_battles(args.years, args.cache)
     if not battles:
