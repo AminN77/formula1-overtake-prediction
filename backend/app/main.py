@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .routers import circuits, health, models, predict, sensitivity, standings
+from .services.batch_result_store import BatchResultStore
 from .services.model_registry import ModelRegistry
 
 
@@ -21,6 +22,7 @@ def create_app(registry: ModelRegistry | None = None) -> FastAPI:
             reg = ModelRegistry(settings.artifacts_dir, settings.default_model)
             reg.load()
             app.state.registry = reg
+        app.state.batch_result_store = BatchResultStore()
         yield
 
     app = FastAPI(

@@ -47,7 +47,7 @@ def _overtake_within_horizon(session, attacker: str, defender: str, lap_start: i
 
 
 def detect_battles(session, year: int, race_name: str,
-                   gap_threshold: float = 1.0,
+                   gap_threshold: float = 3.0,
                    start_lap: int = 2) -> List[BattleRecord]:
     """
     Detect battles between consecutive-position drivers within *gap_threshold*.
@@ -69,6 +69,7 @@ def detect_battles(session, year: int, race_name: str,
       - gap_to_car_ahead / gap_to_car_behind (wider race situation)
       - drs_train_size (DRS-train proxy)
       - race_phase and stint_phase buckets
+      - wider battle definition: adjacent cars within 3.0s actual gap
     """
     lap_position_gap = ffu.build_position_and_gap_map(session)
     max_lap = max(lap_position_gap.keys())
@@ -297,7 +298,7 @@ def detect_battles(session, year: int, race_name: str,
 
 
 def detect_races_battles(year: int, gp: str, identifier: str = "R",
-                         cache_path: str = None, gap_threshold: float = 1.0,
+                         cache_path: str = None, gap_threshold: float = 3.0,
                          start_lap: int = 1) -> List[BattleRecord]:
     session = ffu.load_session(year, gp, identifier, cache_path)
     race_name = session.event['EventName']

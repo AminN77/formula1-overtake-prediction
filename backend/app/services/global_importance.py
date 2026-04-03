@@ -20,6 +20,19 @@ def _get_final_estimator(pipeline: Any) -> Any | None:
     return clf
 
 
+def _get_preprocessor(pipeline: Any) -> Any | None:
+    steps = getattr(pipeline, "named_steps", None) or {}
+    for key in ("preprocess", "preprocessor", "pre"):
+        pre = steps.get(key)
+        if pre is not None and hasattr(pre, "get_feature_names_out"):
+            return pre
+    if hasattr(pipeline, "steps"):
+        for _, step in pipeline.steps:
+            if hasattr(step, "get_feature_names_out"):
+                return step
+    return None
+
+
 def _linear_importance_ranking(est: Any, feats: list[str]) -> list[dict[str, Any]]:
     coef = getattr(est, "coef_", None)
     if coef is None:
@@ -45,7 +58,7 @@ def global_feature_importance_ranking(pipeline: Any, meta: dict[str, Any]) -> li
     if base is None:
         return []
 
-    pre = getattr(pipeline, "named_steps", {}).get("preprocess")
+    pre = _get_preprocessor(pipeline)
     if pre is None or not hasattr(pre, "get_feature_names_out"):
         return _linear_importance_ranking(base, feats)
 

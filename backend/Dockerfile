@@ -12,7 +12,7 @@ COPY backend/app ./app
 
 ENV PYTHONPATH=/app
 ENV MODEL_ARTIFACTS_DIR=/artifacts
-ENV DEFAULT_MODEL=v5
+ENV DEFAULT_MODEL=v6
 
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=5s --retries=5 \

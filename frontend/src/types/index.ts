@@ -21,6 +21,17 @@ export type SchemaResponse = {
   trained_feature_names?: string[];
 };
 
+export type ModelCurrentResponse = {
+  version: string;
+  data_version?: string | null;
+  threshold?: number;
+  train_years?: number[];
+  train_rows?: number;
+  features_count?: number;
+  cv_metrics?: Record<string, unknown> | null;
+  meta?: Record<string, unknown>;
+};
+
 export type CircuitMeta = {
   race_name: string;
   round: number;
@@ -83,6 +94,13 @@ export type BatchEvaluation = {
   f1?: number | null;
   confusion_matrix?: number[][];
   confusion_labels?: { rows: string[]; cols: string[] };
+  horizon_breakdown?: {
+    column: string;
+    label: string;
+    positive_rows: number;
+    predicted_true: number;
+    predicted_true_rate?: number | null;
+  }[];
 };
 
 export type GlobalImportanceResponse = {
@@ -90,12 +108,40 @@ export type GlobalImportanceResponse = {
   importance: { feature: string; importance: number }[];
 };
 
+export type BatchFilterOptions = {
+  attacker?: string[];
+  defender?: string[];
+  race_name?: string[];
+  track?: string[];
+};
+
 export type BatchPredictResponse = {
+  result_id: string;
   summary: Record<string, unknown>;
   evaluation: BatchEvaluation | null;
   columns: string[];
+  filter_options: BatchFilterOptions;
   rows: Record<string, unknown>[];
   row_count: number;
-  /** Present when `include_csv_base64=true` (default). Full scored table for download. */
-  csv_base64?: string;
+  filtered_row_count: number;
+  page: number;
+  page_size: number;
+  page_count: number;
+  has_more: boolean;
+};
+
+export type BatchQueryRequest = {
+  result_id: string;
+  page: number;
+  page_size: number;
+  outcome: string;
+  prediction: string;
+  attacker: string;
+  defender: string;
+  race_name: string;
+  track: string;
+  search: string;
+  lap_min: number | null;
+  lap_max: number | null;
+  probability_min: number | null;
 };

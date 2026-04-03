@@ -26,16 +26,26 @@
     "speed_i2_delta",
     "speed_fl_delta",
     "speed_st_delta",
+    "safety_car",
+    "yellow_flag",
     "attacker_tyre_compound",
     "defender_tyre_compound",
     "attacker_tyre_age",
     "defender_tyre_age",
     "tyre_age_difference",
+    "attacker_stint",
     "defender_stint",
+    "attacker_fresh_tyre",
+    "defender_fresh_tyre",
+    "sector",
+    "sector_type",
     "is_in_drs_zone",
+    "drs_zone_length",
+    "track_type",
     "air_temp",
     "track_temp",
     "humidity",
+    "rainfall",
     "wind_speed",
     "sector1_delta",
     "sector2_delta",
@@ -46,12 +56,14 @@
     "defender_defend_rate_last5",
     "gap_delta_1",
     "gap_delta_3",
+    "is_closing",
     "closing_laps",
     "pace_delta_avg_3",
     "battle_duration",
     "attempted_before",
     "overtakes_this_race",
     "compound_advantage",
+    "tyre_cliff_risk",
     "attacker_on_newer_stint",
     "qualification_rank_difference"
   ],
@@ -82,7 +94,10 @@
     "attacker_tyre_age",
     "defender_tyre_age",
     "tyre_age_difference",
+    "attacker_stint",
     "defender_stint",
+    "sector",
+    "drs_zone_length",
     "air_temp",
     "track_temp",
     "humidity",
@@ -95,20 +110,29 @@
     "defender_defend_rate_last5",
     "gap_delta_1",
     "gap_delta_3",
+    "is_closing",
     "closing_laps",
     "pace_delta_avg_3",
     "battle_duration",
     "attempted_before",
     "overtakes_this_race",
     "compound_advantage",
+    "tyre_cliff_risk",
     "attacker_on_newer_stint",
     "qualification_rank_difference"
   ],
   "cat_cols": [
     "race_name",
+    "safety_car",
+    "yellow_flag",
     "attacker_tyre_compound",
     "defender_tyre_compound",
+    "attacker_fresh_tyre",
+    "defender_fresh_tyre",
+    "sector_type",
     "is_in_drs_zone",
+    "track_type",
+    "rainfall",
     "compound_mismatch"
   ],
   "best_params": {
@@ -122,40 +146,40 @@
     "eval_metric": "aucpr",
     "random_state": 42
   },
-  "threshold": 0.7232663316582914,
+  "threshold": 0.7279899497487436,
   "train_years": [
     2022,
     2023,
     2024
   ],
+  "test_years": [
+    2025
+  ],
   "train_rows": 11344,
+  "test_rows": 4641,
   "overtake_rate": 0.06673131170662905,
   "cv_metrics": {
-    "roc_auc": 0.8694013457595299,
-    "pr_auc": 0.3944243619126293,
-    "brier": 0.0982610285282135
+    "roc_auc": 0.8717171267221745,
+    "pr_auc": 0.3970763000758199,
+    "brier": 0.09854312986135483
   },
   "data_version": "v4",
-  "ip02_improvements": [
-    "actual_gap (LapStartTime)",
-    "pit_stop_filter",
-    "signed_tyre_age_diff",
-    "gap_trend_features",
-    "pace_delta",
-    "speed_deltas",
-    "battle_context",
-    "tyre_cliff",
-    "xgboost_optuna"
-  ],
-  "ip03_improvements": [
-    "track_type_coverage",
-    "sector_micro_features",
-    "multi_horizon_labels",
-    "driver_rolling_rates",
-    "shap_pruning",
-    "battle_pair_aggregation_model",
-    "temporal_loco_eval"
-  ],
   "baseline_model": "v3 IP02 (model_testing_3, data v3)",
-  "saved_at": "2026-03-20T13:53:26.740075"
+  "saved_at": "2026-04-03T13:53:04.403000",
+  "holdout_metrics": {
+    "roc_auc": 0.8950430143144003,
+    "pr_auc": 0.46909609070759106,
+    "brier": 0.03622341270626885,
+    "best_f1_threshold": 0.7279899497487436,
+    "confusion_matrix": [
+      [
+        4390,
+        8
+      ],
+      [
+        215,
+        28
+      ]
+    ]
+  }
 }

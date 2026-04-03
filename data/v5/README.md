@@ -2,6 +2,7 @@
 
 **Generated from:** `src/pipeline` with IP04 extensions  
 **Columns per row:** 79  
+**Battle definition:** adjacent attacker/defender pairs with actual gap `< 3.0s`
 
 ## What changed from v4 (62 cols → 79 cols)
 

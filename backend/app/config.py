@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="", extra="ignore")
 
     artifacts_dir: Path = Path(os.environ.get("MODEL_ARTIFACTS_DIR", str(_DEFAULT_ARTIFACTS)))
-    default_model: str = os.environ.get("DEFAULT_MODEL", "v5")
+    default_model: str = os.environ.get("DEFAULT_MODEL", "v6")
     cors_origins: str = os.environ.get(
         "CORS_ORIGINS",
         "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://localhost:5174",

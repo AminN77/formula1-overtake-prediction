@@ -168,7 +168,7 @@ def test_predict_batch_supports_label_column(client: TestClient) -> None:
 
 
 def test_predict_batch_preview_rows_limits_json_payload(client: TestClient) -> None:
-    """Large JSON `rows` arrays duplicate memory in the browser; cap with preview_rows."""
+    """Initial batch payload should honor the preview_rows alias for page size."""
     lines = ["f0,f1,f2,f3,f4,label"]
     for i in range(10):
         lines.append(f"{i}.0,{i + 1}.0,{i + 2}.0,{i + 3}.0,{i + 4}.0,{i % 2}")
@@ -183,7 +183,93 @@ def test_predict_batch_preview_rows_limits_json_payload(client: TestClient) -> N
     assert len(body["rows"]) == 3
     assert body["summary"]["rows_truncated"] is True
     assert body["summary"]["rows_in_response"] == 3
-    assert "csv_base64" in body
+    assert body["page_size"] == 3
+    assert "result_id" in body
+
+
+def test_predict_batch_query_pages_filtered_rows(client: TestClient) -> None:
+    csv_text = "\n".join(
+        [
+            "f0,f1,f2,f3,f4,label,attacker,defender,race_name,track",
+            "0.0,1.0,2.0,3.0,4.0,0,NOR,HAM,Race A,MELBOURNE",
+            "1.0,2.0,3.0,4.0,5.0,1,PIA,HAM,Race A,MELBOURNE",
+            "2.0,3.0,4.0,5.0,6.0,1,PIA,LEC,Race B,MONZA",
+            "3.0,4.0,5.0,6.0,7.0,0,NOR,LEC,Race B,MONZA",
+        ]
+    )
+    created = client.post(
+        "/api/predict/batch?threshold=0.5&filter_pits=false&page_size=2",
+        files={"file": ("batch.csv", io.BytesIO(csv_text.encode("utf-8")), "text/csv")},
+    )
+    assert created.status_code == 200
+    result_id = created.json()["result_id"]
+    queried = client.post(
+        "/api/predict/batch/query",
+        json={
+            "result_id": result_id,
+            "page": 1,
+            "page_size": 10,
+            "outcome": "ALL",
+            "prediction": "ALL",
+            "attacker": "PIA",
+            "defender": "ALL",
+            "race_name": "ALL",
+            "track": "ALL",
+            "search": "",
+            "lap_min": None,
+            "lap_max": None,
+            "probability_min": None,
+        },
+    )
+    assert queried.status_code == 200
+    body = queried.json()
+    assert body["filtered_row_count"] == 2
+    assert all(row["attacker"] == "PIA" for row in body["rows"])
+
+
+def test_predict_batch_download_returns_csv(client: TestClient) -> None:
+    csv_text = "\n".join(
+        [
+            "f0,f1,f2,f3,f4,label",
+            "0.0,1.0,2.0,3.0,4.0,0",
+            "1.0,2.0,3.0,4.0,5.0,1",
+        ]
+    )
+    created = client.post(
+        "/api/predict/batch?threshold=0.5&filter_pits=false&page_size=1",
+        files={"file": ("batch.csv", io.BytesIO(csv_text.encode("utf-8")), "text/csv")},
+    )
+    assert created.status_code == 200
+    result_id = created.json()["result_id"]
+    downloaded = client.get(f"/api/predict/batch/download/{result_id}")
+    assert downloaded.status_code == 200
+    assert downloaded.headers["content-type"].startswith("text/csv")
+    assert "overtake_probability" in downloaded.text
+
+
+def test_predict_batch_reports_horizon_breakdown(client: TestClient) -> None:
+    csv_text = "\n".join(
+        [
+            "f0,f1,f2,f3,f4,label,overtake_next_lap,overtake_within_2,overtake_within_3",
+            "0.0,1.0,2.0,3.0,4.0,0,0,0,0",
+            "1.0,2.0,3.0,4.0,5.0,1,0,1,1",
+            "2.0,3.0,4.0,5.0,6.0,1,1,1,1",
+        ]
+    )
+    r = client.post(
+        "/api/predict/batch?threshold=0.5&filter_pits=false",
+        files={"file": ("batch.csv", io.BytesIO(csv_text.encode("utf-8")), "text/csv")},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    breakdown = body["evaluation"]["horizon_breakdown"]
+    assert [item["column"] for item in breakdown] == [
+        "overtake_next_lap",
+        "overtake_within_2",
+        "overtake_within_3",
+    ]
+    assert breakdown[0]["positive_rows"] == 1
+    assert "predicted_true" in breakdown[1]
 
 
 def test_sensitivity(client: TestClient, raw_vector: dict) -> None:

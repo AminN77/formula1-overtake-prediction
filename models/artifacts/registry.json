@@ -1,5 +1,5 @@
 {
-  "default": "v5",
+  "default": "v6",
   "models": {
     "v6": {
       "pkl": "overtake_model_v6.pkl",

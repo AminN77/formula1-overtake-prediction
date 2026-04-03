@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
 import { BattleForm } from "../components/battle/BattleForm";
-import { ConstructorContext } from "../components/battle/ConstructorContext";
 import { FeatureImpact } from "../components/battle/FeatureImpact";
 import { FeatureImportanceRank } from "../components/battle/FeatureImportanceRank";
-import { ModelSwitcher } from "../components/model/ModelSwitcher";
 import { PredictionCard } from "../components/battle/PredictionCard";
 import { SensitivityChart } from "../components/battle/SensitivityChart";
+import { useAppData } from "../context/AppDataContext";
 import { useBattlePageState } from "../context/BattlePageContext";
 import type { CircuitMeta, FeatureSchemaItem, SchemaResponse } from "../types";
 import { applySampleBattleInputs } from "../utils/applySampleBattle";
@@ -19,6 +18,7 @@ import {
 const UI_YEAR = 2025;
 
 export function SingleBattle() {
+  const { currentModel, schema, circuits, globalImportance, loading, switchingModel, error: appDataError } = useAppData();
   const {
     values,
     setValues,
@@ -37,66 +37,13 @@ export function SingleBattle() {
     syncInitialValuesFromSchema,
   } = useBattlePageState();
 
-  const [schema, setSchema] = useState<SchemaResponse | null>(null);
-  const [versions, setVersions] = useState<string[]>([]);
-  const [circuits, setCircuits] = useState<CircuitMeta[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [switchingModel, setSwitchingModel] = useState(false);
   const [predicting, setPredicting] = useState(false);
-  const [globalImportance, setGlobalImportance] = useState<{ feature: string; importance: number }[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const s = await api.modelsSchema();
-        if (!cancelled) setSchema(s);
-      } catch (e) {
-        if (!cancelled) setErr(String(e));
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-      try {
-        const v = await api.modelsVersions();
-        if (!cancelled) setVersions(v.versions);
-      } catch {
-        /* optional */
-      }
-      try {
-        const c = await api.circuits();
-        if (!cancelled) setCircuits(c.circuits);
-      } catch {
-        /* optional */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     if (!schema) return;
     syncInitialValuesFromSchema(schema);
   }, [schema, syncInitialValuesFromSchema]);
-
-  useEffect(() => {
-    if (!schema?.model_version) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const r = await api.modelsGlobalImportance();
-        if (!cancelled && r.model_version === schema.model_version) {
-          setGlobalImportance(r.importance);
-        }
-      } catch {
-        if (!cancelled) setGlobalImportance([]);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [schema?.model_version]);
 
   useEffect(() => {
     if (!circuits?.length || !schema || raceName) return;
@@ -185,27 +132,6 @@ export function SingleBattle() {
     [setRaceName],
   );
 
-  const handleModelChange = useCallback(
-    async (v: string) => {
-      if (!schema || v === schema.model_version) return;
-      setSwitchingModel(true);
-      setErr(null);
-      try {
-        await api.modelsSwitch(v);
-        const s = await api.modelsSchema();
-        setSchema(s);
-        setPred(null);
-        setSens(null);
-        setSensFeature("");
-      } catch (e) {
-        setErr(String(e));
-      } finally {
-        setSwitchingModel(false);
-      }
-    },
-    [schema, setPred, setSens, setSensFeature],
-  );
-
   const onPredict = useCallback(async () => {
     setErr(null);
     if (!schema) return;
@@ -270,7 +196,7 @@ export function SingleBattle() {
   }, [schema, setValues, setRaceName]);
 
   if (loading) return <div className="text-f1-muted">Loading schema…</div>;
-  if (err && !schema) return <div className="text-red-400">{err}</div>;
+  if ((err || appDataError) && !schema) return <div className="text-red-400">{err || appDataError}</div>;
 
   return (
     <div className="space-y-8">
@@ -278,30 +204,17 @@ export function SingleBattle() {
         <div>
           <h1 className="text-3xl font-bold text-white">Battle prediction</h1>
           <p className="mt-2 max-w-2xl text-f1-muted">
-            Pick a 2025 circuit, tune the battle, then run a prediction. Switch the <strong>model</strong>{" "}
-            anytime. Use <strong>Advanced</strong> for full feature control and local sensitivity.
+            Pick a 2025 circuit, tune the battle, then run a prediction. Manage the active <strong>model</strong> from the
+            Models tab. Use <strong>Advanced</strong> for full feature control and local sensitivity.
           </p>
         </div>
-        {schema && (
-          <div className="shrink-0">
-            <ModelSwitcher
-              versions={versions}
-              active={schema.model_version}
-              disabled={switchingModel || predicting}
-              onChange={handleModelChange}
-            />
-            {switchingModel && <p className="mt-1 text-xs text-f1-muted">Loading model…</p>}
+        {schema && currentModel && (
+          <div className="rounded-lg border border-white/10 bg-f1-card/70 px-4 py-3 text-right">
+            <div className="text-xs uppercase tracking-wider text-f1-muted">Active model</div>
+            <div className="font-mono text-sm text-white">{currentModel.version}</div>
           </div>
         )}
       </div>
-
-      {schema && (
-        <ConstructorContext
-          attackerTeam={String(values.attacker_team ?? "")}
-          defenderTeam={String(values.defender_team ?? "")}
-          year={UI_YEAR}
-        />
-      )}
 
       {schema && (
         <BattleForm
@@ -317,7 +230,9 @@ export function SingleBattle() {
         />
       )}
 
-      {err && <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">{err}</div>}
+      {(err || appDataError) && (
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm">{err || appDataError}</div>
+      )}
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <button

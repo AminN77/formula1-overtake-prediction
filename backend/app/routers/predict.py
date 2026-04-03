@@ -5,11 +5,13 @@ from typing import Annotated
 
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, Response, UploadFile
 from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
 
+from ..schemas.batch import BatchQueryRequest
 from ..schemas.battle import DeriveRowRequest, DeriveRowResponse, PredictSingleRequest, PredictSingleResponse
 from ..services.inference import derive_engineered_row, local_feature_impacts, predict_batch, predict_single
+from ..services.batch_result_store import BatchResultStore, StoredBatchResult
 from ..services.model_registry import ModelRegistry
 
 router = APIRouter(prefix="/predict", tags=["predict"])
@@ -20,6 +22,13 @@ def get_registry(request: Request) -> ModelRegistry:
     if reg is None:
         raise HTTPException(500, "Model registry not initialized")
     return reg
+
+
+def get_batch_store(request: Request) -> BatchResultStore:
+    store = getattr(request.app.state, "batch_result_store", None)
+    if store is None:
+        raise HTTPException(500, "Batch result store not initialized")
+    return store
 
 
 def _jsonable_row(obj: object) -> object:
@@ -67,6 +76,98 @@ def _resolve_label_column(meta: dict, df: pd.DataFrame) -> str | None:
     return None
 
 
+def _horizon_breakdown(scored: pd.DataFrame) -> list[dict]:
+    out: list[dict] = []
+    if "overtake_predicted" not in scored.columns:
+        return out
+    pred = scored["overtake_predicted"].astype(int)
+    for col, label in (
+        ("overtake_next_lap", "Next lap"),
+        ("overtake_within_2", "Within 2 laps"),
+        ("overtake_within_3", "Within 3 laps"),
+    ):
+        if col not in scored.columns:
+            continue
+        y = scored[col].astype(int)
+        positives = int(y.sum())
+        predicted_true = int(((y == 1) & (pred == 1)).sum())
+        out.append(
+            {
+                "column": col,
+                "label": label,
+                "positive_rows": positives,
+                "predicted_true": predicted_true,
+                "predicted_true_rate": float(predicted_true / positives) if positives else None,
+            }
+        )
+    return out
+
+
+def _filter_options(scored: pd.DataFrame) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for key in ("attacker", "defender", "race_name", "track"):
+        if key not in scored.columns:
+            continue
+        vals = sorted({str(v) for v in scored[key].dropna().astype(str) if str(v).strip()})
+        out[key] = vals
+    return out
+
+
+def _apply_batch_filters(scored: pd.DataFrame, query: BatchQueryRequest) -> pd.DataFrame:
+    out = scored
+    if query.outcome != "ALL" and "eval_outcome" in out.columns:
+        out = out[out["eval_outcome"].astype(str) == query.outcome]
+    if query.prediction == "Predicted positive" and "overtake_predicted" in out.columns:
+        out = out[out["overtake_predicted"].astype(int) == 1]
+    elif query.prediction == "Predicted negative" and "overtake_predicted" in out.columns:
+        out = out[out["overtake_predicted"].astype(int) == 0]
+    for field, value in (
+        ("attacker", query.attacker),
+        ("defender", query.defender),
+        ("race_name", query.race_name),
+        ("track", query.track),
+    ):
+        if value != "ALL" and field in out.columns:
+            out = out[out[field].astype(str) == value]
+    if query.lap_min is not None and "lap_number" in out.columns:
+        out = out[pd.to_numeric(out["lap_number"], errors="coerce") >= query.lap_min]
+    if query.lap_max is not None and "lap_number" in out.columns:
+        out = out[pd.to_numeric(out["lap_number"], errors="coerce") <= query.lap_max]
+    if query.probability_min is not None and "overtake_probability" in out.columns:
+        out = out[pd.to_numeric(out["overtake_probability"], errors="coerce") >= query.probability_min]
+    if query.search.strip():
+        needle = query.search.strip().lower()
+        hay_cols = [c for c in ("attacker", "defender", "race_name", "track", "eval_outcome", "attacker_team", "defender_team") if c in out.columns]
+        if hay_cols:
+            mask = out[hay_cols].fillna("").astype(str).agg(" ".join, axis=1).str.lower().str.contains(needle, regex=False)
+            out = out[mask]
+    return out.reset_index(drop=True)
+
+
+def _serialize_batch_rows(item: StoredBatchResult, query: BatchQueryRequest) -> dict:
+    filtered = _apply_batch_filters(item.scored, query)
+    total = len(item.scored)
+    filtered_total = len(filtered)
+    start = (query.page - 1) * query.page_size
+    end = start + query.page_size
+    page_rows = filtered.iloc[start:end].replace({np.nan: None}).to_dict(orient="records")
+    page_count = max(1, int(np.ceil(filtered_total / query.page_size))) if filtered_total else 1
+    return {
+        "result_id": item.result_id,
+        "summary": item.summary,
+        "evaluation": item.evaluation,
+        "columns": item.columns,
+        "filter_options": item.filter_options,
+        "rows": page_rows,
+        "row_count": total,
+        "filtered_row_count": filtered_total,
+        "page": query.page,
+        "page_size": query.page_size,
+        "page_count": page_count,
+        "has_more": end < filtered_total,
+    }
+
+
 @router.post("/single", response_model=PredictSingleResponse)
 def predict_single_endpoint(
     body: PredictSingleRequest,
@@ -111,24 +212,29 @@ def derive_row_endpoint(body: DeriveRowRequest) -> DeriveRowResponse:
 
 @router.post("/batch")
 def predict_batch_endpoint(
+    request: Request,
     reg: Annotated[ModelRegistry, Depends(get_registry)],
     file: UploadFile = File(...),
     threshold: float = 0.5,
     filter_pits: bool = True,
-    preview_rows: int = Query(
-        500,
+    preview_rows: int | None = Query(
+        None,
         ge=1,
-        le=50_000,
-        description="Cap rows returned in JSON `rows` (full scoring still runs on the upload).",
+        le=500,
+        description="Backward-compatible alias for the initial batch page size.",
     ),
-    include_csv_base64: bool = Query(
-        True,
-        description="Include a base64-encoded CSV of the full scored table (can be large).",
+    page_size: int = Query(
+        25,
+        ge=1,
+        le=500,
+        description="Rows per page for the initial batch result payload.",
     ),
 ) -> dict:
     m = reg.active
     meta = m.meta
     th = float(threshold)
+    store = get_batch_store(request)
+    initial_page_size = int(preview_rows or page_size)
     try:
         raw = file.file.read()
         df = pd.read_csv(io.BytesIO(raw), encoding="utf-8")
@@ -153,7 +259,6 @@ def predict_batch_endpoint(
         if n_scored
         else 0.0,
         "model_version": m.version,
-        "rows_preview_limit": preview_rows,
     }
     evaluation: dict | None = None
     label_col = _resolve_label_column(meta, scored)
@@ -188,6 +293,7 @@ def predict_batch_endpoint(
             "label_column": label_col,
             "confusion_matrix": [[tn, fp], [fn, tp]],
             "confusion_labels": {"rows": ["actual 0", "actual 1"], "cols": ["pred 0", "pred 1"]},
+            "horizon_breakdown": _horizon_breakdown(scored),
         }
     else:
         evaluation = {"has_labels": False}
@@ -210,28 +316,48 @@ def predict_batch_endpoint(
                 outcomes.append("FN")
         scored_display["eval_outcome"] = outcomes
 
-    rows_json = scored_display.replace({np.nan: None}).to_dict(orient="records")
-    total_rows = len(rows_json)
-    truncated = total_rows > preview_rows
-    if truncated:
-        rows_out = rows_json[:preview_rows]
-    else:
-        rows_out = rows_json
-    summary["rows_in_response"] = len(rows_out)
-    summary["rows_truncated"] = truncated
-
-    out: dict = {
-        "summary": summary,
-        "evaluation": evaluation,
-        "columns": list(scored_display.columns),
-        "rows": rows_out,
-        "row_count": total_rows,
+    item = store.save(
+        scored=scored_display,
+        summary=summary,
+        evaluation=evaluation,
+        columns=list(scored_display.columns),
+        filter_options=_filter_options(scored_display),
+    )
+    payload = _serialize_batch_rows(
+        item,
+        BatchQueryRequest(result_id=item.result_id, page=1, page_size=initial_page_size),
+    )
+    payload["summary"] = {
+        **summary,
+        "rows_in_response": len(payload["rows"]),
+        "rows_truncated": len(payload["rows"]) < n_scored,
     }
-    if include_csv_base64:
-        csv_buf = io.StringIO()
-        scored_display.to_csv(csv_buf, index=False)
-        import base64
+    return payload
 
-        b64 = base64.b64encode(csv_buf.getvalue().encode("utf-8")).decode("ascii")
-        out["csv_base64"] = b64
-    return out
+
+@router.post("/batch/query")
+def query_batch_result(
+    body: BatchQueryRequest,
+    store: Annotated[BatchResultStore, Depends(get_batch_store)],
+) -> dict:
+    item = store.get(body.result_id)
+    if item is None:
+        raise HTTPException(404, "Batch result not found. Re-run the batch score to create a new result set.")
+    return _serialize_batch_rows(item, body)
+
+
+@router.get("/batch/download/{result_id}")
+def download_batch_result(
+    result_id: str,
+    store: Annotated[BatchResultStore, Depends(get_batch_store)],
+) -> Response:
+    item = store.get(result_id)
+    if item is None:
+        raise HTTPException(404, "Batch result not found. Re-run the batch score to download it again.")
+    csv_buf = io.StringIO()
+    item.scored.to_csv(csv_buf, index=False)
+    return Response(
+        content=csv_buf.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="predictions.csv"'},
+    )

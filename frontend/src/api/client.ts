@@ -18,7 +18,7 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   health: () => apiFetch<{ status: string }>("/api/health"),
-  modelsCurrent: () => apiFetch<Record<string, unknown>>("/api/models/current"),
+  modelsCurrent: () => apiFetch<import("../types").ModelCurrentResponse>("/api/models/current"),
   modelsSchema: () => apiFetch<import("../types").SchemaResponse>("/api/models/schema"),
   modelsGlobalImportance: () =>
     apiFetch<import("../types").GlobalImportanceResponse>("/api/models/importance"),
@@ -46,17 +46,26 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
-  predictBatch: async (file: File, threshold: number, filterPits: boolean) => {
+  predictBatch: async (file: File, threshold: number, filterPits: boolean, pageSize: number) => {
     const fd = new FormData();
     fd.append("file", file);
     const q = new URLSearchParams({
       threshold: String(threshold),
       filter_pits: String(filterPits),
-      preview_rows: "500",
-      include_csv_base64: "true",
+      page_size: String(pageSize),
     });
     const res = await fetch(`${base()}/api/predict/batch?${q}`, { method: "POST", body: fd });
     if (!res.ok) throw new Error(await res.text());
     return res.json() as Promise<import("../types").BatchPredictResponse>;
+  },
+  queryBatch: (body: import("../types").BatchQueryRequest) =>
+    apiFetch<import("../types").BatchPredictResponse>("/api/predict/batch/query", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  downloadBatchCsv: async (resultId: string) => {
+    const res = await fetch(`${base()}/api/predict/batch/download/${resultId}`);
+    if (!res.ok) throw new Error(await res.text());
+    return res.blob();
   },
 };
