@@ -1,33 +1,69 @@
 # F1 Overtake Prediction
 
-Predict the probability of an **on-track overtake** between two consecutive cars using lap-level battle features derived from **FastF1** race data. The project includes an offline data pipeline, research notebooks, serialized ML models, and a **React + FastAPI** web application (IP05).
+Predict the probability of an on-track overtake from Formula 1 race data derived from `FastF1`. The repository includes:
+
+- offline dataset generation pipelines
+- trained model artifacts for multiple versions
+- research notebooks for the current model generations
+- a React + FastAPI application for single-scenario and batch scoring
+
+The current default model is `v6`.
 
 ---
 
-## Architecture (IP05)
+## Current project state
+
+Two model families currently coexist in the app:
+
+- `v2`-`v5`: battle-oriented, next-lap overtake probability models
+- `v6`: broader scenario model that predicts whether an overtake occurs within the next 3 laps
+
+Current product behavior:
+
+- model switching happens only on the Models page
+- Single, Batch, and Models page state persists during the current app session
+- batch scoring is server-backed, paginated, filter-aware, and downloadable as CSV
+- batch evaluation is model-aware:
+  - `v1`-`v5`: standard next-lap confusion matrix
+  - `v6`: standard binary confusion matrix plus horizon breakdown
+
+---
+
+## Architecture
 
 | Layer | Tech | Role |
 |-------|------|------|
-| **Frontend** | React 19, TypeScript, Vite, Tailwind, Recharts | F1-inspired UI; dynamic form from `/api/models/schema`; batch CSV upload |
-| **Backend** | FastAPI, sklearn/XGBoost joblib pipelines | Model registry, `/api/predict/*`, `/api/sensitivity`, OpenAPI at `/docs` |
-| **Pipeline** | Python, FastF1 | Offline generation of `data/v*/battles_*.csv` |
+| Frontend | React 19, TypeScript, Vite, Tailwind, Recharts | Dynamic UI, single prediction flow, batch scoring, model info |
+| Backend | FastAPI, scikit-learn, XGBoost, joblib | Model registry, inference, schema generation, sensitivity, batch result storage |
+| Pipeline | Python, FastF1 | Offline extraction and feature engineering for `data/v*` datasets |
 
-The frontend is **model-agnostic**: it loads feature definitions from the backend so new model versions do not require hardcoded field lists in the client.
+The frontend is model-aware but not hardcoded to one artifact. It reads schema and metadata from the backend so new artifact versions can be exposed without rebuilding the UI structure from scratch.
 
 ---
 
 ## Quick start (Docker)
 
-1. Trained artifacts live under `models/artifacts/` (at minimum `overtake_model_v5.pkl` + `overtake_model_v5_meta.json` + `registry.json`); they are versioned in this repository.
-2. From the repository root:
+From the repository root:
 
 ```bash
 docker compose up --build
 ```
 
-- **Frontend:** http://localhost:3000 (nginx → proxies `/api` to backend)
-- **Backend API:** http://localhost:8000 — interactive docs: http://localhost:8000/docs  
-- Configure default model: `DEFAULT_MODEL=v4 docker compose up`
+Services:
+
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- Backend API: [http://localhost:8000](http://localhost:8000)
+- OpenAPI docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+Notes:
+
+- model artifacts are committed under `models/artifacts/`
+- Docker defaults to `DEFAULT_MODEL=v6`
+- you can override the default model at startup, for example:
+
+```bash
+DEFAULT_MODEL=v5 docker compose up --build
+```
 
 ---
 
@@ -39,7 +75,7 @@ docker compose up --build
 cd backend
 pip install -r requirements.txt
 export MODEL_ARTIFACTS_DIR="$(pwd)/../models/artifacts"
-export PYTHONPATH="$(pwd)/..:${PYTHONPATH}"   # repo root for `pipeline` package
+export PYTHONPATH="$(pwd)/..:${PYTHONPATH}"
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -51,44 +87,102 @@ npm install
 npm run dev
 ```
 
-Vite dev server proxies `/api` to `http://127.0.0.1:8000` (override with `VITE_PROXY_TARGET`).
+Notes:
 
-Set `VITE_API_URL` only if the API is on another origin; leave empty when using the proxy.
+- the Vite dev server proxies `/api` to `http://127.0.0.1:8000`
+- set `VITE_API_URL` only when the API is hosted on another origin
 
 ---
 
-## Data pipeline (offline)
+## Available model versions
 
-From the **repository root** (so the `pipeline` package resolves):
+The registry currently exposes:
+
+- `v6` (default)
+- `v5`
+- `v4`
+- `v3`
+- `v2`
+
+Registry source: `models/artifacts/registry.json`
+
+High-level meaning:
+
+- `v5` uses the widened battle definition: adjacent attacker/defender pairs with gap `< 3.0s`
+- `v6` uses broader adjacent scenarios and the primary target `label = overtake_within_3`
+
+---
+
+## Data pipeline
+
+Run pipeline generation from the repository root.
+
+### Generate `v5`
 
 ```bash
-export PYTHONPATH=.
-python -m pipeline.main --years 2022 2023 2024 2025 --output-dir data/v5 --cache cache
+python3 -m pipeline.main \
+  --years 2022 2023 2024 2025 \
+  --output-dir data/v5 \
+  --cache cache
 ```
 
-See `data/v5/README.md` for column descriptions.
+### Generate `v6`
+
+```bash
+python3 -m pipeline.main \
+  --dataset-version v6 \
+  --years 2022 2023 2024 2025 \
+  --output-dir data/v6 \
+  --cache cache
+```
+
+Dataset notes:
+
+- `data/v5/README.md` documents the widened battle-based dataset
+- `data/v6/README.md` documents the broader scenario-led dataset
 
 ---
 
-## Model training
+## Model training and notebooks
 
-Research notebooks live in `notebooks/` (e.g. `model_testing_5.ipynb` for the v5 model). Trained pipelines and JSON metadata are written under `models/artifacts/` and committed alongside the code.
+The current research notebooks live in `notebooks/`.
+
+Most relevant notebooks:
+
+- `notebooks/model_testing_4.ipynb`
+- `notebooks/model_testing_5.ipynb`
+- `notebooks/model_testing_6.ipynb`
+- `notebooks/pipeline_testing.ipynb`
+
+Current notebook status:
+
+- the active model notebooks have been trimmed to the key training and holdout analyses
+- the notebooks are saved with outputs embedded
+- `model_testing_6.ipynb` includes a holdout calibration section for the raw `v6` probabilities
+
+Saved artifacts and metadata are written under `models/artifacts/` and versioned in git.
 
 ---
 
-## Project layout
+## Batch scoring workflow
 
-```
-├── backend/                 # FastAPI application
-├── frontend/                # React SPA (Vite)
-├── pipeline/                # FastF1 battle extraction & feature enrichment
-├── notebooks/               # Jupyter experiments (model_testing_*.ipynb)
-├── models/artifacts/        # registry.json + *.pkl + *_meta.json
-├── data/                    # Versioned battle CSVs (v1…v5)
-├── docs/                    # IP01–IP05, roadmap, images
-├── docker-compose.yml
-└── README.md
-```
+Batch mode is designed for uploading one CSV and exploring the scored results in the app.
+
+Current behavior:
+
+1. upload a CSV compatible with the active model
+2. run batch scoring
+3. receive summary/evaluation plus the first result page
+4. paginate or refetch results with filters
+5. download the full scored CSV if needed
+
+The backend stores full batch results temporarily and serves:
+
+- paginated rows
+- merged viewer filters
+- CSV download by result id
+
+This avoids the old “first preview rows only” limitation and keeps large `v6` result sets usable.
 
 ---
 
@@ -98,28 +192,54 @@ Research notebooks live in `notebooks/` (e.g. `model_testing_5.ipynb` for the v5
 |--------|------|-------------|
 | GET | `/api/health` | Liveness |
 | GET | `/api/models/current` | Active model metadata |
-| GET | `/api/models/schema` | Feature list + types for dynamic UI |
-| POST | `/api/models/switch` | `{"version": "v4"}` — switch loaded model |
-| POST | `/api/predict/single` | JSON `inputs` → probability + optional local impacts |
-| POST | `/api/predict/batch` | multipart CSV + `threshold` + `filter_pits` query params |
-| POST | `/api/sensitivity` | 1D curve for a numeric feature |
+| GET | `/api/models/schema` | Dynamic feature schema for the UI |
+| GET | `/api/models/versions` | Available model versions |
+| GET | `/api/models/importance` | Global feature importance for the active model |
+| POST | `/api/models/switch` | Switch active model |
+| POST | `/api/predict/single` | Single prediction |
+| POST | `/api/predict/derive` | Build derived feature row from UI inputs |
+| POST | `/api/predict/batch` | Run batch scoring and create server-side result handle |
+| POST | `/api/predict/batch/query` | Fetch paginated / filtered batch rows |
+| GET | `/api/predict/batch/download/{result_id}` | Download full scored batch CSV |
+| POST | `/api/sensitivity` | 1D sensitivity curve for a numeric feature |
 
-If the request JSON contains **all** keys in `meta["features"]`, the backend uses them directly as the feature vector (useful for tests); otherwise it engineers a row from battle-oriented UI fields (same behaviour as the legacy Gradio app).
+Implementation note:
+
+- if a request body already contains every feature required by `meta["features"]`, the backend can score it directly
+- otherwise it engineers a row from the battle/scenario-style inputs used by the UI
+
+---
+
+## Repository layout
+
+```text
+backend/                 FastAPI application
+frontend/                React SPA
+pipeline/                Offline extraction and feature engineering
+notebooks/               Model and pipeline research notebooks
+models/artifacts/        registry.json + .pkl + *_meta.json
+data/                    Versioned datasets such as v5 and v6
+docs/                    Improvement proposals and project notes
+docker-compose.yml       Local stack orchestration
+README.md
+```
 
 ---
 
 ## Improvement proposals
 
 | Doc | Topic |
-|-----|--------|
-| [docs/IP05.md](docs/IP05.md) | **Product overhaul** — FastAPI + React + Docker |
-| [docs/IP04.md](docs/IP04.md) | Context-aware driver/team features (v5) |
-| [docs/IP03.md](docs/IP03.md) | v4 dataset & modelling |
-| [docs/IP02.md](docs/IP02.md) | Data quality & features |
+|-----|-------|
+| [docs/IP05.md](docs/IP05.md) | Product architecture overhaul |
+| [docs/IP06.md](docs/IP06.md) | Model switching, batch UX, and UI/backend behavior |
+| [docs/IP07.md](docs/IP07.md) | Broad scenario-led `v6` dataset and model framing |
+| [docs/IP04.md](docs/IP04.md) | Context-aware driver/team features for `v5` |
+| [docs/IP03.md](docs/IP03.md) | `v4` dataset and modelling work |
+| [docs/IP02.md](docs/IP02.md) | Data quality and feature engineering |
 | [docs/IP01.md](docs/IP01.md) | Baseline audit |
 
 ---
 
 ## License
 
-Academic / coursework context — see your institution’s policies for redistribution of FastF1-derived data.
+Academic / coursework context. Check your institution’s and FastF1’s policies before redistributing derived data or artifacts.
