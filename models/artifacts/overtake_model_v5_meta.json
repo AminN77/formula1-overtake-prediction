@@ -209,7 +209,7 @@
     "regularization_tuning"
   ],
   "baseline_model": "v4 IP03 (model_testing_4, data v4)",
-  "saved_at": "2026-04-03T13:53:49.627978",
+  "saved_at": "2026-04-09T12:23:21.085192",
   "holdout_metrics": {
     "roc_auc": 0.9673480828863816,
     "pr_auc": 0.7520955825288371,

@@ -29,10 +29,9 @@
 ## Regenerate (all years — required for correct driver features)
 
 ```bash
-cd src
-python3 -m pipeline.main --years 2022 2023 2024 2025 --output-dir ../data/v4 --cache cache
+python3 -m pipeline.main --years 2022 2023 2024 2025 --output-dir data/v4 --cache cache
 ```
 
 ## Model notebook
 
-Train and evaluate with `models/model_testing_4.ipynb` (IP03: SHAP pruning, battle-pair model, temporal / LOCO checks).
+Train and evaluate with `notebooks/model_testing_4.ipynb` (IP03: SHAP pruning, battle-pair model, temporal / LOCO checks).

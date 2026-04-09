@@ -165,7 +165,7 @@
   },
   "data_version": "v4",
   "baseline_model": "v3 IP02 (model_testing_3, data v3)",
-  "saved_at": "2026-04-03T13:53:04.403000",
+  "saved_at": "2026-04-09T12:22:58.758142",
   "holdout_metrics": {
     "roc_auc": 0.8950430143144003,
     "pr_auc": 0.46909609070759106,

@@ -1,6 +1,6 @@
 # data/v5 — IP04 Context-Aware Dataset
 
-**Generated from:** `src/pipeline` with IP04 extensions  
+**Generated from:** `pipeline/` with IP04 extensions  
 **Columns per row:** 79  
 **Battle definition:** adjacent attacker/defender pairs with actual gap `< 3.0s`
 
@@ -34,6 +34,5 @@
 ## Regeneration
 
 ```bash
-cd src/
-python -m pipeline.main --years 2022 2023 2024 2025 --output-dir ../data/v5 --cache cache
+python3 -m pipeline.main --years 2022 2023 2024 2025 --output-dir data/v5 --cache cache
 ```

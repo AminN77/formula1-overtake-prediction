@@ -26,9 +26,8 @@
 ## Regenerate
 
 ```bash
-cd src
-python3 -m pipeline.main --years 2022 --output ../data/v3/battles_2022.csv --cache cache
-python3 -m pipeline.main --years 2023 --output ../data/v3/battles_2023.csv --cache cache
-python3 -m pipeline.main --years 2024 --output ../data/v3/battles_2024.csv --cache cache
-python3 -m pipeline.main --years 2025 --output ../data/v3/battles_2025.csv --cache cache
+python3 -m pipeline.main --years 2022 --output data/v3/battles_2022.csv --cache cache
+python3 -m pipeline.main --years 2023 --output data/v3/battles_2023.csv --cache cache
+python3 -m pipeline.main --years 2024 --output data/v3/battles_2024.csv --cache cache
+python3 -m pipeline.main --years 2025 --output data/v3/battles_2025.csv --cache cache
 ```

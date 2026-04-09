@@ -24,7 +24,7 @@ Current product behavior:
 - Single, Batch, and Models page state persists during the current app session
 - batch scoring is server-backed, paginated, filter-aware, and downloadable as CSV
 - batch evaluation is model-aware:
-  - `v1`-`v5`: standard next-lap confusion matrix
+  - `v2`-`v5`: standard next-lap confusion matrix
   - `v6`: standard binary confusion matrix plus horizon breakdown
 
 ---
