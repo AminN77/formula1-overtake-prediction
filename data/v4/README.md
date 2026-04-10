@@ -34,4 +34,4 @@ python3 -m pipeline.main --years 2022 2023 2024 2025 --output-dir data/v4 --cach
 
 ## Model notebook
 
-Train and evaluate with `notebooks/model_testing_4.ipynb` (IP03: SHAP pruning, battle-pair model, temporal / LOCO checks).
+Train and evaluate with `notebooks/model_testing_4.ipynb` (IP03: battle-pair model, temporal / LOCO checks).

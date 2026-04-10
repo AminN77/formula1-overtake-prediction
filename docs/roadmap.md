@@ -48,7 +48,6 @@ Build an end-to-end pipeline that predicts overtaking probability in Formula One
 * Train boosted models: XGBoost / LightGBM / CatBoost.
 * Perform cross-race generalization tests.
 * Compute metrics: F1, ROC-AUC, Precision@Top10%.
-* Run feature importance analysis (SHAP).
 * Save models + evaluation plots.
 
 ---
