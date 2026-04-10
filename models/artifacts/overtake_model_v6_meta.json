@@ -10,7 +10,7 @@
   "holdout_years": [
     2025
   ],
-  "threshold": 0.7183074355125427,
+  "threshold": 0.7210897207260132,
   "features": [
     "attacker_tyre_compound",
     "defender_tyre_compound",
@@ -386,9 +386,9 @@
     108
   ],
   "metrics": {
-    "holdout_roc_auc": 0.9115931273252279,
-    "holdout_pr_auc": 0.6017729908977768,
-    "holdout_brier": 0.09925693273544312,
+    "holdout_roc_auc": 0.9109556635992107,
+    "holdout_pr_auc": 0.5984463750286019,
+    "holdout_brier": 0.0983801931142807,
     "holdout_positive_rate": 0.08600446589353886
   }
 }

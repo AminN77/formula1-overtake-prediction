@@ -11,7 +11,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from pipeline.constructor_standings import standings_positions_by_year_team
+from pipeline.constructor_standings import normalize_app_team_name, standings_positions_before_event
 
 DEFAULT_RANK = 10.0
 DEFAULT_CONSTRUCTOR_POS = 10
@@ -212,24 +212,37 @@ def enrich_team_features(df: pd.DataFrame) -> pd.DataFrame:
     out["attacker_race_pace_vs_teammate"] = att_rpvt
     out["defender_race_pace_vs_teammate"] = def_rpvt
 
-    # Constructor championship positions (f1api.dev snapshot for that season)
-    year_maps: dict[int, dict[str, int]] = {}
+    # Constructor standings before event round (same season, round-1)
+    round_maps: dict[tuple[int, int], dict[str, int]] = {}
     att_cons: list[int] = []
     def_cons: list[int] = []
     cons_delta: list[int] = []
+    cons_default_count = 0
     for _, row in df.iterrows():
         y = int(row["year"])
-        if y not in year_maps:
-            year_maps[y] = standings_positions_by_year_team(y)
-        m = year_maps[y]
-        at = str(row["attacker_team"])
-        dt = str(row["defender_team"])
+        r = int(row["round_number"])
+        key = (y, r)
+        if key not in round_maps:
+            round_maps[key] = standings_positions_before_event(y, r)
+        m = round_maps[key]
+        at = normalize_app_team_name(str(row["attacker_team"]))
+        dt = normalize_app_team_name(str(row["defender_team"]))
         ac = m.get(at, DEFAULT_CONSTRUCTOR_POS)
         dc = m.get(dt, DEFAULT_CONSTRUCTOR_POS)
+        if ac == DEFAULT_CONSTRUCTOR_POS:
+            cons_default_count += 1
+        if dc == DEFAULT_CONSTRUCTOR_POS:
+            cons_default_count += 1
         att_cons.append(ac)
         def_cons.append(dc)
         cons_delta.append(ac - dc)
     out["attacker_constructor_rank"] = att_cons
     out["defender_constructor_rank"] = def_cons
     out["constructor_rank_delta"] = cons_delta
+    total_rank_lookups = max(len(out) * 2, 1)
+    default_share = cons_default_count / total_rank_lookups
+    print(
+        f"constructor rank enrichment: default_share={default_share:.2%} "
+        f"({cons_default_count}/{total_rank_lookups} lookups)"
+    )
     return out

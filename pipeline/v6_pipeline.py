@@ -658,6 +658,36 @@ def generate_v6_dataset(
         scenarios_all = engineer_v6_features(scenarios_all, filtered_all)
         scenarios_all = enrich_driver_features(scenarios_all, label_col="label")
         scenarios_all = enrich_team_features(scenarios_all)
+        if {
+            "year",
+            "attacker_constructor_rank",
+            "defender_constructor_rank",
+            "constructor_rank_delta",
+        }.issubset(set(scenarios_all.columns)):
+            for year in sorted(scenarios_all["year"].dropna().astype(int).unique().tolist()):
+                sub = scenarios_all[scenarios_all["year"] == year]
+                if sub.empty:
+                    continue
+                default_mask = (
+                    (sub["attacker_constructor_rank"] == 10)
+                    & (sub["defender_constructor_rank"] == 10)
+                    & (sub["constructor_rank_delta"] == 0)
+                )
+                default_share = float(default_mask.mean())
+                unique_pairs = int(
+                    sub[["attacker_constructor_rank", "defender_constructor_rank"]]
+                    .drop_duplicates()
+                    .shape[0]
+                )
+                print(
+                    f"constructor-rank audit {year}: "
+                    f"default_pair_share={default_share:.2%}, unique_rank_pairs={unique_pairs}"
+                )
+                if default_share > 0.95:
+                    print(
+                        f"WARNING: {year} constructor ranks mostly defaulted to 10/10. "
+                        "Check standings API reachability or team-name normalization."
+                    )
 
     summary = (
         scenarios_all.groupby("year", as_index=False)
