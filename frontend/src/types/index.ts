@@ -58,6 +58,9 @@ export type StandingsEntry = {
 export type StandingsResponse = {
   season: number;
   source: string;
+  event_round?: number;
+  round?: number;
+  round_used?: number;
   entries: StandingsEntry[];
 };
 

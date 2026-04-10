@@ -386,7 +386,14 @@ export function BattleForm({
         </div>
       </div>
 
-      <CircuitSelector circuits={circuits} value={raceName} onSelect={handleCircuit} />
+      <CircuitSelector
+        circuits={circuits}
+        value={raceName}
+        year={uiYear}
+        attackerTeam={String(values.attacker_team ?? "")}
+        defenderTeam={String(values.defender_team ?? "")}
+        onSelect={handleCircuit}
+      />
 
       <div className="flex flex-wrap gap-2">
         <span className="inline-flex items-center gap-1 rounded-full border border-f1-red/40 bg-f1-red/10 px-3 py-1 text-xs font-semibold text-white">

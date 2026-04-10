@@ -7,5 +7,6 @@ from pipeline.constructor_standings import (  # noqa: F401
     clear_standings_cache,
     constructor_position_for_team,
     fetch_constructors_standings,
+    fetch_constructors_standings_for_round,
     standings_positions_by_year_team,
 )

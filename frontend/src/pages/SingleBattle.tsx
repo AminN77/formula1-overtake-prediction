@@ -142,7 +142,7 @@ export function SingleBattle() {
     }
     setPredicting(true);
     try {
-      const body = { inputs: sanitizedInputs, include_impacts: true, include_row: false };
+      const body = { inputs: sanitizedInputs, include_impacts: true, include_row: true };
       const r = await api.predictSingle(body);
       setPred(r);
     } catch (e) {
@@ -262,6 +262,9 @@ export function SingleBattle() {
               verdict={pred.verdict}
               label={pred.label}
               modelVersion={pred.model_version}
+              attackerConstructorRank={Number(pred.row?.attacker_constructor_rank ?? NaN)}
+              defenderConstructorRank={Number(pred.row?.defender_constructor_rank ?? NaN)}
+              constructorRankDelta={Number(pred.row?.constructor_rank_delta ?? NaN)}
             />
           ) : (
             <div className="rounded-xl border border-white/10 bg-f1-surface/20 p-6 text-sm text-f1-muted">

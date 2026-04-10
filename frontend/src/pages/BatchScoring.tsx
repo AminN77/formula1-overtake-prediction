@@ -164,7 +164,15 @@ export function BatchScoring() {
   const activeBatchModelVersion = String(summary?.model_version ?? currentModel?.version ?? "");
   const isV6BatchModel = activeBatchModelVersion.startsWith("v6");
   const displayCols = useMemo(() => {
-    const preferred = ["eval_outcome", ...(labelColumn ? [labelColumn] : []), "overtake_predicted", "overtake_probability"];
+    const preferred = [
+      "eval_outcome",
+      ...(labelColumn ? [labelColumn] : []),
+      "overtake_predicted",
+      "overtake_probability",
+      "attacker_constructor_rank",
+      "defender_constructor_rank",
+      "constructor_rank_delta",
+    ];
     const rest = columns.filter((c) => !preferred.includes(c) && !(labelColumn && labelColumn !== "overtake" && c === "overtake"));
     return [...preferred.filter((c, idx) => columns.includes(c) && preferred.indexOf(c) === idx), ...rest];
   }, [columns, labelColumn]);

@@ -29,8 +29,12 @@ export const api = {
       body: JSON.stringify({ version }),
     }),
   circuits: () => apiFetch<import("../types").CircuitsResponse>("/api/circuits"),
-  standings: (year: number) =>
-    apiFetch<import("../types").StandingsResponse>(`/api/standings?year=${year}`),
+  standings: (year: number, round?: number, beforeEvent = false) => {
+    const q = new URLSearchParams({ year: String(year) });
+    if (typeof round === "number" && Number.isFinite(round)) q.set("round", String(round));
+    if (beforeEvent) q.set("before_event", "true");
+    return apiFetch<import("../types").StandingsResponse>(`/api/standings?${q.toString()}`);
+  },
   predictSingle: (body: object) =>
     apiFetch<import("../types").PredictResponse>("/api/predict/single", {
       method: "POST",
