@@ -254,9 +254,9 @@ Components:
 |---|---|---|
 | Orchestration | GitHub Actions cron | Runners have open internet. The F1 live timing endpoint is blocked from both the cloud container and the sandboxed device shell, so CI is the only automatable option. |
 | Storage | Parquet, partitioned by season and round | Incremental append, no database needed at this scale. |
-| Data versioning | DVC | "The model as of round 14" has to be reproducible. |
-| Experiment tracking | MLflow | Every promoted model traceable to its data snapshot and config. |
-| Registry | MLflow registry, or versioned artifacts plus a manifest | Incumbent versus challenger needs an explicit pointer. |
+| Experiment tracking | **Weights & Biases** | One run per round, grouped per backtest sweep. The per-round metric series is the project's headline result, and W&B plots it natively. Needs an API key as a CI secret. |
+| Data and model versioning | **W&B Artifacts** | Covers dataset snapshots and model versions in the same place as the runs, so "the model as of round 14" resolves to one lineage. Replaces DVC: one fewer moving part, and the snapshot is attached to the run that used it. |
+| Registry | W&B Artifact aliases (`incumbent`, `challenger`) | A single model, so the registry is one pointer rather than a version table. |
 | Config | YAML, one file per experiment | Hyperparameters are frozen per the evaluation protocol, so they belong in version control, not in a notebook cell. |
 | Drift | Feature distributions and base rate tracked per round | A regulation era is not stationary. Teams develop, and 2027 will not resemble 2026. |
 
@@ -264,8 +264,43 @@ Everything is a Python package with a CLI, so the same code runs locally and in 
 
 ---
 
+---
+
+## 4. Interface
+
+Confirmed as real scope rather than an afterthought, and it replaces the legacy app rather than extending it.
+
+### One model, so the UI's job changes
+
+The legacy app spent most of its surface on a schema-driven form with dozens of fields, plus a model switcher across v2 to v6. Both go away:
+
+- **No version switcher.** One model, one incumbent pointer. Provenance (which rounds it was trained on, when it was promoted) is shown as metadata, not as a choice.
+- **No feature entry form.** This is the biggest improvement available. Features are derived from real session data, so a user picks a race and a battle rather than typing 97 numbers. The legacy form existed because the model was disconnected from the data; it does not need to exist here.
+
+### What the UI actually shows
+
+Four views, in priority order:
+
+| View | What it shows | Why it earns space |
+|---|---|---|
+| **Race replay** | A completed 2026 round. Every battle episode on a lap timeline, predicted hazard per lap against what actually happened. | The natural visual for this model. Hazard is a per-lap curve, so it wants a timeline, not a gauge. Also the fastest way to see where the model is wrong. |
+| **Model health** | The per-round backtest metric series, calibration curve, and conformal interval width over rounds. | This is the project's thesis made visible: does the model improve as the era accumulates data. The single most important chart in the project. |
+| **Battle inspector** | One episode, lap by lap: hazard curve, the features driving it, the transfer scalars' contribution. | Where the explanation lives. Replaces the legacy sensitivity chart with something tied to a real situation. |
+| **Next round** | Standing predictions for the upcoming race, with intervals. | The only forward-looking view, and the reason the pipeline exists. |
+
+### Stack
+
+Same React and TypeScript baseline as legacy, since that part worked. The difference is in the information design rather than the framework: timelines and small multiples instead of forms and tables, and semantic colour for state (event, censored, predicted) separate from the accent hue. Charts are the product here, so they get the care.
+
+Built last, after the model has numbers worth showing. A UI built against a model that does not exist yet ends up designing the model.
+
+---
+
 ## Open questions
 
-1. How far back does the old-era corpus go: 2018-2025 (needs extraction, roughly 8 seasons) or 2022-2025 (already extracted under `legacy/data/`)? The Tier 1 estimates get better with 8 seasons, especially circuit passability. 2022-2025 is free and available today.
-2. Confirm `k0 = 5` for the backtest start.
-3. Confirm the recommended transfer set (old-model-as-feature, circuit passability, monotone constraints) as the starting point, with the others held as experiments.
+**Settled.** `k0 = 5` for the backtest start. Transfer set starts as old-model-as-feature, circuit passability prior and monotone constraints, with the hierarchical era offset, recency weighting and driver priors held as experiments behind the same switches. Tracking is Weights & Biases. One model, no version switcher. The UI is in scope.
+
+**Open.**
+
+1. **Old-era corpus depth.** Proposal: start with 2022-2025, because `legacy/data/v6/scenarios_*.csv` already carries the Tier 1 and Tier 2 columns the transfer components need, which means Layer 1 can be built and tested today with no F1 API access at all. Extending back to 2018 is a later, separable job that only sharpens the circuit prior. Proceeding on this unless told otherwise.
+2. **Phase 0 must run outside the sandbox.** `livetiming.formula1.com` is blocked from both the cloud container and the device shell, so `era2026/recon.py` has to be run in a normal local terminal. Its output gates the extraction layer, because we do not yet know what 2026 exposes in place of DRS.
