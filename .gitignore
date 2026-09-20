@@ -225,3 +225,7 @@ backend/.pytest_cache/
 flagged/
 # era2026: FastF1 session cache (large, regenerable)
 era2026/.fastf1_cache/
+
+# era2026: W&B offline runs and built feature tables (regenerable)
+era2026/wandb/
+era2026/data/

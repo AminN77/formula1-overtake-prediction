@@ -18,6 +18,8 @@ dependencies = [
 [project.scripts]
 era2026-recon = "era2026.recon:cli"
 era2026-warm = "era2026.cache:cli"
+era2026-data = "era2026.dataset:cli"
+era2026-backtest = "era2026.tracking:cli"
 
 [dependency-groups]
 dev = [
