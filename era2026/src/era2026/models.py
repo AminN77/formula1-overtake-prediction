@@ -122,12 +122,112 @@ class GradientBoosting:
         return self.model_.predict_proba(X[self.columns])[:, 1]
 
 
-def ladder() -> list[object]:
-    """The ladder, in increasing complexity. Order matters for reporting."""
-    return [
+
+
+@dataclass
+class RandomForest:
+    """A bagged ensemble, for contrast with boosting. Same trees, opposite
+    variance-reduction mechanism: boosting fits residuals sequentially, bagging
+    averages independent fits. Worth comparing rather than assuming."""
+
+    name: str = "random_forest"
+    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    model_: object | None = field(default=None, repr=False)
+
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> "RandomForest":
+        from sklearn.ensemble import RandomForestClassifier
+
+        self.model_ = RandomForestClassifier(
+            n_estimators=400, max_depth=8, min_samples_leaf=20,
+            max_features="sqrt", class_weight=None, n_jobs=-1, random_state=42,
+        )
+        self.model_.fit(X[self.columns].astype(float).fillna(0.0), y)
+        return self
+
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        return self.model_.predict_proba(X[self.columns].astype(float).fillna(0.0))[:, 1]
+
+
+@dataclass
+class SupportVector:
+    """RBF-kernel SVM. Needs scaling, and its decision function is not a
+    probability, so Platt scaling is applied inside the classifier.
+
+    Included because the syllabus asks for it and because a max-margin method is
+    a genuinely different inductive bias from trees, not because it is expected
+    to win: kernel methods scale poorly with rows and struggle with the mixed
+    numeric ranges of a tabular feature set.
+    """
+
+    name: str = "svm_rbf"
+    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    C: float = 1.0
+    model_: Pipeline | None = field(default=None, repr=False)
+
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> "SupportVector":
+        from sklearn.svm import SVC
+
+        self.model_ = Pipeline([
+            ("scale", StandardScaler()),
+            ("clf", SVC(C=self.C, kernel="rbf", gamma="scale", probability=True,
+                        cache_size=500, random_state=42)),
+        ])
+        self.model_.fit(X[self.columns].astype(float).fillna(0.0), y)
+        return self
+
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        return self.model_.predict_proba(X[self.columns].astype(float).fillna(0.0))[:, 1]
+
+
+@dataclass
+class NeuralNet:
+    """A small feed-forward network on the same tabular features.
+
+    Two hidden layers, early stopping, scaled inputs. Deliberately small: with
+    roughly 300 positives in an early training fold, capacity is the enemy. This
+    is the fair tabular comparison for a neural approach; the sequence model in
+    ``sequence.py`` is the version that gets to use structure trees cannot.
+    """
+
+    name: str = "mlp"
+    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    hidden: tuple[int, ...] = (64, 32)
+    model_: Pipeline | None = field(default=None, repr=False)
+
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> "NeuralNet":
+        from sklearn.neural_network import MLPClassifier
+
+        self.model_ = Pipeline([
+            ("scale", StandardScaler()),
+            ("clf", MLPClassifier(
+                hidden_layer_sizes=self.hidden, activation="relu", alpha=1e-2,
+                learning_rate_init=3e-3, max_iter=400, early_stopping=True,
+                n_iter_no_change=20, validation_fraction=0.15, random_state=42)),
+        ])
+        self.model_.fit(X[self.columns].astype(float).fillna(0.0), y)
+        return self
+
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        return self.model_.predict_proba(X[self.columns].astype(float).fillna(0.0))[:, 1]
+
+
+def ladder(full: bool = False) -> list[object]:
+    """The ladder, in increasing complexity. Order matters for reporting.
+
+    ``full`` adds the slower model classes the syllabus asks to see compared:
+    a bagged ensemble, a kernel method and a feed-forward network.
+    """
+    core = [
         BaseRate(),
         LogisticBaseline(name="gap_only", columns=["gap_ahead"]),
         LogisticBaseline(name="logistic_5", columns=FIVE),
-        GradientBoosting(name="lightgbm_mono", monotone=True),
-        GradientBoosting(name="lightgbm_free", monotone=False),
+        GradientBoosting(name="lightgbm", monotone=True),
+    ]
+    if not full:
+        return core
+    return core + [
+        LogisticBaseline(name="logistic_all", columns=list(FEATURE_TIERS), C=0.1),
+        RandomForest(),
+        SupportVector(),
+        NeuralNet(),
     ]
