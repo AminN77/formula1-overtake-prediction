@@ -239,3 +239,13 @@ era2026/ui/index.html
 
 # era2026: built dashboard (regenerate with era2026-ui)
 era2026/ui/index.html
+
+# era2026: LaTeX build artefacts (report.pdf is tracked)
+era2026/paper/*.aux
+era2026/paper/*.log
+era2026/paper/*.out
+era2026/paper/*.bbl
+era2026/paper/*.blg
+era2026/paper/*.fls
+era2026/paper/*.fdb_latexmk
+era2026/paper/.preview/

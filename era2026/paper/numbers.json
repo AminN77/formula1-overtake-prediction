@@ -1,0 +1,531 @@
+{
+  "ladder": [
+    {
+      "model": "base_rate",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0617,
+      "roc_auc": 0.44,
+      "pr_auc": 0.0573,
+      "pr_auc_lift": 0.8714,
+      "log_loss": 0.2445
+    },
+    {
+      "model": "gap_only",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0514,
+      "roc_auc": 0.8508,
+      "pr_auc": 0.3226,
+      "pr_auc_lift": 4.9024,
+      "log_loss": 0.192
+    },
+    {
+      "model": "logistic_5",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0495,
+      "roc_auc": 0.8737,
+      "pr_auc": 0.3695,
+      "pr_auc_lift": 5.6151,
+      "log_loss": 0.1802
+    },
+    {
+      "model": "mlp",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0488,
+      "roc_auc": 0.8778,
+      "pr_auc": 0.4439,
+      "pr_auc_lift": 6.7445,
+      "log_loss": 0.1916
+    },
+    {
+      "model": "svm_rbf",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0531,
+      "roc_auc": 0.8625,
+      "pr_auc": 0.4177,
+      "pr_auc_lift": 6.347,
+      "log_loss": 0.1931
+    },
+    {
+      "model": "logistic_all",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.046,
+      "roc_auc": 0.8841,
+      "pr_auc": 0.4624,
+      "pr_auc_lift": 7.026,
+      "log_loss": 0.1745
+    },
+    {
+      "model": "random_forest",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0457,
+      "roc_auc": 0.9056,
+      "pr_auc": 0.493,
+      "pr_auc_lift": 7.4916,
+      "log_loss": 0.1612
+    },
+    {
+      "model": "lightgbm",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0448,
+      "roc_auc": 0.9091,
+      "pr_auc": 0.5146,
+      "pr_auc_lift": 7.8186,
+      "log_loss": 0.1579
+    },
+    {
+      "model": "shipped",
+      "n": 4680,
+      "events": 308,
+      "positive_rate": 0.0658,
+      "brier": 0.0438,
+      "roc_auc": 0.9107,
+      "pr_auc": 0.5018,
+      "pr_auc_lift": 7.6243,
+      "log_loss": 0.1549
+    }
+  ],
+  "per_round_sd": 0.228166250385351,
+  "reliability": [
+    {
+      "bin": 0,
+      "predicted": 0.0005,
+      "observed": 0.0021,
+      "n": 941,
+      "gap": 0.0016
+    },
+    {
+      "bin": 1,
+      "predicted": 0.0038,
+      "observed": 0.0,
+      "n": 463,
+      "gap": -0.0038
+    },
+    {
+      "bin": 2,
+      "predicted": 0.0064,
+      "observed": 0.0064,
+      "n": 470,
+      "gap": -0.0
+    },
+    {
+      "bin": 3,
+      "predicted": 0.01,
+      "observed": 0.0064,
+      "n": 466,
+      "gap": -0.0036
+    },
+    {
+      "bin": 4,
+      "predicted": 0.0158,
+      "observed": 0.0128,
+      "n": 470,
+      "gap": -0.0031
+    },
+    {
+      "bin": 5,
+      "predicted": 0.0284,
+      "observed": 0.0343,
+      "n": 466,
+      "gap": 0.006
+    },
+    {
+      "bin": 6,
+      "predicted": 0.0585,
+      "observed": 0.062,
+      "n": 468,
+      "gap": 0.0035
+    },
+    {
+      "bin": 7,
+      "predicted": 0.1418,
+      "observed": 0.1197,
+      "n": 468,
+      "gap": -0.0222
+    },
+    {
+      "bin": 8,
+      "predicted": 0.3965,
+      "observed": 0.4124,
+      "n": 468,
+      "gap": 0.0159
+    }
+  ],
+  "interval": {
+    "rho": -0.6484848484848483,
+    "p": 0.0425401276844895,
+    "first_half": 1.354319282277507,
+    "second_half": 1.26754886049767
+  },
+  "learning_curve": [
+    {
+      "train_rounds": 2,
+      "train_rows": 829,
+      "train_events": 85,
+      "train_pr_auc": 0.9322,
+      "test_pr_auc": 0.2792,
+      "gap": 0.6529
+    },
+    {
+      "train_rounds": 3,
+      "train_rows": 1515,
+      "train_events": 125,
+      "train_pr_auc": 0.956,
+      "test_pr_auc": 0.1972,
+      "gap": 0.7587
+    },
+    {
+      "train_rounds": 4,
+      "train_rows": 1989,
+      "train_events": 162,
+      "train_pr_auc": 0.9638,
+      "test_pr_auc": 0.1464,
+      "gap": 0.8174
+    },
+    {
+      "train_rounds": 5,
+      "train_rows": 2311,
+      "train_events": 192,
+      "train_pr_auc": 0.9609,
+      "test_pr_auc": 0.2421,
+      "gap": 0.7187
+    },
+    {
+      "train_rounds": 6,
+      "train_rows": 2851,
+      "train_events": 199,
+      "train_pr_auc": 0.9647,
+      "test_pr_auc": 0.1673,
+      "gap": 0.7975
+    },
+    {
+      "train_rounds": 7,
+      "train_rows": 3309,
+      "train_events": 222,
+      "train_pr_auc": 0.9675,
+      "test_pr_auc": 0.1872,
+      "gap": 0.7803
+    },
+    {
+      "train_rounds": 8,
+      "train_rows": 3817,
+      "train_events": 251,
+      "train_pr_auc": 0.9669,
+      "test_pr_auc": 0.2358,
+      "gap": 0.7311
+    },
+    {
+      "train_rounds": 9,
+      "train_rows": 4214,
+      "train_events": 279,
+      "train_pr_auc": 0.9648,
+      "test_pr_auc": 0.2633,
+      "gap": 0.7016
+    },
+    {
+      "train_rounds": 10,
+      "train_rows": 4650,
+      "train_events": 316,
+      "train_pr_auc": 0.9685,
+      "test_pr_auc": 0.1842,
+      "gap": 0.7843
+    },
+    {
+      "train_rounds": 11,
+      "train_rows": 5182,
+      "train_events": 348,
+      "train_pr_auc": 0.9692,
+      "test_pr_auc": 0.2123,
+      "gap": 0.7569
+    },
+    {
+      "train_rounds": 12,
+      "train_rows": 5708,
+      "train_events": 391,
+      "train_pr_auc": 0.9622,
+      "test_pr_auc": 0.218,
+      "gap": 0.7441
+    },
+    {
+      "train_rounds": 13,
+      "train_rows": 6240,
+      "train_events": 460,
+      "train_pr_auc": 0.9624,
+      "test_pr_auc": 0.2521,
+      "gap": 0.7103
+    }
+  ],
+  "error_by_circuit": [
+    {
+      "event_name": "Italian Grand Prix",
+      "rows": 448,
+      "events": 57,
+      "positive_rate": 0.1272,
+      "mean_hazard": 0.0694,
+      "bias": -0.0578,
+      "pr_auc": 0.6589,
+      "roc_auc": 0.9015
+    },
+    {
+      "event_name": "Belgian Grand Prix",
+      "rows": 372,
+      "events": 35,
+      "positive_rate": 0.0941,
+      "mean_hazard": 0.0622,
+      "bias": -0.0319,
+      "pr_auc": 0.6282,
+      "roc_auc": 0.9382
+    },
+    {
+      "event_name": "British Grand Prix",
+      "rows": 328,
+      "events": 23,
+      "positive_rate": 0.0701,
+      "mean_hazard": 0.0474,
+      "bias": -0.0227,
+      "pr_auc": 0.6818,
+      "roc_auc": 0.9575
+    },
+    {
+      "event_name": "Chinese Grand Prix",
+      "rows": 94,
+      "events": 6,
+      "positive_rate": 0.0638,
+      "mean_hazard": 0.0495,
+      "bias": -0.0143,
+      "pr_auc": 0.6359,
+      "roc_auc": 0.9072
+    },
+    {
+      "event_name": "Austrian Grand Prix",
+      "rows": 530,
+      "events": 34,
+      "positive_rate": 0.0642,
+      "mean_hazard": 0.0527,
+      "bias": -0.0114,
+      "pr_auc": 0.6516,
+      "roc_auc": 0.9458
+    },
+    {
+      "event_name": "Canadian Grand Prix",
+      "rows": 370,
+      "events": 34,
+      "positive_rate": 0.0919,
+      "mean_hazard": 0.0858,
+      "bias": -0.0061,
+      "pr_auc": 0.4192,
+      "roc_auc": 0.8595
+    },
+    {
+      "event_name": "Barcelona Grand Prix",
+      "rows": 483,
+      "events": 20,
+      "positive_rate": 0.0414,
+      "mean_hazard": 0.0381,
+      "bias": -0.0033,
+      "pr_auc": 0.5447,
+      "roc_auc": 0.9439
+    },
+    {
+      "event_name": "Australian Grand Prix",
+      "rows": 75,
+      "events": 4,
+      "positive_rate": 0.0533,
+      "mean_hazard": 0.0596,
+      "bias": 0.0063,
+      "pr_auc": 0.2301,
+      "roc_auc": 0.7746
+    },
+    {
+      "event_name": "Miami Grand Prix",
+      "rows": 56,
+      "events": 5,
+      "positive_rate": 0.0893,
+      "mean_hazard": 0.0979,
+      "bias": 0.0086,
+      "pr_auc": 0.4175,
+      "roc_auc": 0.902
+    },
+    {
+      "event_name": "Dutch Grand Prix",
+      "rows": 452,
+      "events": 39,
+      "positive_rate": 0.0863,
+      "mean_hazard": 0.1036,
+      "bias": 0.0173,
+      "pr_auc": 0.4167,
+      "roc_auc": 0.8758
+    },
+    {
+      "event_name": "Hungarian Grand Prix",
+      "rows": 456,
+      "events": 29,
+      "positive_rate": 0.0636,
+      "mean_hazard": 0.0818,
+      "bias": 0.0182,
+      "pr_auc": 0.8554,
+      "roc_auc": 0.9837
+    },
+    {
+      "event_name": "Japanese Grand Prix",
+      "rows": 169,
+      "events": 4,
+      "positive_rate": 0.0237,
+      "mean_hazard": 0.0535,
+      "bias": 0.0298,
+      "pr_auc": 0.5372,
+      "roc_auc": 0.8636
+    },
+    {
+      "event_name": "Spanish Grand Prix",
+      "rows": 289,
+      "events": 7,
+      "positive_rate": 0.0242,
+      "mean_hazard": 0.0567,
+      "bias": 0.0324,
+      "pr_auc": 0.2633,
+      "roc_auc": 0.9334
+    },
+    {
+      "event_name": "Monaco Grand Prix",
+      "rows": 558,
+      "events": 11,
+      "positive_rate": 0.0197,
+      "mean_hazard": 0.0679,
+      "bias": 0.0482,
+      "pr_auc": 0.1788,
+      "roc_auc": 0.8163
+    }
+  ],
+  "permutation_importance": [
+    {
+      "feature": "gap_ahead",
+      "tier": "tier2",
+      "importance": 0.0767,
+      "sd": 0.039,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "old_era_score",
+      "tier": "tier1",
+      "importance": 0.0445,
+      "sd": 0.0755,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "attacker_on_newer_stint",
+      "tier": "tier2",
+      "importance": 0.043,
+      "sd": 0.0146,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "gap_pressure_ratio",
+      "tier": "tier2",
+      "importance": 0.0394,
+      "sd": 0.0166,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "pace_delta",
+      "tier": "tier2",
+      "importance": 0.0356,
+      "sd": 0.0451,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "pace_delta_mean_3",
+      "tier": "tier2",
+      "importance": 0.031,
+      "sd": 0.0221,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "lap_number",
+      "tier": "tier1",
+      "importance": 0.0287,
+      "sd": 0.0132,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "closing_rate",
+      "tier": "tier2",
+      "importance": 0.0271,
+      "sd": 0.0147,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "team_pace_rank_delta",
+      "tier": "tier1",
+      "importance": 0.0267,
+      "sd": 0.0221,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "gap_min_3",
+      "tier": "tier2",
+      "importance": 0.0209,
+      "sd": 0.0122,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "gap_mean_3",
+      "tier": "tier2",
+      "importance": 0.014,
+      "sd": 0.0106,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "attacker_team_pace_rank",
+      "tier": "tier1",
+      "importance": 0.0115,
+      "sd": 0.0064,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "speed_fl_delta",
+      "tier": "tier2",
+      "importance": 0.0106,
+      "sd": 0.0105,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "race_progress",
+      "tier": "tier1",
+      "importance": 0.0091,
+      "sd": 0.0087,
+      "baseline_pr_auc": 0.2521
+    },
+    {
+      "feature": "defender_tyre_age",
+      "tier": "tier2",
+      "importance": 0.0087,
+      "sd": 0.006,
+      "baseline_pr_auc": 0.2521
+    }
+  ],
+  "zero_importance": 23,
+  "n_features_model": 57,
+  "n_features_registry": 64,
+  "gap_at_pass": {
+    "50": 0.43049999999993815,
+    "90": 0.9458000000005997,
+    "95": 1.4281000000001303,
+    "99": 2.358949999999995
+  }
+}

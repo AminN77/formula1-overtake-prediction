@@ -15,6 +15,7 @@ dependencies = [
     "wandb>=0.18",
     "shap>=0.46",
     "numba>=0.60",
+    "matplotlib>=3.9",
 ]
 
 [project.scripts]
