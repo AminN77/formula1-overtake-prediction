@@ -233,3 +233,6 @@ era2026/data/
 # era2026: model registry artifacts (manifest.json is tracked)
 era2026/models/*.joblib
 era2026/round-report.txt
+
+# era2026: built dashboard (regenerate with era2026-ui)
+era2026/ui/index.html

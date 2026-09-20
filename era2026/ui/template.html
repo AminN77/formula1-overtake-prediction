@@ -1,0 +1,483 @@
+<title>2026 Overtake Dashboard</title>
+<style>
+  :root{
+    color-scheme: light;
+    --plane:#f9f9f7; --surface:#fcfcfb;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+    --good:#0ca30c; --critical:#d03b3b; --warning:#fab219;
+    --seq-1:#cde2fb; --seq-2:#9ec5f4; --seq-3:#5598e7; --seq-4:#2a78d6; --seq-5:#184f95;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --plane:#0d0d0d; --surface:#1a1a19;
+      --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+      --seq-1:#104281; --seq-2:#1c5cab; --seq-3:#2a78d6; --seq-4:#5598e7; --seq-5:#9ec5f4;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --seq-1:#104281; --seq-2:#1c5cab; --seq-3:#2a78d6; --seq-4:#5598e7; --seq-5:#9ec5f4;
+  }
+
+  body{background:var(--plane);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;}
+
+  header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;
+             padding-bottom:16px;border-bottom:1px solid var(--ring);}
+  h1{font-size:clamp(20px,3.2vw,26px);font-weight:650;letter-spacing:-.02em;margin:0;}
+  .sub{color:var(--ink-2);margin:2px 0 0;font-size:13px;}
+  .stamp{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:1px;
+         background:var(--ring);border:1px solid var(--ring);border-radius:3px;margin-top:20px;overflow:hidden;}
+  .tile{background:var(--surface);padding:12px 14px;}
+  .tile .v{font-size:21px;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+  .tile .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+
+  nav{display:flex;gap:2px;margin:24px 0 0;border-bottom:1px solid var(--ring);flex-wrap:wrap;}
+  nav button{appearance:none;border:0;background:none;font:inherit;color:var(--ink-2);cursor:pointer;
+             padding:9px 14px;border-bottom:2px solid transparent;margin-bottom:-1px;}
+  nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--s1);font-weight:600;}
+  nav button:focus-visible{outline:2px solid var(--s1);outline-offset:-2px;border-radius:3px 3px 0 0;}
+
+  section[hidden]{display:none!important;}
+  .panel{background:var(--surface);border:1px solid var(--ring);border-radius:3px;padding:18px;margin-top:18px;}
+  .panel h2{font-size:15px;font-weight:650;margin:0 0 2px;letter-spacing:-.01em;}
+  .panel p.note{color:var(--ink-2);font-size:13px;margin:0 0 14px;max-width:70ch;}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 10px;font-size:12px;color:var(--ink-2);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:10px;height:10px;border-radius:2px;flex:none;}
+
+  .chart{position:relative;}
+  .chart svg{display:block;width:100%;height:auto;overflow:visible;}
+  .tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--ring);
+       border-radius:3px;padding:6px 9px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.14);
+       font-variant-numeric:tabular-nums;white-space:nowrap;z-index:5;}
+  .tip[hidden]{display:none;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;}
+  th,td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--ring);}
+  th:first-child,td:first-child{text-align:left;font-variant-numeric:normal;}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+  tbody tr:hover{background:color-mix(in oklab, var(--s1) 6%, transparent);}
+  .scroll{overflow-x:auto;}
+  .best td{font-weight:650;}
+
+  select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);
+         border-radius:3px;padding:6px 8px;max-width:100%;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+
+  .callout{border-left:2px solid var(--s2);padding:2px 0 2px 12px;color:var(--ink-2);font-size:13px;
+           margin:14px 0 0;max-width:72ch;}
+  @media (prefers-reduced-motion:no-preference){ .chart svg *{transition:opacity .12s ease;} }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>2026 Overtake Dashboard</h1>
+      <p class="sub">Discrete-time hazard over battle episodes, walked forward one race at a time.</p>
+    </div>
+    <div class="stamp" id="stamp"></div>
+  </header>
+
+  <div class="tiles" id="tiles"></div>
+
+  <nav role="tablist" id="tabs"></nav>
+
+  <section id="view-health"></section>
+  <section id="view-races" hidden></section>
+  <section id="view-battles" hidden></section>
+  <section id="view-features" hidden></section>
+</div>
+
+<script>
+const DATA = __DATA__;
+
+// ---------- tiny chart kit: hand-built SVG, no library ----------
+const NS = "http://www.w3.org/2000/svg";
+const el = (n, a = {}) => { const e = document.createElementNS(NS, n);
+  for (const [k, v] of Object.entries(a)) if (v !== null && v !== undefined) e.setAttribute(k, v); return e; };
+const fmt = (v, d = 3) => v === null || v === undefined || Number.isNaN(v) ? "—" : (+v).toFixed(d);
+const pct = (v, d = 1) => v === null || v === undefined || Number.isNaN(v) ? "—" : (100 * v).toFixed(d) + "%";
+
+function scaffold(host, { w = 560, h = 240, pad = { t: 14, r: 16, b: 34, l: 46 } } = {}) {
+  const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img" });
+  host.appendChild(svg);
+  return { svg, w, h, pad, iw: w - pad.l - pad.r, ih: h - pad.t - pad.b };
+}
+
+function axes(c, { xTicks, yTicks, yFmt = (v) => fmt(v, 2), xLabel, yLabel }) {
+  const { svg, pad, iw, ih } = c;
+  for (const t of yTicks) {
+    const y = pad.t + ih - t.p * ih;
+    svg.appendChild(el("line", { x1: pad.l, x2: pad.l + iw, y1: y, y2: y, stroke: "var(--grid)", "stroke-width": 1 }));
+    const label = el("text", { x: pad.l - 7, y: y + 4, "text-anchor": "end", fill: "var(--muted)", "font-size": 11 });
+    label.textContent = yFmt(t.v); svg.appendChild(label);
+  }
+  svg.appendChild(el("line", { x1: pad.l, x2: pad.l + iw, y1: pad.t + ih, y2: pad.t + ih, stroke: "var(--axis)", "stroke-width": 1 }));
+  for (const t of xTicks) {
+    const label = el("text", { x: pad.l + t.p * iw, y: pad.t + ih + 17, "text-anchor": "middle", fill: "var(--muted)", "font-size": 11 });
+    label.textContent = t.v; svg.appendChild(label);
+  }
+  if (xLabel) { const t = el("text", { x: pad.l + iw / 2, y: c.h - 2, "text-anchor": "middle", fill: "var(--muted)", "font-size": 11 }); t.textContent = xLabel; svg.appendChild(t); }
+  if (yLabel) { const t = el("text", { x: 11, y: pad.t + ih / 2, "text-anchor": "middle", fill: "var(--muted)", "font-size": 11, transform: `rotate(-90 11 ${pad.t + ih / 2})` }); t.textContent = yLabel; svg.appendChild(t); }
+}
+
+function tooltip(host) {
+  const tip = document.createElement("div");
+  tip.className = "tip"; tip.hidden = true; host.appendChild(tip);
+  return {
+    show(html, x, y) { tip.innerHTML = html; tip.hidden = false;
+      const b = host.getBoundingClientRect();
+      tip.style.left = Math.min(Math.max(x - tip.offsetWidth / 2, 2), b.width - tip.offsetWidth - 2) + "px";
+      tip.style.top = Math.max(y - tip.offsetHeight - 10, 2) + "px"; },
+    hide() { tip.hidden = true; },
+  };
+}
+
+function lineChart(host, { series, xs, yMax, yFmt = (v) => fmt(v, 2), xLabel, yLabel, height = 250 }) {
+  host.innerHTML = "";
+  const c = scaffold(host, { h: height });
+  const tip = tooltip(host);
+  // `??` and `||` cannot be mixed at the same level without parentheses.
+  const raw = yMax ?? ((Math.max(...series.flatMap(s => s.values.filter(v => v != null))) * 1.15) || 1);
+  // Round the ceiling up to a readable step so ticks land on 0.2 rather than 0.24.
+  const step = Math.pow(10, Math.floor(Math.log10(raw))) / 2;
+  const top = Math.ceil(raw / step) * step;
+  const X = i => c.pad.l + (xs.length === 1 ? c.iw / 2 : (i / (xs.length - 1)) * c.iw);
+  const Y = v => c.pad.t + c.ih - (v / top) * c.ih;
+
+  const yTicks = [0, .25, .5, .75, 1].map(p => ({ p, v: p * top }));
+  axes(c, { xTicks: xs.map((v, i) => ({ p: xs.length === 1 ? .5 : i / (xs.length - 1), v })), yTicks, yFmt, xLabel, yLabel });
+
+  const placed = [];
+  for (const s of series) {
+    const pts = s.values.map((v, i) => v == null ? null : [X(i), Y(v)]).filter(Boolean);
+    if (!pts.length) continue;
+    c.svg.appendChild(el("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none",
+      stroke: s.color, "stroke-width": s.reference ? 1.5 : 2,
+      "stroke-dasharray": s.reference ? "4 4" : null, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    if (!s.reference) for (const [x, y] of pts) {
+      c.svg.appendChild(el("circle", { cx: x, cy: y, r: 3.5, fill: s.color, stroke: "var(--surface)", "stroke-width": 2 }));
+    }
+    // Direct labels sit at each line's own end point, so series that converge
+    // print on top of each other. Nudge each one to the nearest free slot.
+    if (s.name) {
+      const last = pts[pts.length - 1];
+      let y = last[1] + 4;
+      while (placed.some(p => Math.abs(p - y) < 13)) y += 13;
+      placed.push(y);
+      const lab = el("text", { x: last[0] + 7, y, fill: s.color, "font-size": 11, "font-weight": 600 });
+      lab.textContent = s.name; c.svg.appendChild(lab);
+    }
+  }
+
+  xs.forEach((xv, i) => {
+    const hit = el("rect", { x: X(i) - c.iw / (2 * Math.max(xs.length - 1, 1)), y: c.pad.t,
+      width: c.iw / Math.max(xs.length - 1, 1), height: c.ih, fill: "transparent" });
+    hit.addEventListener("pointerenter", () => {
+      const rows = series.map(s => `<div><span class="swatch" style="display:inline-block;background:${s.color}"></span> ${s.name}: <strong>${yFmt(s.values[i])}</strong></div>`).join("");
+      tip.show(`<div style="color:var(--muted)">${xLabel || ""} ${xv}</div>${rows}`, X(i) / c.w * host.clientWidth, Y(top * .55) / c.h * host.clientHeight);
+    });
+    hit.addEventListener("pointerleave", () => tip.hide());
+    c.svg.appendChild(hit);
+  });
+  return c;
+}
+
+function barChart(host, { items, valueFmt = (v) => fmt(v, 3), colorOf = () => "var(--s1)", height, xLabel }) {
+  host.innerHTML = "";
+  const rowH = 26, pad = { t: 8, r: 54, b: 26, l: 150 };
+  const h = height ?? items.length * rowH + pad.t + pad.b;
+  const c = scaffold(host, { h, pad });
+  const tip = tooltip(host);
+  const max = Math.max(...items.map(d => d.value)) || 1;
+
+  items.forEach((d, i) => {
+    const y = pad.t + i * rowH + 4;
+    const bw = Math.max((d.value / max) * c.iw, 1.5);
+    const name = el("text", { x: pad.l - 8, y: y + 12, "text-anchor": "end", fill: "var(--ink-2)", "font-size": 12 });
+    name.textContent = d.name; c.svg.appendChild(name);
+    const bar = el("rect", { x: pad.l, y, width: bw, height: rowH - 10, rx: 3, fill: colorOf(d, i) });
+    c.svg.appendChild(bar);
+    const val = el("text", { x: pad.l + bw + 7, y: y + 12, fill: "var(--ink)", "font-size": 12, "font-weight": 600 });
+    val.textContent = valueFmt(d.value); c.svg.appendChild(val);
+    bar.addEventListener("pointerenter", e => tip.show(`<strong>${d.name}</strong><br>${d.detail || valueFmt(d.value)}`,
+      (pad.l + bw / 2) / c.w * host.clientWidth, (y) / c.h * host.clientHeight));
+    bar.addEventListener("pointerleave", () => tip.hide());
+  });
+  if (xLabel) { const t = el("text", { x: pad.l + c.iw / 2, y: h - 4, "text-anchor": "middle", fill: "var(--muted)", "font-size": 11 }); t.textContent = xLabel; c.svg.appendChild(t); }
+  return c;
+}
+
+function scatterCalibration(host, rows) {
+  host.innerHTML = "";
+  const c = scaffold(host, { h: 260, pad: { t: 14, r: 18, b: 40, l: 48 } });
+  const tip = tooltip(host);
+  const top = Math.max(...rows.flatMap(r => [r.predicted, r.observed])) * 1.15 || 1;
+  const X = v => c.pad.l + (v / top) * c.iw, Y = v => c.pad.t + c.ih - (v / top) * c.ih;
+  const ticks = [0, .25, .5, .75, 1].map(p => ({ p, v: p * top }));
+  axes(c, { xTicks: ticks.map(t => ({ p: t.p, v: pct(t.v, 0) })), yTicks: ticks, yFmt: v => pct(v, 0),
+            xLabel: "predicted probability", yLabel: "observed frequency" });
+  c.svg.appendChild(el("line", { x1: X(0), y1: Y(0), x2: X(top), y2: Y(top),
+    stroke: "var(--muted)", "stroke-width": 1.5, "stroke-dasharray": "4 4" }));
+  const pts = rows.map(r => [X(r.predicted), Y(r.observed)]);
+  c.svg.appendChild(el("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: "var(--s1)", "stroke-width": 2 }));
+  rows.forEach((r, i) => {
+    const dot = el("circle", { cx: pts[i][0], cy: pts[i][1], r: 4.5, fill: "var(--s1)", stroke: "var(--surface)", "stroke-width": 2 });
+    dot.addEventListener("pointerenter", () => tip.show(
+      `predicted <strong>${pct(r.predicted, 2)}</strong><br>observed <strong>${pct(r.observed, 2)}</strong><br><span style="color:var(--muted)">${r.n} rows</span>`,
+      pts[i][0] / c.w * host.clientWidth, pts[i][1] / c.h * host.clientHeight));
+    dot.addEventListener("pointerleave", () => tip.hide());
+    c.svg.appendChild(dot);
+  });
+  const perfect = el("text", { x: X(top) - 4, y: Y(top) + 16, "text-anchor": "end", fill: "var(--muted)", "font-size": 11 });
+  perfect.textContent = "perfect calibration"; c.svg.appendChild(perfect);
+}
+
+function episodeChart(host, episode) {
+  host.innerHTML = "";
+  const laps = episode.laps;
+  const c = scaffold(host, { h: 210, pad: { t: 16, r: 20, b: 40, l: 48 } });
+  const tip = tooltip(host);
+  const maxH = Math.max(0.05, ...laps.map(l => l.hazard ?? 0)) * 1.25;
+  const X = i => c.pad.l + (laps.length === 1 ? c.iw / 2 : (i / (laps.length - 1)) * c.iw);
+  const Y = v => c.pad.t + c.ih - (v / maxH) * c.ih;
+  const ticks = [0, .25, .5, .75, 1].map(p => ({ p, v: p * maxH }));
+  axes(c, { xTicks: laps.map((l, i) => ({ p: laps.length === 1 ? .5 : i / (laps.length - 1), v: l.lap })),
+            yTicks: ticks, yFmt: v => pct(v, 0), xLabel: "lap", yLabel: "hazard" });
+  const pts = laps.map((l, i) => [X(i), Y(l.hazard ?? 0)]);
+  c.svg.appendChild(el("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: "var(--s1)", "stroke-width": 2 }));
+  laps.forEach((l, i) => {
+    const isEvent = l.outcome === "event", isCensored = l.outcome && l.outcome.startsWith("censored");
+    const color = isEvent ? "var(--critical)" : isCensored ? "var(--muted)" : "var(--s1)";
+    const dot = el("circle", { cx: pts[i][0], cy: pts[i][1], r: isEvent ? 6 : 4.5, fill: color, stroke: "var(--surface)", "stroke-width": 2 });
+    dot.addEventListener("pointerenter", () => tip.show(
+      `lap <strong>${l.lap}</strong><br>hazard <strong>${pct(l.hazard, 1)}</strong><br>gap <strong>${fmt(l.gap, 2)}s</strong><br><span style="color:var(--muted)">${l.outcome}</span>`,
+      pts[i][0] / c.w * host.clientWidth, pts[i][1] / c.h * host.clientHeight));
+    dot.addEventListener("pointerleave", () => tip.hide());
+    c.svg.appendChild(dot);
+    if (isEvent) { const t = el("text", { x: pts[i][0], y: Y(l.hazard ?? 0) - 12, "text-anchor": "middle", fill: "var(--critical)", "font-size": 11, "font-weight": 600 }); t.textContent = "pass"; c.svg.appendChild(t); }
+  });
+}
+
+function gapChart(host, episode) {
+  host.innerHTML = "";
+  const laps = episode.laps;
+  const c = scaffold(host, { h: 150, pad: { t: 14, r: 20, b: 36, l: 48 } });
+  const tip = tooltip(host);
+  const maxG = Math.max(...laps.map(l => l.gap ?? 0)) * 1.2 || 3;
+  const X = i => c.pad.l + (laps.length === 1 ? c.iw / 2 : (i / (laps.length - 1)) * c.iw);
+  const Y = v => c.pad.t + c.ih - (v / maxG) * c.ih;
+  axes(c, { xTicks: laps.map((l, i) => ({ p: laps.length === 1 ? .5 : i / (laps.length - 1), v: l.lap })),
+            yTicks: [0, .5, 1].map(p => ({ p, v: p * maxG })), yFmt: v => fmt(v, 1) + "s",
+            xLabel: "lap", yLabel: "gap" });
+  const pts = laps.map((l, i) => [X(i), Y(l.gap ?? 0)]);
+  c.svg.appendChild(el("polyline", { points: pts.map(p => p.join(",")).join(" "), fill: "none", stroke: "var(--s2)", "stroke-width": 2 }));
+  laps.forEach((l, i) => {
+    const dot = el("circle", { cx: pts[i][0], cy: pts[i][1], r: 4, fill: "var(--s2)", stroke: "var(--surface)", "stroke-width": 2 });
+    dot.addEventListener("pointerenter", () => tip.show(`lap <strong>${l.lap}</strong><br>gap <strong>${fmt(l.gap, 2)}s</strong>`,
+      pts[i][0] / c.w * host.clientWidth, pts[i][1] / c.h * host.clientHeight));
+    dot.addEventListener("pointerleave", () => tip.hide());
+    c.svg.appendChild(dot);
+  });
+}
+
+function table(host, columns, rows, highlight) {
+  const wrap = document.createElement("div"); wrap.className = "scroll";
+  const t = document.createElement("table");
+  t.innerHTML = `<thead><tr>${columns.map(c => `<th>${c.label}</th>`).join("")}</tr></thead>`;
+  const tb = document.createElement("tbody");
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+    if (highlight && highlight(r)) tr.className = "best";
+    tr.innerHTML = columns.map(c => `<td>${c.get(r)}</td>`).join("");
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); host.appendChild(wrap);
+}
+
+function panel(host, title, note) {
+  const p = document.createElement("div"); p.className = "panel";
+  p.innerHTML = `<h2>${title}</h2>` + (note ? `<p class="note">${note}</p>` : "");
+  host.appendChild(p); return p;
+}
+
+// ---------- views ----------
+const T = DATA.totals;
+document.getElementById("stamp").textContent = `${DATA.year} season · generated ${DATA.generated_at.replace("T", " ").replace("+00:00", "Z")}`;
+document.getElementById("tiles").innerHTML = [
+  ["rounds", T.rounds], ["episodes", T.episodes], ["training rows", T.trainable.toLocaleString()],
+  ["passes", T.events], ["base rate", pct(T.positive_rate, 2)], ["features", T.features],
+  ["backtest rounds", T.backtest_rounds],
+].map(([k, v]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+
+const MODEL_LABEL = { base_rate: "base rate", gap_only: "gap alone", logistic_5: "logistic, 5 features", lightgbm: "LightGBM, all features", calibrated: "LightGBM + isotonic" };
+const SERIES_COLOR = { gap_only: "var(--s3)", lightgbm: "var(--s2)", calibrated: "var(--s1)" };
+
+function renderHealth(host) {
+  host.innerHTML = "";
+  const p1 = panel(host, "The ladder", "Each step reports its gain over the one below. Pooled across all backtest rounds; every round is predicted by a model trained only on earlier rounds. Isotonic calibration is the shipped model even though it gives up a little PR-AUC: a dashboard displays probabilities, so Brier and calibration error matter more than ranking, and it wins on both.");
+  const items = DATA.ladder.filter(d => d.pr_auc != null)
+    .map(d => ({ name: MODEL_LABEL[d.model] || d.model, value: d.pr_auc,
+                 detail: `PR-AUC ${fmt(d.pr_auc)} · ROC ${fmt(d.roc_auc)} · Brier ${fmt(d.brier, 4)}`, raw: d }));
+  const best = Math.max(...items.map(d => d.value));
+  const c1 = document.createElement("div"); c1.className = "chart"; p1.appendChild(c1);
+  barChart(c1, { items, xLabel: "PR-AUC (base rate = 0.066)",
+                 colorOf: d => d.value === best ? "var(--s1)" : "var(--seq-3)" });
+  table(p1, [
+    { label: "model", get: r => MODEL_LABEL[r.model] || r.model },
+    { label: "PR-AUC", get: r => fmt(r.pr_auc) }, { label: "lift", get: r => fmt(r.pr_auc_lift, 2) + "×" },
+    { label: "ROC-AUC", get: r => fmt(r.roc_auc) }, { label: "Brier", get: r => fmt(r.brier, 4) },
+  ], DATA.ladder, r => r.pr_auc === best);
+
+  const p2 = panel(host, "Does it improve as the season accumulates?",
+    "The premise of the project, and the honest answer so far is no. Accuracy swings by race far more than it trends. Base rate is drawn as a reference, not a competitor.");
+  const rounds = [...new Set(DATA.per_round.map(d => d.round_number))].sort((a, b) => a - b);
+  const byModel = m => rounds.map(r => { const hit = DATA.per_round.find(d => d.round_number === r && d.model === m); return hit ? hit.pr_auc : null; });
+  const leg = document.createElement("div"); leg.className = "legend";
+  leg.innerHTML = ["calibrated", "lightgbm", "gap_only"].map(m => `<span><i class="swatch" style="background:${SERIES_COLOR[m]}"></i>${MODEL_LABEL[m]}</span>`).join("")
+    + `<span><i class="swatch" style="background:var(--muted)"></i>base rate (reference)</span>`;
+  p2.appendChild(leg);
+  const c2 = document.createElement("div"); c2.className = "chart"; p2.appendChild(c2);
+  lineChart(c2, { xs: rounds, xLabel: "round", yLabel: "PR-AUC", yFmt: v => fmt(v, 2), height: 270,
+    series: [
+      { name: "", values: byModel("base_rate"), color: "var(--muted)", reference: true },
+      { name: "gap", values: byModel("gap_only"), color: SERIES_COLOR.gap_only },
+      { name: "lgbm", values: byModel("lightgbm"), color: SERIES_COLOR.lightgbm },
+      { name: "cal", values: byModel("calibrated"), color: SERIES_COLOR.calibrated },
+    ] });
+  const sd = (() => { const v = byModel("calibrated").filter(x => x != null);
+    const m = v.reduce((a, b) => a + b, 0) / v.length;
+    return Math.sqrt(v.reduce((a, b) => a + (b - m) ** 2, 0) / v.length); })();
+  p2.insertAdjacentHTML("beforeend", `<p class="callout">Per-round standard deviation is ${fmt(sd, 2)}. A single race cannot separate a better model from a luckier one, which is why the promotion gate reads a five-round window instead of the latest result.</p>`);
+
+  const row = document.createElement("div"); row.className = "grid2"; host.appendChild(row);
+
+  const p3 = panel(row, "Is a predicted 20% really 20%?", "Reliability of the calibrated model over every backtest row. Points on the diagonal are honest probabilities.");
+  const c3 = document.createElement("div"); c3.className = "chart"; p3.appendChild(c3);
+  scatterCalibration(c3, DATA.reliability);
+
+  const p4 = panel(row, "Uncertainty does narrow", "Bootstrap interval width relative to the predicted hazard, resampled by race. This is where the premise holds, even though accuracy shows no trend.");
+  const c4 = document.createElement("div"); c4.className = "chart"; p4.appendChild(c4);
+  lineChart(c4, { xs: DATA.intervals.map(d => d.round), xLabel: "round", yLabel: "width / hazard", height: 260,
+    series: [{ name: "", values: DATA.intervals.map(d => d.relative_width), color: "var(--s1)" }] });
+}
+
+function renderRaces(host) {
+  host.innerHTML = "";
+  const p = panel(host, "Every round of 2026 so far",
+    "Overtaking varies tenfold between circuits. Monaco yields 7 passes from 109 battle episodes; Monza yields 69 from 217.");
+  const items = DATA.races.slice().sort((a, b) => b.positive_rate - a.positive_rate)
+    .map(r => ({ name: `R${r.round_number} ${r.event_name.replace(" Grand Prix", "")}`, value: r.positive_rate,
+                 detail: `${r.events} passes from ${r.rows} battle-laps · ${r.episodes} episodes` }));
+  const c = document.createElement("div"); c.className = "chart"; p.appendChild(c);
+  barChart(c, { items, valueFmt: v => pct(v, 1), xLabel: "share of battle-laps ending in a pass",
+                colorOf: () => "var(--s1)" });
+  table(p, [
+    { label: "round", get: r => `R${r.round_number}` }, { label: "event", get: r => r.event_name },
+    { label: "laps", get: r => r.total_laps }, { label: "episodes", get: r => r.episodes },
+    { label: "battle-laps", get: r => r.rows }, { label: "passes", get: r => r.events },
+    { label: "censored", get: r => r.censored }, { label: "rate", get: r => pct(r.positive_rate, 2) },
+  ], DATA.races);
+}
+
+function renderBattles(host) {
+  host.innerHTML = "";
+  const p = panel(host, "Battle inspector",
+    "One episode, lap by lap. The model estimates a fresh hazard every lap the pair is still fighting; a red marker is the lap the pass happened. Gap is drawn separately rather than on a second axis.");
+  const controls = document.createElement("div"); controls.className = "controls";
+  const raceSel = document.createElement("select"), epSel = document.createElement("select");
+  raceSel.setAttribute("aria-label", "race"); epSel.setAttribute("aria-label", "battle");
+  controls.append(raceSel, epSel); p.appendChild(controls);
+
+  const hazardHost = document.createElement("div"); hazardHost.className = "chart";
+  const gapHost = document.createElement("div"); gapHost.className = "chart";
+  p.append(hazardHost, gapHost);
+
+  const races = [...new Set(DATA.episodes.map(e => e.round))].sort((a, b) => a - b);
+  raceSel.innerHTML = races.map(r => {
+    const name = DATA.episodes.find(e => e.round === r).event;
+    return `<option value="${r}">R${r} — ${name}</option>`;
+  }).join("");
+
+  function fillEpisodes() {
+    const round = +raceSel.value;
+    const list = DATA.episodes.filter(e => e.round === round);
+    epSel.innerHTML = list.map((e, i) => {
+      const passed = e.laps.some(l => l.outcome === "event");
+      return `<option value="${i}">${e.attacker} vs ${e.defender} · ${e.laps.length} laps${passed ? " · pass" : ""}</option>`;
+    }).join("");
+    draw();
+  }
+  function draw() {
+    const round = +raceSel.value;
+    const list = DATA.episodes.filter(e => e.round === round);
+    const ep = list[+epSel.value] || list[0];
+    if (!ep) return;
+    episodeChart(hazardHost, ep); gapChart(gapHost, ep);
+  }
+  raceSel.addEventListener("change", fillEpisodes);
+  epSel.addEventListener("change", draw);
+  fillEpisodes();
+}
+
+function renderFeatures(host) {
+  host.innerHTML = "";
+  const p = panel(host, "What the model reads",
+    "Each feature's spread in pass rate between its lowest and highest third. Tier 1 is regulation-invariant and pools across eras; tier 2 keeps its meaning but shifted its relationship to the target, so the old era supplies its shape and 2026 supplies its level.");
+  const leg = document.createElement("div"); leg.className = "legend";
+  leg.innerHTML = `<span><i class="swatch" style="background:var(--s1)"></i>tier 1 · regulation-invariant</span><span><i class="swatch" style="background:var(--s2)"></i>tier 2 · shape only</span>`;
+  p.appendChild(leg);
+  const items = DATA.feature_signal.map(d => ({ name: d.feature, value: d.spread, tier: d.tier,
+    detail: `${pct(d.low, 2)} in the lowest third → ${pct(d.high, 2)} in the highest` }));
+  const c = document.createElement("div"); c.className = "chart"; p.appendChild(c);
+  barChart(c, { items, valueFmt: v => pct(v, 1), xLabel: "spread in pass rate, lowest third to highest",
+                colorOf: d => d.tier === "tier1" ? "var(--s1)" : "var(--s2)" });
+  p.insertAdjacentHTML("beforeend", `<p class="callout">Nothing here describes the 2026 car directly. DRS is gone, absolute speeds and lap times describe a car that no longer exists, and team identity carries a performance level that is no longer true. Only relative quantities survive the regulation change.</p>`);
+}
+
+// ---------- tabs ----------
+const VIEWS = [
+  ["health", "Model health", renderHealth],
+  ["races", "Races", renderRaces],
+  ["battles", "Battles", renderBattles],
+  ["features", "Features", renderFeatures],
+];
+const tabs = document.getElementById("tabs");
+VIEWS.forEach(([id, label], i) => {
+  const b = document.createElement("button");
+  b.textContent = label; b.setAttribute("role", "tab"); b.id = `tab-${id}`;
+  b.setAttribute("aria-selected", i === 0 ? "true" : "false");
+  b.addEventListener("click", () => select(id));
+  tabs.appendChild(b);
+});
+const rendered = new Set();
+function select(id) {
+  VIEWS.forEach(([vid, , render]) => {
+    const section = document.getElementById(`view-${vid}`);
+    const on = vid === id;
+    section.hidden = !on;
+    document.getElementById(`tab-${vid}`).setAttribute("aria-selected", on ? "true" : "false");
+    if (on && !rendered.has(vid)) { render(section); rendered.add(vid); }
+  });
+  try { localStorage.setItem("era2026.tab", id); } catch (e) { /* private mode */ }
+}
+let initial = "health";
+try { const saved = localStorage.getItem("era2026.tab");
+  if (saved && VIEWS.some(v => v[0] === saved)) initial = saved; } catch (e) { /* ignore */ }
+select(initial);
+</script>
