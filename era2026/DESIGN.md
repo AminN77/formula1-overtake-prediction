@@ -328,6 +328,49 @@ Built last, after the model has numbers worth showing. A UI built against a mode
 
 ---
 
+---
+
+## 5. Measured outcomes
+
+Predictions this document made, against what the backtest found. Kept because
+the misses shaped the design more than the hits.
+
+| Prediction | Outcome |
+|---|---|
+| Historical circuit passability prior transfers | **Failed.** Spearman rho +0.09 (p=0.76). Replaced with geometry. |
+| Monotone constraints are "unusually effective at small sample sizes" | **No effect.** 0.4662 against 0.4641. Kept, since free, but not a win. |
+| Cross-race form is the biggest remaining gap | **Near miss.** +0.8% PR-AUC. In-race pace already subsumes season-long form. |
+| Old-model-as-feature is the highest-value transfer mechanism | **Held.** +4.22% PR-AUC, better in 9 of 10 rounds. |
+
+### Transfer, measured
+
+The pre-2026 era enters as one frozen scalar, fitted once on 48,932 legacy rows
+across 2022-2025 and never refitted. It reads 43 features shared by both eras,
+targets `overtake_next_lap` to match the in-era hazard question, and never sees
+a 2026 row.
+
+Ladder, pooled over ten backtest rounds:
+
+| Model | PR-AUC | ROC-AUC | Brier |
+|---|---|---|---|
+| base rate | 0.057 | 0.440 | 0.0617 |
+| gap alone | 0.323 | 0.851 | 0.0514 |
+| old era alone | 0.145 | 0.768 | 0.0584 |
+| in-era, 58 features | 0.470 | 0.901 | 0.0469 |
+| **in-era + transfer** | **0.490** | **0.907** | **0.0458** |
+
+The interesting part is not the +4.22%. It is that the old-era model is *weaker
+on its own than a single in-era feature* (ROC 0.768 against 0.862 for raw gap),
+yet still improves the full model. It is not re-supplying gap. It carries
+structure the in-era model cannot recover from fourteen races.
+
+Consistency carries more weight here than size, given a per-round standard
+deviation of 0.22: transfer improved 9 of 10 rounds, which under a fair coin
+would happen about 1% of the time.
+
+Old-era positive rate is 5.06% against 7.05% in 2026. The level did not
+transfer and was never asked to. Only the ranking was.
+
 ## Open questions
 
 **Settled.** `k0 = 5` for the backtest start. Transfer set starts as old-model-as-feature, circuit passability prior and monotone constraints, with the hierarchical era offset, recency weighting and driver priors held as experiments behind the same switches. Tracking is Weights & Biases. One model, no version switcher. The UI is in scope.

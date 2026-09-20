@@ -10,8 +10,10 @@ from era2026.episodes import DEFAULT_GAP_THRESHOLD, hazard_rows_from_session, tr
 from era2026.features import build_features
 from era2026.form import attach_form, register as register_form
 from era2026.sessions import completed_rounds, load_race
+from era2026.transfer import attach_old_era_score, register as register_transfer
 
 register_form()
+register_transfer()
 
 
 def _project_root() -> Path:
@@ -39,7 +41,10 @@ def build_season(year: int, rounds: list[int] | None = None,
         return pd.DataFrame()
     # Form needs the whole season in one pass, because a round-k row reads
     # rounds 1..k-1. The prior-rounds-only rule keeps it leak-free per fold.
-    return attach_form(pd.concat(frames, ignore_index=True), sessions)
+    rows = attach_form(pd.concat(frames, ignore_index=True), sessions)
+    # Layer 1: the pre-2026 era compressed to one frozen scalar per row. Fitted
+    # once, never refitted per fold, and it never sees in-era data.
+    return attach_old_era_score(rows)
 
 
 def season_path(year: int) -> Path:
