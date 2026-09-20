@@ -69,16 +69,35 @@ The feature exists in 2026 and means the same thing, but its relationship to the
 
 | Feature | Reason |
 |---|---|
-| `is_in_drs_zone`, `drs_zone_length` | The mechanism no longer exists. |
-| `attacker_team`, `defender_team` as raw categories | Grid membership changed: Cadillac is an 11th team with no history, Audi replaced Sauber, and team identity carries a 2022-2025 performance level that is no longer true. Replace with in-era computed team performance (pace rank, constructor rank), which is a method rather than a value. |
+| `is_in_drs_zone`, `drs_zone_length` | The mechanism no longer exists. **Confirmed empirically:** the `DRS` telemetry channel is still present in 2026 but every one of 35,553 samples reads 0, against a live distribution in the 2024 reference. Dead field. |
+| `attacker_team`, `defender_team` as raw categories | **Confirmed:** 11 teams and 22 cars in 2026. Audi and Cadillac have no pre-2026 history, and the remaining nine carry a 2022-2025 performance level that is no longer true. Replace with in-era computed team performance (pace rank, constructor rank), which is a method rather than a value. |
 | All absolute speeds: `speed_i1`, `speed_i2`, `finish_line_speed`, `straight_speed` for both cars | Different cars, different top speeds, and active aero means straight-line speed is now partly a mode choice rather than a fixed car property. Keep the deltas in Tier 2, drop the absolutes. |
 | Absolute `lap_time` for both cars | Different cars. Use `pace_delta` instead. |
 | `attacker_overtake_rate_last5`, `defender_defend_rate_last5` | Label-derived, and the label was measured under DRS. Recompute in-era only. |
 | `pit_stop_involved` | Looks at future laps. Never a feature. Becomes the censoring signal instead. |
 
+### Overtake Mode is observable, so it becomes a real feature
+
+This was the open question Phase 0 existed to answer, and the answer is better than expected.
+
+There is **no** telemetry channel for Overtake Mode, active aero or energy deployment. The 2026 car data carries the same ten channels as 2024 and nothing more. But race control does carry the mechanism as a lap-stamped event stream:
+
+```
+lap 1   OVERTAKE DISABLED
+lap 1   OVERTAKE ENABLED
+```
+
+Structurally identical to the old `DRS ENABLED` / `DRS DISABLED` pair, with a populated `Lap` column. So we can derive `overtake_mode_enabled` as a per-lap state, exactly as the legacy pipeline derived DRS availability. That is a Tier 1 feature, not the proxy this document previously assumed.
+
+What we still cannot see is *per-car* deployment: whether a specific driver had energy banked and chose to spend it. That stays invisible and has to be proxied with speed-trap deltas and gap-at-detection-point.
+
 ### `drs_train_size`: redefine rather than drop
 
-Worth calling out separately. The feature counted cars within 1.0s ahead, which was a DRS-range concept. But 2026 Overtake Mode also unlocks on being within 1 second at a detection point. So the 1 second threshold survives by coincidence, and the concept of being stuck in a queue survives outright. Redefine it against the Overtake Mode rule rather than deleting it.
+The feature counted cars within 1.0s ahead, which was a DRS-range concept. 2026 Overtake Mode also unlocks on being within 1 second at a detection point, so the threshold survives by coincidence and the concept of being stuck in a queue survives outright. Redefine it against the Overtake Mode rule rather than deleting it.
+
+### Telemetry is not needed
+
+The speed traps the feature set uses (`SpeedI1`, `SpeedI2`, `SpeedFL`, `SpeedST`) are lap-level columns, not telemetry channels. So extraction needs laps, weather and race control only. That keeps the cache small enough to hold every round of the era offline, which matters because the F1 endpoint is not reachable from the Claude sandboxes.
 
 ### Circuit passability: the highest-leverage single idea
 
@@ -303,4 +322,4 @@ Built last, after the model has numbers worth showing. A UI built against a mode
 **Open.**
 
 1. **Old-era corpus depth.** Proposal: start with 2022-2025, because `legacy/data/v6/scenarios_*.csv` already carries the Tier 1 and Tier 2 columns the transfer components need, which means Layer 1 can be built and tested today with no F1 API access at all. Extending back to 2018 is a later, separable job that only sharpens the circuit prior. Proceeding on this unless told otherwise.
-2. **Phase 0 must run outside the sandbox.** `livetiming.formula1.com` is blocked from both the cloud container and the device shell, so `era2026/recon.py` has to be run in a normal local terminal. Its output gates the extraction layer, because we do not yet know what 2026 exposes in place of DRS.
+2. ~~Phase 0 must run outside the sandbox.~~ **Done.** Run on 2026-09-20; see `recon_report.md`. All 14 completed rounds load, the lap schema is byte-identical to 2024 (31 columns, nothing added or removed), DRS is a dead field, and Overtake Mode surfaces through race control. `livetiming.formula1.com` remains unreachable from the Claude sandboxes, so extraction runs are warmed into `.fastf1_cache` from a networked machine with `uv run era2026-warm` and everything downstream works offline against that cache.

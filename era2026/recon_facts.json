@@ -1,0 +1,185 @@
+{
+  "fastf1_version": "3.8.3",
+  "rounds_total": 23,
+  "rounds_complete": 14,
+  "sample_round": 14,
+  "lap_columns_2026": [
+    "Time",
+    "Driver",
+    "DriverNumber",
+    "LapTime",
+    "LapNumber",
+    "Stint",
+    "PitOutTime",
+    "PitInTime",
+    "Sector1Time",
+    "Sector2Time",
+    "Sector3Time",
+    "Sector1SessionTime",
+    "Sector2SessionTime",
+    "Sector3SessionTime",
+    "SpeedI1",
+    "SpeedI2",
+    "SpeedFL",
+    "SpeedST",
+    "IsPersonalBest",
+    "Compound",
+    "TyreLife",
+    "FreshTyre",
+    "Team",
+    "LapStartTime",
+    "LapStartDate",
+    "TrackStatus",
+    "Position",
+    "Deleted",
+    "DeletedReason",
+    "FastF1Generated",
+    "IsAccurate"
+  ],
+  "lap_columns_new_in_2026": [],
+  "lap_columns_missing_in_2026": [],
+  "car_channels_2026": [
+    "Date",
+    "RPM",
+    "Speed",
+    "nGear",
+    "Throttle",
+    "Brake",
+    "DRS",
+    "Source",
+    "Time",
+    "SessionTime"
+  ],
+  "drs_distribution_2026": {
+    "0": 35553
+  },
+  "car_channels_2024": [
+    "Date",
+    "RPM",
+    "Speed",
+    "nGear",
+    "Throttle",
+    "Brake",
+    "DRS",
+    "Source",
+    "Time",
+    "SessionTime"
+  ],
+  "drs_distribution_2024": {
+    "0": 17335,
+    "1": 10778,
+    "3": 1,
+    "8": 209,
+    "10": 4,
+    "12": 852,
+    "14": 39
+  },
+  "rcm_keyword_hits_2026": {
+    "overtake": 2,
+    "deploy": 1,
+    "ers": 1
+  },
+  "rcm_keyword_hits_2024": {
+    "drs": 2
+  },
+  "per_round": [
+    {
+      "round": 1,
+      "event": "Australian Grand Prix",
+      "status": "ok",
+      "lap_rows": 1006,
+      "drivers": 20
+    },
+    {
+      "round": 2,
+      "event": "Chinese Grand Prix",
+      "status": "ok",
+      "lap_rows": 920,
+      "drivers": 18
+    },
+    {
+      "round": 3,
+      "event": "Japanese Grand Prix",
+      "status": "ok",
+      "lap_rows": 1107,
+      "drivers": 22
+    },
+    {
+      "round": 4,
+      "event": "Miami Grand Prix",
+      "status": "ok",
+      "lap_rows": 1040,
+      "drivers": 22
+    },
+    {
+      "round": 5,
+      "event": "Canadian Grand Prix",
+      "status": "ok",
+      "lap_rows": 1211,
+      "drivers": 21
+    },
+    {
+      "round": 6,
+      "event": "Monaco Grand Prix",
+      "status": "ok",
+      "lap_rows": 1452,
+      "drivers": 22
+    },
+    {
+      "round": 7,
+      "event": "Barcelona Grand Prix",
+      "status": "ok",
+      "lap_rows": 1236,
+      "drivers": 22
+    },
+    {
+      "round": 8,
+      "event": "Austrian Grand Prix",
+      "status": "ok",
+      "lap_rows": 1339,
+      "drivers": 22
+    },
+    {
+      "round": 9,
+      "event": "British Grand Prix",
+      "status": "ok",
+      "lap_rows": 1113,
+      "drivers": 22
+    },
+    {
+      "round": 10,
+      "event": "Belgian Grand Prix",
+      "status": "ok",
+      "lap_rows": 872,
+      "drivers": 22
+    },
+    {
+      "round": 11,
+      "event": "Hungarian Grand Prix",
+      "status": "ok",
+      "lap_rows": 1431,
+      "drivers": 22
+    },
+    {
+      "round": 12,
+      "event": "Dutch Grand Prix",
+      "status": "ok",
+      "lap_rows": 1368,
+      "drivers": 22
+    },
+    {
+      "round": 13,
+      "event": "Italian Grand Prix",
+      "status": "ok",
+      "lap_rows": 1054,
+      "drivers": 22
+    },
+    {
+      "round": 14,
+      "event": "Spanish Grand Prix",
+      "status": "ok",
+      "lap_rows": 1106,
+      "drivers": 22
+    }
+  ]
+}

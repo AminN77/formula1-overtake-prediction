@@ -21,6 +21,7 @@ Writes era2026/recon_report.md and era2026/recon_facts.json.
 from __future__ import annotations
 
 import json
+import re
 import sys
 import traceback
 import warnings
@@ -45,8 +46,13 @@ REFERENCE_YEAR = 2024
 REFERENCE_ROUND = 16  # Italian GP, conventional weekend
 SAMPLE_2026_ROUND = None  # picked automatically: latest completed conventional round
 
-KEYWORDS = ["override", "overtake mode", "overtake", "boost", "active aero",
-            "aero mode", "drs", "energy", "deploy", "mgu", "ers"]
+# Matched with word boundaries: a substring match reports 'ers' inside 'HOLDERS'
+# and 'deploy' inside 'VSC DEPLOYED', both of which are noise.
+KEYWORDS = ["override", "overtake", "boost", "active aero", "aero mode",
+            "drs", "energy", "deployment", "mgu", "ers"]
+
+# The subset that would actually indicate a 2026 mechanism.
+MECHANISM_KEYWORDS = ["override", "overtake", "boost", "active aero", "aero mode"]
 
 out: list[str] = []
 facts: dict = {}
@@ -230,15 +236,18 @@ def main() -> int:
         say(f"- **{tag}**: {len(m)} messages. Keyword hits:")
         hits = {}
         for kw in KEYWORDS:
-            n = int(text.str.lower().str.contains(kw, regex=False).sum())
+            pattern = rf"\b{re.escape(kw)}\b"
+            n = int(text.str.lower().str.contains(pattern, regex=True).sum())
             if n:
                 hits[kw] = n
         say(f"  - `{hits or 'no keyword matches'}`")
         facts[f"rcm_keyword_hits_{tag}"] = hits
-        for kw in ("override", "overtake mode", "active aero", "boost"):
-            sub = text[text.str.lower().str.contains(kw, regex=False)]
-            for msg in sub.head(3):
-                say(f"  - _{kw}_: `{msg[:180]}`")
+        for kw in MECHANISM_KEYWORDS:
+            pattern = rf"\b{re.escape(kw)}\b"
+            sub = m[text.str.lower().str.contains(pattern, regex=True)]
+            for row in sub.head(5).itertuples():
+                lap = getattr(row, "Lap", None)
+                say(f"  - _{kw}_ (lap {lap}): `{str(row.Message)[:180]}`")
 
     guarded("2026 race control", lambda: rcm(s26, "2026"))
     if s24:
@@ -283,8 +292,7 @@ def main() -> int:
         say("- DRS channel **carries values**. Needs a closer look before dropping.")
 
     hits = facts.get("rcm_keyword_hits_2026") or {}
-    new_mech = {k: v for k, v in hits.items()
-                if k in ("override", "overtake mode", "active aero", "boost")}
+    new_mech = {k: v for k, v in hits.items() if k in MECHANISM_KEYWORDS}
     if new_mech:
         say(f"- Race control mentions the new mechanisms: `{new_mech}`. "
             "Worth mining as an event stream even if there is no telemetry channel.")
