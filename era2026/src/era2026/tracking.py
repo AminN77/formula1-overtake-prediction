@@ -100,10 +100,19 @@ def log_backtest(
             reinit=True,
         )
 
+        # Declare `round` as the x-axis rather than driving wandb's implicit
+        # `_step` with explicit step= values. Explicit steps are fragile: a
+        # sparse or offset step sequence (ours starts at 5) is easy to get wrong
+        # and leaves charts keyed to a counter nobody cares about. define_metric
+        # makes the round number the actual axis, which is what the chart means.
+        run.define_metric("round")
+        run.define_metric("round/*", step_metric="round")
+
         for record in group_rows.sort_values("round_number").to_dict("records"):
             payload = {f"round/{k}": record[k] for k in ROUND_METRICS if k in record}
             payload["round/train_rows"] = record["train_rows"]
-            run.log(payload, step=int(record["round_number"]))
+            payload["round"] = int(record["round_number"])
+            run.log(payload)
 
         summary = pooled.loc[model_name]
         for key in ("pr_auc", "roc_auc", "brier", "log_loss", "pr_auc_lift"):
@@ -112,7 +121,9 @@ def log_backtest(
         run.summary["per_round/pr_auc_mean"] = float(group_rows["pr_auc"].mean())
         run.summary["per_round/pr_auc_sd"] = float(group_rows["pr_auc"].std())
 
-        run.log({"per_round_table": wandb.Table(dataframe=group_rows.reset_index(drop=True))})
+        # The table is not a step series, so it is logged on its own commit.
+        run.log({"per_round_table": wandb.Table(dataframe=group_rows.reset_index(drop=True))},
+                commit=True)
 
         if dataset_path and Path(dataset_path).exists():
             artifact = wandb.Artifact(f"hazard-rows-{shared['rounds_available']}r", type="dataset")
