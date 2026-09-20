@@ -110,6 +110,29 @@ This is what the ongoing era buys us, and the reason MLOps sits inside the desig
 - Experiment tracking and a model registry, so every promoted model is traceable to the exact data snapshot and config that produced it.
 - Data versioning, so "the model as of round 14" is reproducible.
 
+### A note on scope: the loop is dormant
+
+Phase 4 is **implemented and runnable, but not running**. The schedule in
+`.github/workflows/race-weekend.yml` is commented out and the workflow is
+manual dispatch only.
+
+That is deliberate. This is a demonstration that the loop is understood and
+built, not a service anyone depends on. An enabled cron on an unattended
+repository accumulates weekly failures and teaches nobody anything, and a job
+that pushes to `main` with no one watching is a liability rather than a
+feature. Activation is uncommenting four lines and adding one secret; the
+manual path already exercises every step.
+
+What is worth demonstrating is the reasoning, not the uptime:
+
+* the incumbent scores each new race **before** anything is retrained, so
+  evaluation and drift detection are one computation rather than two,
+* the gate compares configurations walked forward over five rounds, never
+  fitted objects over rounds the challenger has already trained on,
+* the registry ties every promoted model to the exact data snapshot behind it,
+* drift reports only what its sample size can actually support, and stays
+  silent otherwise.
+
 ### Phase 5: serving
 
 Deliberately last, and deliberately thin. A minimal API exposing per-horizon hazard output with intervals, plus the model's provenance (which rounds it was trained on, when it was promoted). No frontend until the model is worth looking at.
