@@ -47,7 +47,7 @@ def test_no_flip_when_order_holds():
 def test_pit_stop_flip_is_flagged_and_filtered():
     """The defender pits, so the position change is not an on-track pass."""
     session = FakeSession(
-        lap(1, ["VER", "HAM"]) + lap(2, ["HAM", "VER"], VER={"PitInTime": pd.Timedelta(seconds=1)})
+        lap(1, ["VER", "HAM"]) + lap(2, ["HAM", "VER"], VER={"PitInTime": pd.Timedelta("1s")})
     )
     flips = extract_order_flips(session, 2026, 1)
     assert len(flips) == 1
@@ -57,7 +57,7 @@ def test_pit_stop_flip_is_flagged_and_filtered():
 
 def test_pit_on_either_lap_counts():
     """A stop on lap L+1 reorders the pair just as one on lap L does."""
-    rows = lap(1, ["VER", "HAM"], VER={"PitOutTime": pd.Timedelta(seconds=1)}) + lap(2, ["HAM", "VER"])
+    rows = lap(1, ["VER", "HAM"], VER={"PitOutTime": pd.Timedelta("1s")}) + lap(2, ["HAM", "VER"])
     assert extract_order_flips(FakeSession(rows), 2026, 1).iloc[0]["pit_related"]
 
 
