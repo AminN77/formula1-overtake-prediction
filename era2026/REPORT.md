@@ -526,8 +526,10 @@ passes from 1.9 to 2.9 seconds back that the model rated near zero.
 
 ## 14. What did not work
 
-Recorded deliberately. Four of five design predictions were overturned by
-measurement, and the misses shaped the project more than the hits.
+Recorded deliberately. Of eight design predictions this project made and then
+tested, **six were overturned by measurement and two held**. The misses shaped
+the work more than the hits did, and several of them produced the largest
+improvements in the final model.
 
 | Prediction | Outcome |
 |---|---|
