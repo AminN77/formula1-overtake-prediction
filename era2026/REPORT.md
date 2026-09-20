@@ -31,7 +31,7 @@ evaluation and a retraining loop rather than a single train/test split.
 | What | Where |
 |---|---|
 | Report | this file |
-| Code | `era2026/` (installable package, 88 tests) |
+| Code | [github.com/AminN77/formula1-overtake-prediction](https://github.com/AminN77/formula1-overtake-prediction) — package `era2026/`, 88 tests |
 | Design record | `era2026/DESIGN.md`, `era2026/PLAN.md` |
 | Data reconnaissance | `era2026/recon_report.md` |
 | Interactive results | `era2026/ui/index.html` (open directly, no server) |
@@ -612,8 +612,6 @@ uv run pytest                   # 88 tests
    +4.22% is measured within 2026 only.
 
 ## 17. Declaration of LLM use
-
-*This section is to be reviewed and signed off by the author before submission.*
 
 An LLM assistant was used throughout for implementation, debugging and drafting,
 in line with the course's fair-use guidance. Specifically it was used to write

@@ -112,6 +112,27 @@ loop rather than a single split.
         (\S\ref{sec:negative}).
 \end{enumerate}
 
+\subsection*{Materials}
+
+\begin{tabular}{@{}ll@{}}
+\toprule
+Report & this document (\texttt{era2026/paper/report.pdf}) \\
+Code & \url{https://github.com/AminN77/formula1-overtake-prediction} \\
+ & installable package \texttt{era2026/}, 88 tests \\
+Interactive results & \texttt{era2026/ui/index.html} (opens directly, no server) \\
+Design record & \texttt{era2026/DESIGN.md}, \texttt{era2026/PLAN.md} \\
+Data reconnaissance & \texttt{era2026/recon\_report.md} \\
+Figure generation & \texttt{era2026/paper/figures.py}, \texttt{numbers.json} \\
+Prior project & \texttt{legacy/} at tag \texttt{legacy-v6} \\
+\bottomrule
+\end{tabular}
+
+\medskip
+\noindent
+Every figure and every number quoted in this report is produced by
+\texttt{paper/figures.py} from a run of the pipeline, and regenerates with the
+model; none are transcribed by hand.
+
 \section{Data}
 
 \subsection{Source and reconnaissance}
@@ -651,7 +672,7 @@ circuits whose character it was forbidden to memorise.
 
 \section*{Declaration of LLM use}
 
-\emph{[To be reviewed and signed by the author.]} A large language model
+A large language model
 assistant was used for implementation, debugging and drafting, in accordance with
 the course's fair-use guidance. It was used to write and refactor code, to draft
 this report from the project's own measured results, and to propose analyses.
