@@ -244,7 +244,7 @@ difference using old-era car performance.
 
 Features are therefore tagged by transfer tier:
 
-- **Tier 1 (regulation-invariant, 17 features)** — race state, weather,
+- **Tier 1 (regulation-invariant, 21 features)** — race state, weather,
   positions, Overtake Mode state, and cross-race form computed from prior rounds
   only (team pace ranks, teammate-relative pace, overtake and hold rates).
 - **Tier 2 (same meaning, shifted relationship, 31 features)** — gap and gap
@@ -276,9 +276,40 @@ The mechanism explains the failure. Under DRS, passability tracked zone length
 and slipstream. Overtake Mode is an *energy* aid, so what matters is
 full-throttle time. Monza is the extreme case of full-throttle time and shows
 the largest gain; Barcelona is aero-limited and fell. The geometry story is not
-wrong — the *relevant* geometry changed. A geometric circuit representation
-(full-throttle share, straight length, braking zones) is the proposed
-replacement and remains future work.
+wrong — the *relevant* geometry changed.
+
+### 7.2b Circuit physics, validated before use
+
+The replacement transfers **physics** rather than **outcome**. A historical
+overtake rate encodes what happened under a ruleset that no longer exists; a
+speed trap encodes the shape of a track the cars still drive. That distinction
+is testable, and it was tested before being used. Across the 13 circuits raced
+in both eras:
+
+| quantity | Spearman rho | p |
+|---|---|---|
+| mid-sector speed trap (i2) | **+0.974** | < 0.0001 |
+| straight dominance (top / i2) | **+0.967** | < 0.0001 |
+| sector-1 speed trap (i1) | **+0.966** | < 0.0001 |
+| race distance | +0.999 | < 0.0001 |
+| **top speed (SpeedST)** | **+0.461** | 0.11 |
+
+Circuit physics transfers almost perfectly, with one exception: raw top speed,
+which is precisely the property the new power unit and active aero changed. It
+is excluded; the *ratio* is kept because the ratio transfers.
+
+Three features result (`circuit_speed_i1`, `circuit_speed_i2`,
+`circuit_straight_dominance`), plus a `circuit_known` flag, since Madrid is new
+and receives the cross-circuit median — what a production system must do for any
+new venue.
+
+**Effect: +1.20% PR-AUC (0.4836 → 0.4894), and Monaco's PR-AUC rises from 0.096
+to 0.148.** Helpful, and honestly short of a fix: the bias at Monaco (+4.9 pp)
+and Monza (-5.6 pp) barely moves. Speed-trap physics captures how *fast* a
+circuit is, not how *passable* it is. Monaco's problem is that it is too narrow
+to pass on at any speed, and track width, braking-zone count and corner-exit
+geometry are not derivable from timing data at all. Closing that gap needs an
+external geometry source, which is the clearest single piece of future work.
 
 ### 7.3 The transfer mechanism that worked
 
@@ -319,16 +350,22 @@ Pooled over the 10 backtest rounds, 4,680 rows, 308 events, 6.58% base rate:
 | Logistic, 5 | 0.370 | 5.62x | 0.874 | 0.0495 |
 | MLP | 0.389 | 5.92x | 0.819 | 0.0500 |
 | SVM (RBF) | 0.400 | 6.07x | 0.851 | 0.0554 |
-| GRU (pretrained) | 0.453 | 6.89x | 0.876 | 0.1018 |
 | Logistic, all | 0.450 | 6.83x | 0.858 | 0.0468 |
-| LightGBM | 0.484 | 7.35x | 0.905 | 0.0462 |
-| **Random forest** | **0.506** | **7.68x** | **0.906** | 0.0454 |
-| Random forest + isotonic | 0.497 | 7.55x | 0.904 | **0.0446** |
+| GRU (pretrained) | 0.453 | 6.89x | 0.876 | 0.1018 |
+| Random forest | 0.493 | 7.49x | 0.906 | 0.0457 |
+| **LightGBM** | **0.515** | **7.82x** | 0.909 | 0.0448 |
+| **LightGBM + isotonic (shipped)** | 0.502 | 7.62x | **0.911** | **0.0438** |
 
 **Reading this honestly.** Against a per-round standard deviation of 0.22, the
 tree ensembles are clearly ahead of everything else, but random forest versus
-LightGBM is **not resolvable**: RF wins 6 of 10 rounds, swinging from +0.121 to
--0.098, and the pooled gap rides on a couple of rounds.
+LightGBM is **not resolvable**. On the full feature set RF led 0.506 to 0.484
+while winning only 6 of 10 rounds; on the final feature set the order reverses.
+That instability is itself the finding: the family matters, the member does not.
+
+The shipped model is LightGBM plus isotonic calibration. It gives up a little
+PR-AUC and takes the best ROC-AUC, the best Brier and a threefold lower
+calibration error, which is the right trade for a model whose output is
+displayed as a probability.
 
 ### 9.1 The transfer layer
 
@@ -400,15 +437,21 @@ which is independent confirmation of the +4.22% the backtest measured.
 **40 of 60 features have zero or negative permutation importance.** Cutting the
 set *improves* the model:
 
-| feature set | PR-AUC | Brier |
-|---|---|---|
-| All 60 | 0.4836 | 0.0462 |
-| Top 15 by importance | 0.4956 | 0.0452 |
-| Dropping race-constant features | **0.4966** | 0.0456 |
+| feature set | PR-AUC | ROC-AUC | Brier |
+|---|---|---|---|
+| All 64 | 0.4894 | 0.9036 | 0.0462 |
+| Top 20 by importance | 0.4895 | 0.9056 | 0.0460 |
+| **Dropping race-constant features (57)** | **0.5146** | **0.9091** | **0.0448** |
 
-Race-constant features (weather, lap count) were acting as **circuit proxies** —
-memorisation that cannot generalise to an unseen circuit. Dropping them is both
-simpler and better.
+Race-constant features (weather, lap count, career round counts) were acting as
+**circuit proxies** — memorisation of which race the model is looking at, which
+cannot generalise to an unseen circuit. Dropping them is simpler *and* better,
+and it is the single largest improvement in the project after the transfer
+layer.
+
+The validated `circuit_*` features are deliberately kept. They are also
+constant within a race, but they encode physical character that was shown to
+transfer rather than an incidental fingerprint. The distinction is the point.
 
 ## 11. The sequence model
 
@@ -494,6 +537,8 @@ measurement, and the misses shaped the project more than the hits.
 | Hyperparameter tuning helps | **-1.2%.** The search selected noise; top 5 trials spanned 0.008 against a 0.065 fold SD. |
 | Old-model-as-feature is the best transfer | **Held.** +4.22%, 9 of 10 rounds. |
 | Pretraining is where a sequence model wins | **Failed.** +0.3%. |
+| Circuit *physics* transfers where circuit *outcome* did not | **Held.** rho +0.97 for speed traps, and +1.2% PR-AUC. |
+| More features are better | **Failed.** Dropping 7 race-constants gained 5.1%. |
 
 The frozen tuned parameters remain the default despite being 1.2% worse,
 because switching to the hand-picked prior *after seeing it win on the test
@@ -547,8 +592,11 @@ uv run pytest                   # 88 tests
 
 1. **Fourteen races.** 470 events is a small sample and every conclusion should
    be read against a per-round standard deviation of 0.22.
-2. **No circuit representation.** The single largest, most clearly diagnosed
-   weakness (section 13). Geometric features are designed but not built.
+2. **Circuit passability is still not represented.** Circuit *physics* was
+   validated and added (section 7.2b), which helped Monaco's ranking but barely
+   moved the bias. What is missing is track width, braking-zone count and
+   corner-exit geometry, none of which are derivable from timing data. This is
+   the clearest single piece of future work and it needs an external source.
 3. **Overtake Mode is observable but not identifiable.** Its availability
    correlates with `neutralised` at **-0.954** — the aid is withdrawn essentially
    only when passing is forbidden anyway. Only 49 of 6,669 rows are

@@ -10,7 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from era2026.features import FEATURE_TIERS
+from era2026.features import FEATURE_TIERS, model_features
 
 #: Physics we already know, encoded as monotone constraints so the model cannot
 #: learn an absurd direction from a small sample. +1 raises the hazard, -1 lowers
@@ -92,7 +92,7 @@ class GradientBoosting:
     """
 
     name: str = "lightgbm"
-    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    columns: list[str] = field(default_factory=model_features)
     monotone: bool = True
     params: dict | None = None
     model_: object | None = field(default=None, repr=False)
@@ -131,7 +131,7 @@ class RandomForest:
     averages independent fits. Worth comparing rather than assuming."""
 
     name: str = "random_forest"
-    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    columns: list[str] = field(default_factory=model_features)
     model_: object | None = field(default=None, repr=False)
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> "RandomForest":
@@ -160,7 +160,7 @@ class SupportVector:
     """
 
     name: str = "svm_rbf"
-    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    columns: list[str] = field(default_factory=model_features)
     C: float = 1.0
     model_: Pipeline | None = field(default=None, repr=False)
 
@@ -190,7 +190,7 @@ class NeuralNet:
     """
 
     name: str = "mlp"
-    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    columns: list[str] = field(default_factory=model_features)
     hidden: tuple[int, ...] = (64, 32)
     model_: Pipeline | None = field(default=None, repr=False)
 

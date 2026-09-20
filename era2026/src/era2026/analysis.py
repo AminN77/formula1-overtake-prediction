@@ -12,7 +12,7 @@ import pandas as pd
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 from era2026.episodes import trainable
-from era2026.features import FEATURE_TIERS
+from era2026.features import FEATURE_TIERS, model_features
 
 
 # ---------------------------------------------------------------- explainability

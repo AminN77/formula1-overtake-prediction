@@ -28,7 +28,7 @@ from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 
-from era2026.features import FEATURE_TIERS
+from era2026.features import FEATURE_TIERS, model_features
 
 DEFAULT_HIDDEN = 32
 DEFAULT_EPOCHS = 60
@@ -69,7 +69,7 @@ class RecurrentHazard:
     """GRU encoder over the episode, linear hazard head on each step."""
 
     name: str = "gru"
-    columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
+    columns: list[str] = field(default_factory=model_features)
     hidden: int = DEFAULT_HIDDEN
     epochs: int = DEFAULT_EPOCHS
     lr: float = DEFAULT_LR

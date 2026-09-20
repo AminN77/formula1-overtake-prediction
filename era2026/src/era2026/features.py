@@ -119,6 +119,27 @@ QUEUE_GAP = 1.0
 #: registry. build_features is checked against this, not the live registry.
 BASE_FEATURES: tuple[str, ...] = tuple(FEATURE_TIERS)
 
+#: Features held constant for a whole grand prix. Measurement showed the model
+#: uses them as circuit proxies rather than as weather: excluding them raises
+#: PR-AUC from 0.489 to 0.515. That is memorisation of which race it is looking
+#: at, which cannot generalise to a circuit it has not seen, so they are kept in
+#: the registry (the dashboard and drift report still use them) but excluded
+#: from what the model trains on.
+#:
+#: circuit_* features are deliberately NOT in this list. They are also constant
+#: within a race, but they encode validated physical character rather than an
+#: incidental fingerprint.
+RACE_CONSTANT: tuple[str, ...] = (
+    "total_laps", "air_temp", "track_temp", "humidity", "rainfall",
+    "attacker_prior_rounds", "defender_prior_rounds",
+)
+
+
+def model_features() -> list[str]:
+    """What the model trains on: everything declared, minus the race-constant
+    proxies. Evaluated live so modules registering later are included."""
+    return [name for name in FEATURE_TIERS if name not in RACE_CONSTANT]
+
 
 def features_by_tier(tier: str) -> list[str]:
     return [name for name, value in FEATURE_TIERS.items() if value == tier]
