@@ -2,6 +2,8 @@
 
 **Status:** planning, nothing built yet
 **Scope:** 2026 regulations onward. No reuse of the 2022-2025 models or datasets.
+**See also:** [`DESIGN.md`](DESIGN.md) settles the transfer strategy, the evaluation
+protocol and the architecture. Where it differs from Phases 2 and 3 below, it wins.
 
 ---
 
