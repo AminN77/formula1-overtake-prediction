@@ -27,6 +27,11 @@ era2026-round = "era2026.pipeline:cli"
 era2026-export = "era2026.export:cli"
 era2026-ui = "era2026.ui:cli"
 
+[project.optional-dependencies]
+# Kept out of the default install: the sequence experiment needs torch, and
+# nothing else in the pipeline does.
+sequence = ["torch>=2.4"]
+
 [dependency-groups]
 dev = [
     "pytest>=8.0",
