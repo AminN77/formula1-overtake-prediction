@@ -32,6 +32,14 @@ MONOTONE: dict[str, int] = {
     "queue_ahead": -1,        # stuck in a train is harder
 }
 
+#: The original hand-picked configuration, kept as the comparison point the
+#: frozen search has to justify itself against.
+HAND_PICKED = {
+    "n_estimators": 300, "learning_rate": 0.03, "num_leaves": 15, "max_depth": 4,
+    "min_child_samples": 40, "subsample": 0.85, "colsample_bytree": 0.7,
+    "reg_alpha": 0.1, "reg_lambda": 1.0,
+}
+
 #: The five features the simple baseline is allowed.
 FIVE = ["gap_ahead", "closing_rate", "pace_delta", "tyre_age_difference", "attacker_on_newer_stint"]
 
@@ -76,31 +84,33 @@ class LogisticBaseline:
 class GradientBoosting:
     """LightGBM with monotone constraints, shallow and regularised for a small n.
 
-    Hyperparameters are fixed, not tuned. The evaluation protocol requires them
-    to be chosen on an early block and then frozen for the whole backtest, so
-    tuning happens once, separately, and never against a backtest round.
+    Hyperparameters come from ``frozen_params.json`` when it exists, chosen once
+    on the tuning block and frozen. The protocol requires this: a config picked
+    by looking at round k makes round k no longer out of sample. Passing
+    ``params`` explicitly overrides the frozen set, which is how the hand-picked
+    baseline stays comparable.
     """
 
     name: str = "lightgbm"
     columns: list[str] = field(default_factory=lambda: list(FEATURE_TIERS))
     monotone: bool = True
+    params: dict | None = None
     model_: object | None = field(default=None, repr=False)
+
+    def resolved_params(self) -> dict:
+        if self.params is not None:
+            return dict(self.params)
+        from era2026.tuning import load_frozen
+
+        return load_frozen() or dict(HAND_PICKED)
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> "GradientBoosting":
         import lightgbm as lgb
 
         constraints = [MONOTONE.get(c, 0) for c in self.columns] if self.monotone else None
         self.model_ = lgb.LGBMClassifier(
-            n_estimators=300,
-            learning_rate=0.03,
-            num_leaves=15,
-            max_depth=4,
-            min_child_samples=40,
-            subsample=0.85,
+            **self.resolved_params(),
             subsample_freq=1,
-            colsample_bytree=0.7,
-            reg_alpha=0.1,
-            reg_lambda=1.0,
             monotone_constraints=constraints,
             random_state=42,
             verbosity=-1,

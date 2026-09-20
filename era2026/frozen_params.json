@@ -1,0 +1,24 @@
+{
+  "params": {
+    "n_estimators": 400,
+    "learning_rate": 0.05,
+    "num_leaves": 23,
+    "max_depth": 6,
+    "min_child_samples": 60,
+    "subsample": 0.8,
+    "colsample_bytree": 0.5,
+    "reg_alpha": 0.5,
+    "reg_lambda": 10.0
+  },
+  "tuned_on_rounds": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "tuning_rows": 1989,
+  "tuning_events": 162,
+  "cv_pr_auc": 0.48549962728324736,
+  "trials": 40,
+  "note": "Chosen on the tuning block only and frozen. Never re-tune against a backtest round: a config picked by looking at round k makes round k no longer out of sample."
+}
