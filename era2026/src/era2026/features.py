@@ -115,6 +115,11 @@ COMPOUND_PACE = {"SOFT": 3.0, "MEDIUM": 2.0, "HARD": 1.0, "INTERMEDIATE": 0.5, "
 QUEUE_GAP = 1.0
 
 
+#: Snapshot of the per-race features, taken before any later module extends the
+#: registry. build_features is checked against this, not the live registry.
+BASE_FEATURES: tuple[str, ...] = tuple(FEATURE_TIERS)
+
+
 def features_by_tier(tier: str) -> list[str]:
     return [name for name, value in FEATURE_TIERS.items() if value == tier]
 
@@ -302,7 +307,9 @@ def build_features(session, rows: pd.DataFrame) -> pd.DataFrame:
 
     out = out.sort_values(["lap_number", "attacker_position"], kind="mergesort").reset_index(drop=True)
 
-    missing = [name for name in FEATURE_TIERS if name not in out.columns]
+    # Only the per-race features are this function's responsibility. Form
+    # features are attached later, once the whole season is available.
+    missing = [name for name in BASE_FEATURES if name not in out.columns]
     if missing:
         raise RuntimeError(f"declared features not produced: {missing}")
     return out
