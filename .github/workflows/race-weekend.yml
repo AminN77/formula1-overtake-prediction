@@ -1,13 +1,24 @@
 name: race weekend
 
-# The retraining loop. GitHub-hosted runners have open internet, which is what
-# makes this the only place the pipeline can fetch new race data automatically:
-# the F1 live timing API is not reachable from the development sandboxes.
+# The retraining loop, implemented and runnable but deliberately DORMANT.
+#
+# This project is a demonstration, not a service anyone depends on, so the
+# schedule below is commented out and the workflow only runs when someone asks
+# for it. An enabled cron on an unattended repository just accumulates weekly
+# failures and teaches nobody anything.
+#
+# To activate: uncomment the `schedule` block and add WANDB_API_KEY as a
+# repository secret. Nothing else changes; the manual path already exercises
+# every step.
+#
+# Why CI at all: GitHub-hosted runners have open internet, which makes this the
+# only place the pipeline can fetch new race data on its own. The F1 live timing
+# API is not reachable from the development sandboxes.
 on:
-  schedule:
-    # Mondays 06:00 UTC, after a Sunday race. Sprint weekends and the odd
-    # Saturday race still land inside the same window.
-    - cron: "0 6 * * 1"
+  # schedule:
+  #   # Mondays 06:00 UTC, after a Sunday race. Sprint weekends and the odd
+  #   # Saturday race still land inside the same window.
+  #   - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
       round:
@@ -19,7 +30,7 @@ on:
         default: "2026"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   retrain:
@@ -78,20 +89,14 @@ jobs:
           WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
         run: uv run era2026-backtest --year ${{ inputs.year || '2026' }}
 
-      - name: Commit registry changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add models/manifest.json
-          if git diff --cached --quiet; then
-            echo "registry unchanged"
-          else
-            git commit -m "chore(era2026): registry after round ${{ steps.target.outputs.round }}"
-            git push
-          fi
-
+      # A production loop would commit the updated registry back to the
+      # repository here. This one uploads it instead: an unattended job that
+      # pushes to main is a liability on a project nobody is watching, and the
+      # artifact shows exactly the same result.
       - name: Publish the round report
         uses: actions/upload-artifact@v4
         with:
           name: round-${{ steps.target.outputs.round }}-report
-          path: era2026/round-report.txt
+          path: |
+            era2026/round-report.txt
+            era2026/models/manifest.json
