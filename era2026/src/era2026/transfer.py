@@ -111,7 +111,15 @@ def attach_old_era_score(rows: pd.DataFrame, columns: list[str] | None = None) -
     """Add ``old_era_score``: one frozen scalar per row from the pre-2026 era."""
     if rows is None or rows.empty:
         return rows
-    columns = columns or shared_features(list(rows.columns))
+    if columns is None:
+        # Intersect the declared feature registry, never the raw column list:
+        # the frame also carries identifiers such as `attacker` and `defender`,
+        # which exist in the legacy files too and would be pulled in as
+        # "shared" before failing on the first driver code.
+        from era2026.features import FEATURE_TIERS
+
+        declared = [c for c in FEATURE_TIERS if c not in TRANSFER_FEATURES]
+        columns = shared_features(declared)
     model = OldEraModel(columns=columns).fit()
     out = rows.copy()
     out["old_era_score"] = model.score(out)
