@@ -30,6 +30,24 @@ class FakeSession:
             columns=["Lap", "Message"],
         )
         self.event = {"EventName": "Test Grand Prix"}
+        self.weather_data = pd.DataFrame(
+            columns=["Time", "AirTemp", "TrackTemp", "Humidity", "Rainfall", "WindSpeed"]
+        )
+
+
+#: Lap columns the feature builder reads, with plausible defaults. Real sessions
+#: carry all of these, so a fixture missing them would test the wrong thing.
+LAP_DEFAULTS = {
+    "LapTime": pd.Timedelta("90s"),
+    "SpeedI1": 250.0,
+    "SpeedI2": 260.0,
+    "SpeedFL": 300.0,
+    "SpeedST": 320.0,
+    "TyreLife": 10.0,
+    "Stint": 1.0,
+    "FreshTyre": False,
+    "Compound": "MEDIUM",
+}
 
 
 def lap(n: int, order: list[str], gaps: list[float], **overrides) -> list[dict]:
@@ -39,6 +57,7 @@ def lap(n: int, order: list[str], gaps: list[float], **overrides) -> list[dict]:
             "Driver": driver,
             "Position": i + 1,
             "Time": pd.Timedelta(seconds=60.0 * n + gaps[i]),
+            **LAP_DEFAULTS,
             **overrides.get(driver, {}),
         }
         for i, driver in enumerate(order)
