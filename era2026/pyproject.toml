@@ -13,6 +13,8 @@ dependencies = [
     "scipy>=1.14",
     "lightgbm>=4.5",
     "wandb>=0.18",
+    "shap>=0.46",
+    "numba>=0.60",
 ]
 
 [project.scripts]
