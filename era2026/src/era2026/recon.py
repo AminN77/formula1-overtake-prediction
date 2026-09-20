@@ -11,10 +11,11 @@ Answers, from real data rather than assumption:
 Run this on your own machine. The Claude sandboxes cannot reach
 livetiming.formula1.com, so this is the one step that has to be local.
 
-    pip install fastf1
-    python era2026/recon.py
+    cd era2026
+    uv sync
+    uv run era2026-recon
 
-Writes era2026/recon_report.md next to this file.
+Writes era2026/recon_report.md and era2026/recon_facts.json.
 """
 
 from __future__ import annotations
@@ -28,9 +29,17 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-HERE = Path(__file__).resolve().parent
-CACHE = HERE / ".fastf1_cache"
-REPORT = HERE / "recon_report.md"
+def _project_root() -> Path:
+    """The directory holding pyproject.toml, so outputs land beside it, not in src/."""
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "pyproject.toml").is_file():
+            return parent
+    return Path.cwd()
+
+
+ROOT = _project_root()
+CACHE = ROOT / ".fastf1_cache"
+REPORT = ROOT / "recon_report.md"
 
 REFERENCE_YEAR = 2024
 REFERENCE_ROUND = 16  # Italian GP, conventional weekend
@@ -293,17 +302,22 @@ def main() -> int:
 
 def write_report() -> None:
     REPORT.write_text("\n".join(out) + "\n", encoding="utf-8")
-    (HERE / "recon_facts.json").write_text(json.dumps(facts, indent=2, default=str),
+    (ROOT / "recon_facts.json").write_text(json.dumps(facts, indent=2, default=str),
                                            encoding="utf-8")
     print()
     print(f"Wrote {REPORT}")
-    print(f"Wrote {HERE / 'recon_facts.json'}")
+    print(f"Wrote {ROOT / 'recon_facts.json'}")
 
 
-if __name__ == "__main__":
+def cli() -> None:
+    """Console-script entry point (`era2026-recon`)."""
     try:
         sys.exit(main())
     except Exception:
         traceback.print_exc()
         write_report()
         sys.exit(2)
+
+
+if __name__ == "__main__":
+    cli()
