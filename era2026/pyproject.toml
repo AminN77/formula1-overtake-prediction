@@ -21,6 +21,7 @@ era2026-warm = "era2026.cache:cli"
 era2026-data = "era2026.dataset:cli"
 era2026-backtest = "era2026.tracking:cli"
 era2026-tune = "era2026.tuning:cli"
+era2026-round = "era2026.pipeline:cli"
 
 [dependency-groups]
 dev = [

@@ -229,3 +229,7 @@ era2026/.fastf1_cache/
 # era2026: W&B offline runs and built feature tables (regenerable)
 era2026/wandb/
 era2026/data/
+
+# era2026: model registry artifacts (manifest.json is tracked)
+era2026/models/*.joblib
+era2026/round-report.txt

@@ -1,0 +1,97 @@
+name: race weekend
+
+# The retraining loop. GitHub-hosted runners have open internet, which is what
+# makes this the only place the pipeline can fetch new race data automatically:
+# the F1 live timing API is not reachable from the development sandboxes.
+on:
+  schedule:
+    # Mondays 06:00 UTC, after a Sunday race. Sprint weekends and the odd
+    # Saturday race still land inside the same window.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      round:
+        description: "Round number to process (blank = latest completed)"
+        required: false
+      year:
+        description: "Season"
+        required: false
+        default: "2026"
+
+permissions:
+  contents: write
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: era2026
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync --frozen
+
+      # The FastF1 cache is the expensive part: restoring it means only the new
+      # round is fetched. The key rolls weekly so the cache keeps growing rather
+      # than being rebuilt from scratch every run.
+      - name: Restore FastF1 cache
+        uses: actions/cache@v4
+        with:
+          path: era2026/.fastf1_cache
+          key: fastf1-${{ inputs.year || '2026' }}-${{ github.run_id }}
+          restore-keys: |
+            fastf1-${{ inputs.year || '2026' }}-
+
+      - name: Fetch completed rounds
+        run: uv run era2026-warm ${{ inputs.year || '2026' }}
+
+      - name: Resolve the round to process
+        id: target
+        run: |
+          if [ -n "${{ inputs.round }}" ]; then
+            echo "round=${{ inputs.round }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "round=$(uv run python -c "
+          from era2026.sessions import completed_rounds
+          print(int(completed_rounds(${{ inputs.year || '2026' }})['RoundNumber'].max()))
+          ")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the loop
+        env:
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+        run: |
+          uv run era2026-round \
+            --year ${{ inputs.year || '2026' }} \
+            --round ${{ steps.target.outputs.round }} \
+            --refresh | tee round-report.txt
+
+      - name: Backtest and log to W&B
+        env:
+          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+        run: uv run era2026-backtest --year ${{ inputs.year || '2026' }}
+
+      - name: Commit registry changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add models/manifest.json
+          if git diff --cached --quiet; then
+            echo "registry unchanged"
+          else
+            git commit -m "chore(era2026): registry after round ${{ steps.target.outputs.round }}"
+            git push
+          fi
+
+      - name: Publish the round report
+        uses: actions/upload-artifact@v4
+        with:
+          name: round-${{ steps.target.outputs.round }}-report
+          path: era2026/round-report.txt
