@@ -99,32 +99,45 @@ The feature counted cars within 1.0s ahead, which was a DRS-range concept. 2026 
 
 The speed traps the feature set uses (`SpeedI1`, `SpeedI2`, `SpeedFL`, `SpeedST`) are lap-level columns, not telemetry channels. So extraction needs laps, weather and race control only. That keeps the cache small enough to hold every round of the era offline, which matters because the F1 endpoint is not reachable from the Claude sandboxes.
 
-### Circuit passability: the highest-leverage single idea
+### Circuit passability: measured, and it does not transfer
 
-2026 gives roughly one race per circuit. Treating `track` as a 23-level categorical against ~600 rows per level is hopeless, and it is the kind of thing that quietly eats all the model's capacity.
+**This section previously claimed the historical circuit ranking transfers. Measurement says it does not.** Recorded here rather than quietly deleted, because the correction is the finding.
 
-Instead, collapse it to one number per circuit, fitted on 2018-2025:
+The problem is real. 2026 gives one race per circuit, so treating `track` as a 23-level categorical against ~600 rows per level is hopeless and quietly eats the model's capacity. Collapsing it to one number per circuit is still the right move. The question was where that number comes from.
 
-- estimate a per-circuit overtake-per-battle rate across 8 seasons,
-- shrink it toward the global mean (partial pooling), so low-sample circuits are not overfitted,
-- feed the shrunk value into the 2026 model as a single continuous feature.
+The original plan was a historical overtake-per-race rate from prior seasons, on the argument that the absolute level shifts but the *ranking* is driven by geometry. Tested against a per-circuit mean over 2022-2025 and the 13 comparable 2026 rounds:
 
-The absolute rate changed in 2026, but the *ranking* is driven by geometry: straight length, heavy braking zones, track width, corner sequence. Monaco is hard to pass at under any ruleset, Monza and Interlagos are easy. That ranking is what we are borrowing, and the model rescales it in-era.
+| | |
+|---|---|
+| Spearman rank correlation | **rho = +0.09** (p = 0.76, n = 13) |
+| Pearson correlation | r = +0.26 (p = 0.40) |
+| Global ratio 2026 vs prior | 1.42x |
+| Per-circuit ratio spread | **0.56x to 3.10x** |
 
-**One gap:** Madrid is new for 2026 and has no F1 history (Imola was dropped to make room). Every other circuit on the calendar has pre-2026 data. So we need a fallback for exactly one circuit: estimate passability from geometry (longest straight, number of heavy braking zones, corner count, track width) fitted against the known circuits, and use the prediction. That is a small, bounded, honest piece of work rather than a hole in the design.
+No detectable rank signal. And the spread is not noise around a common multiplier: Monza went up 3.1x while Barcelona went *down* to 0.56x, with Austria and Canada also falling.
+
+The caveat matters and does not rescue the idea. n is 13, each 2026 figure is a single race, and single-race overtake counts are violently noisy (Zandvoort took a red flag, Spa ran only 44 laps). So this is "no signal detected", not "signal proven absent", and attenuation is expected. But we cannot build the highest-leverage component of the design on an assumption that measurement fails to support.
+
+**The mechanism explains the failure, and points at the replacement.** Under DRS, passability was about DRS zone length and slipstream. Under Overtake Mode the aid is *energy deployment*, so what matters is full-throttle time, which is when deployment can be spent. Monza is the extreme case of full-throttle time and is exactly where the largest gain appears. Barcelona is aero-limited and high-downforce, and it lost ground. The geometry story is not dead; the *relevant* geometry changed.
+
+So the circuit representation becomes **geometric rather than historical**: full-throttle percentage, longest straight, number of heavy braking zones, corner count, track width. These are properties of the circuit, need no prior-era labels at all, and are available for 2026 directly.
+
+That also dissolves the Madrid problem. This document previously flagged Madrid as the one circuit needing a geometry fallback because it has no history. Under the revised design, geometry is the primary method and history is not used, so a brand-new circuit is no longer a special case.
 
 ### Mitigation strategies, ranked
 
 Everything above is about *what* to transfer. These are the *mechanisms*, ranked by expected value over implementation cost.
 
 1. **Old-model-as-feature (stacking).** Train a model on 2018-2025 restricted to Tier 1 and Tier 2 features, score every 2026 row with it, use that score as a single input to the 2026 model. The 2026 model then only has to learn the correction, which is a far smaller function than the whole problem. Cheap, low risk, trivially ablatable, and it degrades gracefully: if the old era is useless, the 2026 model simply ignores the feature.
-2. **Circuit passability prior.** As above. Largest variance reduction available.
+2. **Geometric circuit representation.** Replaces `track` as a categorical with a handful of circuit properties, chiefly full-throttle percentage. Still the largest variance reduction available, but it is no longer a *transfer* mechanism: the features come from the circuit, not from prior-era labels. The historical passability prior it replaced is demoted to an experiment, since it failed its own validation (above).
 3. **Monotonicity constraints.** LightGBM and XGBoost both support per-feature monotone constraints. Encode what we already know without any data: pass probability rises as the gap falls, as the closing rate rises, as the attacker's tyre advantage grows. This injects physics as a prior and is unusually effective at small sample sizes. Underrated and almost free.
 4. **Hierarchical model with an era offset.** Pool 2018-2026 but give each era its own intercept, so the pooled data informs the slopes while the 2026 intercept absorbs the level change. This is the principled version of "levels in-era, shapes from old data".
 5. **Recency sample weighting.** Weight 2018-2021 low, 2022-2025 medium, 2026 high. Crude, but a legitimate baseline and it costs nothing to try.
 6. **Driver skill priors.** Hierarchical driver effects fitted on 2018-2025 used as priors for 2026 driver effects, for the drivers who have history. Rookies fall back to the population mean.
 
 Strategy 1, 2 and 3 are the recommended starting set. Each is a separable component with a clean on/off switch, so the value of transfer becomes measurable rather than assumed.
+
+That switchability already paid for itself. The historical circuit prior was the design's headline idea and it failed validation before a line of model code was written. Had it been baked into the feature builder instead of isolated as a component, it would have shipped as a silent source of noise.
 
 **What not to do:** pool all seasons into one table with team identity and absolute speeds in the feature set. That is the default path and it is wrong.
 
